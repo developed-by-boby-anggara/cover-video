@@ -1,0 +1,2794 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE STYLE EDIT — Personal Fashion Cover Generator</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pearl: '#F7F2EA',
+                        ocean: '#526F85',
+                        gold: '#C5A477',
+                        cocoa: '#6A5045',
+                        rose: '#CDA9A3',
+                        navy: '#263746',
+                        wine: '#803F50',
+                    },
+                    fontFamily: {
+                        playfair: ['"Playfair Display"', 'serif'],
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        cormorant: ['"Cormorant Garamond"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts: Playfair Display, Montserrat, Cormorant Garamond -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- MediaPipe Selfie Segmentation (Client-Side AI Person Cutout) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/selfie_segmentation.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #F7F2EA;
+            color: #263746;
+            overflow-x: hidden;
+        }
+        .font-headline { font-family: 'Playfair Display', serif; }
+        .font-signature { font-family: 'Cormorant Garamond', serif; }
+
+        /* Custom Range Sliders */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(197, 164, 119, 0.28);
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #263746;
+            border: 2px solid #C5A477;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(38, 55, 70, 0.25);
+            transition: transform 0.15s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.12);
+        }
+
+        /* Subtle Studio Checkerboard behind Preview Stage */
+        .studio-stage-bg {
+            background-color: #EFE8DC;
+            background-image:
+                radial-gradient(rgba(197, 164, 119, 0.25) 1px, transparent 1px),
+                radial-gradient(rgba(38, 55, 70, 0.08) 1px, #EFE8DC 1px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #F7F2EA; }
+        ::-webkit-scrollbar-thumb { background: #C5A477; border-radius: 999px; }
+    </style>
+</head>
+<body class="min-h-full flex flex-col antialiased selection:bg-gold selection:text-white">
+
+    <!-- ==================== TOP LUXURY EDITORIAL HEADER ==================== -->
+    <header class="bg-pearl/95 backdrop-blur-md sticky top-0 z-40 border-b border-gold/30 px-4 lg:px-8 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-navy flex items-center justify-center text-pearl font-headline font-bold text-lg shadow-md border border-gold/50">S</div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-headline font-bold tracking-wider text-base sm:text-xl text-navy leading-none">THE STYLE EDIT</h1>
+                    <span class="hidden sm:inline-block text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-wine/10 text-wine font-bold border border-wine/20">AI Studio</span>
+                </div>
+                <p class="text-[10px] uppercase tracking-widest text-gold font-semibold mt-0.5">Your Signature. Your Style.</p>
+            </div>
+        </div>
+
+        <!-- Right Header Controls -->
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Language Toggle (ID / EN) -->
+            <button id="lang-toggle-btn" onclick="toggleLanguage()" class="px-2.5 py-1.5 rounded-full border border-gold/40 bg-white/80 hover:bg-gold/15 text-[11px] font-bold text-navy transition flex items-center gap-1" title="Ganti Bahasa / Switch Language">
+                <i data-lucide="globe" class="w-3.5 h-3.5 text-gold"></i>
+                <span id="lang-label">ID</span>
+            </button>
+
+            <!-- Templates Quick Drawer Button -->
+            <button onclick="switchStudioTab('templates')" class="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gold/40 bg-white/80 hover:bg-gold/15 text-xs font-semibold text-navy transition">
+                <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-gold"></i>
+                <span data-i18n="nav_templates">Templates (12)</span>
+            </button>
+
+            <!-- Personal Branding Quick Button -->
+            <button onclick="switchStudioTab('branding')" class="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gold/40 bg-gold/10 hover:bg-gold/20 text-xs font-semibold text-navy transition">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-wine"></i>
+                <span id="header-watermark-pill">@chocoovora</span>
+            </button>
+
+            <!-- Primary Export Button -->
+            <button onclick="openExportModal()" class="bg-navy hover:bg-navy/90 text-pearl px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase shadow-md transition flex items-center gap-2 border border-gold/30">
+                <i data-lucide="download" class="w-4 h-4 text-gold"></i>
+                <span class="hidden sm:inline" data-i18n="btn_export">Export HD</span>
+                <span class="sm:hidden">HD</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN STUDIO WORKSPACE ==================== -->
+    <main class="flex-1 max-w-[1440px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- LEFT COLUMN: LIVE 9:16 COVER PREVIEW STAGE (5 cols on lg) -->
+        <section class="lg:col-span-5 flex flex-col items-center lg:sticky lg:top-20">
+            <!-- Quick Composition Engine Mode Switcher -->
+            <div class="w-full max-w-[400px] mb-3">
+                <div class="grid grid-cols-4 gap-1.5 bg-white/90 p-1.5 rounded-2xl border border-gold/30 shadow-sm">
+                    <button onclick="setCompositionStyle('typography-overlay')" id="mode-btn-typography-overlay" class="comp-mode-btn py-2 px-1.5 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-tight transition text-center leading-tight">
+                        3D Text Overlay
+                    </button>
+                    <button onclick="setCompositionStyle('double-exposure')" id="mode-btn-double-exposure" class="comp-mode-btn py-2 px-1.5 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-tight transition text-center leading-tight">
+                        Double Exposure
+                    </button>
+                    <button onclick="setCompositionStyle('ghost-echo')" id="mode-btn-ghost-echo" class="comp-mode-btn py-2 px-1.5 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-tight transition text-center leading-tight">
+                        Ghost Echo
+                    </button>
+                    <button onclick="setCompositionStyle('duotone-exposure')" id="mode-btn-duotone-exposure" class="comp-mode-btn py-2 px-1.5 rounded-xl text-[10px] sm:text-[11px] font-bold tracking-tight transition text-center leading-tight">
+                        Duotone Luxe
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live Preview Frame -->
+            <div class="studio-stage-bg w-full max-w-[400px] p-3 sm:p-4 rounded-[2rem] border border-gold/40 shadow-xl flex flex-col items-center">
+                <!-- Status & Quick Canvas Tools Bar -->
+                <div class="w-full flex items-center justify-between mb-2.5 px-1">
+                    <div id="cutout-status-pill" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-navy text-pearl text-[10px] font-semibold shadow-sm">
+                        <span id="cutout-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="cutout-status-text">AI Person Cutout Aktif</span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <!-- Hold to Compare Original Photo -->
+                        <button
+                            id="compare-original-btn"
+                            onmousedown="setCompareOriginal(true)"
+                            onmouseup="setCompareOriginal(false)"
+                            onmouseleave="setCompareOriginal(false)"
+                            ontouchstart="setCompareOriginal(true)"
+                            ontouchend="setCompareOriginal(false)"
+                            class="px-2.5 py-1 rounded-full bg-white hover:bg-gold/15 border border-gold/40 text-[10px] font-semibold text-navy transition select-none"
+                            title="Tahan untuk lihat foto asli sebelum dipotong">
+                            <span data-i18n="btn_hold_compare">Tahan: Asli</span>
+                        </button>
+                        <button onclick="resetSubjectPosition()" class="p-1.5 rounded-full bg-white hover:bg-gold/15 border border-gold/40 text-navy transition" title="Reset Posisi Foto">
+                            <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 9:16 Interactive Canvas Wrapper -->
+                <div class="relative w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/50 bg-pearl select-none">
+                    <canvas id="cover-canvas" width="1080" height="1920" class="w-full h-full block cursor-grab active:cursor-grabbing touch-none"></canvas>
+
+                    <!-- AI Processing Overlay Spinner -->
+                    <div id="ai-processing-overlay" class="absolute inset-0 bg-navy/75 backdrop-blur-sm hidden flex-col items-center justify-center text-pearl p-6 text-center z-20">
+                        <div class="w-12 h-12 rounded-full border-4 border-gold/30 border-t-gold animate-spin mb-3"></div>
+                        <p class="font-headline font-bold text-lg tracking-wide text-pearl" data-i18n="ai_processing_title">Memotong Objek Orang (AI)...</p>
+                        <p class="text-xs text-pearl/75 mt-1" data-i18n="ai_processing_sub">Menghapus background secara otomatis agar menyatu dengan tipografi</p>
+                    </div>
+
+                    <!-- Subtle Drag Hint Pill -->
+                    <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 pointer-events-none bg-navy/65 backdrop-blur-md text-pearl/90 px-3 py-1 rounded-full text-[10px] font-medium tracking-wide whitespace-nowrap border border-white/15">
+                        <span data-i18n="canvas_drag_hint">Geser subjek di kanvas untuk atur posisi</span>
+                    </div>
+                </div>
+
+                <!-- Instant Export & Save Row -->
+                <div class="w-full grid grid-cols-12 gap-2 mt-3.5">
+                    <button onclick="exportCover('png')" class="col-span-5 bg-navy hover:bg-navy/90 text-pearl py-2.5 px-3 rounded-xl text-[11px] font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="download" class="w-3.5 h-3.5 text-gold"></i> PNG HD
+                    </button>
+                    <button onclick="exportCover('jpg')" class="col-span-5 bg-gold hover:bg-gold/90 text-navy py-2.5 px-3 rounded-xl text-[11px] font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="image" class="w-3.5 h-3.5"></i> JPG HD
+                    </button>
+                    <button onclick="saveToRecentDesigns()" class="col-span-2 bg-white hover:bg-wine/10 text-wine border border-gold/40 py-2.5 rounded-xl flex items-center justify-center transition" title="Simpan ke Koleksi Desain">
+                        <i data-lucide="bookmark-plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: STUDIO CONTROLS & CUSTOMIZATION PANELS (7 cols on lg) -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+
+            <!-- Quick Upload Hero Banner (Always Accessible at Top of Controls) -->
+            <div
+                id="dropzone-area"
+                ondragover="handleDragOver(event)"
+                ondragleave="handleDragLeave(event)"
+                ondrop="handleFileDrop(event)"
+                class="bg-white rounded-3xl p-4 sm:p-5 border-2 border-dashed border-gold/60 hover:border-wine transition shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5 text-center sm:text-left">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-navy to-wine text-pearl flex items-center justify-center shrink-0 shadow-md">
+                        <i data-lucide="user-check" class="w-6 h-6 text-gold"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-headline font-bold text-base sm:text-lg text-navy" data-i18n="upload_title">Upload Foto Fashion Kamu</h2>
+                        <p class="text-xs text-navy/70" data-i18n="upload_desc">Otomatis hapus background & ambil orangnya saja (JPG, PNG, WEBP)</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+                    <label class="flex-1 sm:flex-initial cursor-pointer bg-navy hover:bg-wine text-pearl px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-2">
+                        <i data-lucide="upload-cloud" class="w-4 h-4 text-gold"></i>
+                        <span data-i18n="btn_choose_photo">Pilih Foto</span>
+                        <input type="file" id="primary-photo-input" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="handlePrimaryPhotoUpload(event)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Studio Navigation Tabs -->
+            <div class="bg-white/90 p-1.5 rounded-2xl border border-gold/30 shadow-sm grid grid-cols-5 gap-1">
+                <button onclick="switchStudioTab('cutout')" id="tab-btn-cutout" class="studio-tab-btn py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
+                    <i data-lucide="scissors" class="w-4 h-4"></i>
+                    <span data-i18n="tab_cutout">AI Cutout</span>
+                </button>
+                <button onclick="switchStudioTab('exposure')" id="tab-btn-exposure" class="studio-tab-btn py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
+                    <i data-lucide="layers" class="w-4 h-4"></i>
+                    <span data-i18n="tab_exposure">Exposure</span>
+                </button>
+                <button onclick="switchStudioTab('typography')" id="tab-btn-typography" class="studio-tab-btn py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
+                    <i data-lucide="type" class="w-4 h-4"></i>
+                    <span data-i18n="tab_typography">Typography</span>
+                </button>
+                <button onclick="switchStudioTab('templates')" id="tab-btn-templates" class="studio-tab-btn py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                    <span data-i18n="tab_templates">Templates</span>
+                </button>
+                <button onclick="switchStudioTab('branding')" id="tab-btn-branding" class="studio-tab-btn py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
+                    <i data-lucide="at-sign" class="w-4 h-4"></i>
+                    <span data-i18n="tab_branding">Branding</span>
+                </button>
+            </div>
+
+            <!-- ==================== TAB 1: AI CUTOUT & SUBJECT CONTROLS ==================== -->
+            <div id="tab-panel-cutout" class="studio-tab-panel bg-white rounded-3xl p-5 sm:p-6 border border-gold/30 shadow-sm space-y-6">
+                <!-- Auto Background Removal Master Card -->
+                <div class="bg-pearl/80 p-4 rounded-2xl border border-gold/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-headline font-bold text-base text-navy" data-i18n="cutout_master_title">Auto Hapus Background (AI Cutout)</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600/15 text-emerald-800 font-bold">AUTO</span>
+                        </div>
+                        <p class="text-xs text-navy/70 mt-0.5" data-i18n="cutout_master_desc">Hanya mengambil foto orang/subjek dan menghilangkan latar belakang otomatis.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                        <input type="checkbox" id="toggle-auto-cutout" checked onchange="onToggleAutoCutout(this.checked)" class="sr-only peer">
+                        <div class="w-12 h-6 bg-navy/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-wine"></div>
+                    </label>
+                </div>
+
+                <!-- Cutout Engine Mode Selector (AI Person vs Smart Object) -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-navy mb-2" data-i18n="cutout_engine_label">Mode Deteksi Potongan Otomatis</label>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button onclick="switchSegmentationMode('person')" id="seg-mode-person" class="p-3 rounded-2xl border text-left transition flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-navy text-gold flex items-center justify-center shrink-0">
+                                <i data-lucide="user" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-navy" data-i18n="seg_person_title">AI Person (Orang)</div>
+                                <div class="text-[10px] text-navy/60" data-i18n="seg_person_sub">MediaPipe Neural Cutout</div>
+                            </div>
+                        </button>
+                        <button onclick="switchSegmentationMode('object')" id="seg-mode-object" class="p-3 rounded-2xl border text-left transition flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-gold/20 text-cocoa flex items-center justify-center shrink-0">
+                                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-navy" data-i18n="seg_object_title">Smart Object (Produk)</div>
+                                <div class="text-[10px] text-navy/60" data-i18n="seg_object_sub">Tas, Sepatu & Flatlay</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Real-Time Cutout Edge & Fade Sliders -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-pearl/50 p-3.5 rounded-2xl border border-gold/20">
+                        <div class="flex justify-between text-xs font-bold text-navy mb-2">
+                            <span data-i18n="slider_feather">Haluskan Tepi</span>
+                            <span id="val-edge-feather" class="text-wine">3px</span>
+                        </div>
+                        <input type="range" id="input-edge-feather" min="0" max="20" step="1" value="3" oninput="onCutoutParamChange()" class="w-full">
+                        <p class="text-[10px] text-navy/55 mt-1.5">Edge Feather (0–20px)</p>
+                    </div>
+
+                    <div class="bg-pearl/50 p-3.5 rounded-2xl border border-gold/20">
+                        <div class="flex justify-between text-xs font-bold text-navy mb-2">
+                            <span data-i18n="slider_threshold">Sensitivitas</span>
+                            <span id="val-mask-threshold" class="text-wine">50%</span>
+                        </div>
+                        <input type="range" id="input-mask-threshold" min="15" max="85" step="1" value="50" oninput="onCutoutParamChange()" class="w-full">
+                        <p class="text-[10px] text-navy/55 mt-1.5">Mask Threshold</p>
+                    </div>
+
+                    <div class="bg-pearl/50 p-3.5 rounded-2xl border border-gold/20">
+                        <div class="flex justify-between text-xs font-bold text-navy mb-2">
+                            <span data-i18n="slider_bottom_fade">Gradasi Bawah</span>
+                            <span id="val-bottom-fade" class="text-wine">24%</span>
+                        </div>
+                        <input type="range" id="input-bottom-fade" min="0" max="80" step="2" value="24" oninput="onCutoutParamChange()" class="w-full">
+                        <p class="text-[10px] text-navy/55 mt-1.5">Seamless Editorial Fade</p>
+                    </div>
+                </div>
+
+                <!-- Subject Scale, Position & Reset -->
+                <div class="pt-4 border-t border-gold/20 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold uppercase tracking-wider text-navy" data-i18n="subject_transform_label">Ukuran & Posisi Subjek</label>
+                        <button onclick="resetSubjectPosition()" class="text-xs font-semibold text-wine hover:underline flex items-center gap-1">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> <span data-i18n="btn_reset_pos">Reset Posisi</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-pearl/50 p-3 rounded-xl border border-gold/20">
+                            <div class="flex justify-between text-[11px] font-bold text-navy mb-1">
+                                <span>Zoom</span>
+                                <span id="val-subj-zoom">100%</span>
+                            </div>
+                            <input type="range" id="input-subj-zoom" min="50" max="220" step="2" value="100" oninput="onTransformSliderChange()" class="w-full">
+                        </div>
+                        <div class="bg-pearl/50 p-3 rounded-xl border border-gold/20">
+                            <div class="flex justify-between text-[11px] font-bold text-navy mb-1">
+                                <span>Geser X</span>
+                                <span id="val-subj-x">0</span>
+                            </div>
+                            <input type="range" id="input-subj-x" min="-450" max="450" step="5" value="0" oninput="onTransformSliderChange()" class="w-full">
+                        </div>
+                        <div class="bg-pearl/50 p-3 rounded-xl border border-gold/20">
+                            <div class="flex justify-between text-[11px] font-bold text-navy mb-1">
+                                <span>Geser Y</span>
+                                <span id="val-subj-y">0</span>
+                            </div>
+                            <input type="range" id="input-subj-y" min="-500" max="500" step="5" value="0" oninput="onTransformSliderChange()" class="w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subject Color Grading Presets -->
+                <div class="pt-4 border-t border-gold/20">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-navy mb-2.5" data-i18n="grade_label">Tone Warna Subjek (Editorial Grading)</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setSubjectGrade('natural')" id="grade-btn-natural" class="grade-chip px-3.5 py-2 rounded-xl text-xs font-semibold border transition">Natural Original</button>
+                        <button onclick="setSubjectGrade('korean-soft')" id="grade-btn-korean-soft" class="grade-chip px-3.5 py-2 rounded-xl text-xs font-semibold border transition">Korean Soft Film</button>
+                        <button onclick="setSubjectGrade('warm-champagne')" id="grade-btn-warm-champagne" class="grade-chip px-3.5 py-2 rounded-xl text-xs font-semibold border transition">Warm Champagne</button>
+                        <button onclick="setSubjectGrade('rafael-wine')" id="grade-btn-rafael-wine" class="grade-chip px-3.5 py-2 rounded-xl text-xs font-semibold border transition">Rafael Wine Mood</button>
+                        <button onclick="setSubjectGrade('bw-noir')" id="grade-btn-bw-noir" class="grade-chip px-3.5 py-2 rounded-xl text-xs font-semibold border transition">Editorial B&amp;W Noir</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== TAB 2: DOUBLE EXPOSURE COVER ENGINE ==================== -->
+            <div id="tab-panel-exposure" class="studio-tab-panel hidden bg-white rounded-3xl p-5 sm:p-6 border border-gold/30 shadow-sm space-y-6">
+                <div>
+                    <h3 class="font-headline font-bold text-lg text-navy" data-i18n="exp_title">Double Exposure Cover Engine</h3>
+                    <p class="text-xs text-navy/65" data-i18n="exp_desc">Padukan siluet orang dengan tekstur artistik editorial atau foto ke-2 untuk efek majalah mewah.</p>
+                </div>
+
+                <!-- 4 Cover Composition Styles -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button onclick="setCompositionStyle('typography-overlay')" id="exp-card-typography-overlay" class="exp-style-card p-3.5 rounded-2xl border text-left transition">
+                        <div class="text-xs font-bold text-navy">1. Editorial Typography Overlay</div>
+                        <p class="text-[11px] text-navy/65 mt-1">Subjek cutout tajam di depan tipografi raksasa 3D dengan bayangan studio.</p>
+                    </button>
+                    <button onclick="setCompositionStyle('double-exposure')" id="exp-card-double-exposure" class="exp-style-card p-3.5 rounded-2xl border text-left transition">
+                        <div class="text-xs font-bold text-navy">2. Double Exposure Blend</div>
+                        <p class="text-[11px] text-navy/65 mt-1">Tekstur artistik atau foto ke-2 menyatu di dalam siluet tubuh subjek.</p>
+                    </button>
+                    <button onclick="setCompositionStyle('ghost-echo')" id="exp-card-ghost-echo" class="exp-style-card p-3.5 rounded-2xl border text-left transition">
+                        <div class="text-xs font-bold text-navy">3. Ghost Echo Exposure</div>
+                        <p class="text-[11px] text-navy/65 mt-1">Siluet bayangan ganda transparan bernuansa Rafael Wine / Ocean Blue.</p>
+                    </button>
+                    <button onclick="setCompositionStyle('duotone-exposure')" id="exp-card-duotone-exposure" class="exp-style-card p-3.5 rounded-2xl border text-left transition">
+                        <div class="text-xs font-bold text-navy">4. Duotone Magazine Exposure</div>
+                        <p class="text-[11px] text-navy/65 mt-1">Efek duotone kontras tinggi dengan light-leak majalah luxury.</p>
+                    </button>
+                </div>
+
+                <!-- 6 Built-in Artistic Double Exposure Textures + Custom 2nd Photo Upload -->
+                <div class="pt-4 border-t border-gold/20 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-navy" data-i18n="exp_textures_label">Tekstur Double Exposure &amp; Foto Ke-2</label>
+                        <div class="flex items-center gap-2">
+                            <label class="cursor-pointer bg-gold/15 hover:bg-gold/30 text-navy border border-gold/50 px-3 py-1.5 rounded-xl text-[11px] font-bold transition flex items-center gap-1.5">
+                                <i data-lucide="image-plus" class="w-3.5 h-3.5 text-wine"></i>
+                                <span data-i18n="btn_upload_second">Upload Foto Ke-2</span>
+                                <input type="file" id="second-photo-input" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="handleSecondPhotoUpload(event)">
+                            </label>
+                            <button id="remove-second-photo-btn" onclick="removeSecondPhoto()" class="hidden px-2.5 py-1.5 rounded-xl bg-rose/20 text-wine text-[11px] font-bold hover:bg-rose/30 transition">
+                                Hapus Foto 2
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="exposure-textures-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        <!-- Rendered dynamically from EXPOSURE_TEXTURES -->
+                    </div>
+                </div>
+
+                <!-- Blend Mode, Intensity & Echo Tint Controls -->
+                <div class="pt-4 border-t border-gold/20 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-navy mb-1.5">Blend Mode</label>
+                        <select id="select-blend-mode" onchange="onExposureParamChange()" class="w-full bg-pearl border border-gold/40 rounded-xl px-3 py-2 text-xs font-semibold text-navy focus:outline-none">
+                            <option value="screen">Screen (Luminous Glow)</option>
+                            <option value="overlay">Overlay (Editorial Contrast)</option>
+                            <option value="lighten">Lighten (Soft Dream)</option>
+                            <option value="soft-light">Soft Light (Subtle Silk)</option>
+                            <option value="multiply">Multiply (Deep Shadow)</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-pearl/50 p-3 rounded-xl border border-gold/20">
+                        <div class="flex justify-between text-[11px] font-bold text-navy mb-1.5">
+                            <span>Intensitas Blend</span>
+                            <span id="val-blend-intensity" class="text-wine">65%</span>
+                        </div>
+                        <input type="range" id="input-blend-intensity" min="0" max="100" step="2" value="65" oninput="onExposureParamChange()" class="w-full">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-navy mb-1.5">Warna Siluet Echo / Duotone</label>
+                        <div class="flex items-center gap-2">
+                            <button onclick="setEchoColor('#803F50')" class="w-7 h-7 rounded-full bg-[#803F50] border-2 border-white shadow ring-1 ring-navy/20" title="Rafael Wine"></button>
+                            <button onclick="setEchoColor('#526F85')" class="w-7 h-7 rounded-full bg-[#526F85] border-2 border-white shadow ring-1 ring-navy/20" title="Ocean Blue"></button>
+                            <button onclick="setEchoColor('#C5A477')" class="w-7 h-7 rounded-full bg-[#C5A477] border-2 border-white shadow ring-1 ring-navy/20" title="Champagne Gold"></button>
+                            <button onclick="setEchoColor('#CDA9A3')" class="w-7 h-7 rounded-full bg-[#CDA9A3] border-2 border-white shadow ring-1 ring-navy/20" title="Dusty Rose"></button>
+                            <button onclick="setEchoColor('#263746')" class="w-7 h-7 rounded-full bg-[#263746] border-2 border-white shadow ring-1 ring-navy/20" title="Deep Navy"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== TAB 3: 3D TYPOGRAPHY OVERLAY & HEADLINES ==================== -->
+            <div id="tab-panel-typography" class="studio-tab-panel hidden bg-white rounded-3xl p-5 sm:p-6 border border-gold/30 shadow-sm space-y-6">
+                <!-- 3D Sandwich Layering Selector -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-navy mb-2" data-i18n="typo_layer_label">Posisi Layer Teks Utama (3D Sandwich Depth)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <button onclick="setTextLayerMode('behind')" id="layer-btn-behind" class="layer-mode-btn p-3 rounded-2xl border text-left transition">
+                            <div class="text-xs font-bold text-navy">Behind Subject (3D)</div>
+                            <div class="text-[10px] text-navy/60 mt-0.5">Teks di belakang kepala &amp; bahu orang</div>
+                        </button>
+                        <button onclick="setTextLayerMode('split')" id="layer-btn-split" class="layer-mode-btn p-3 rounded-2xl border text-left transition">
+                            <div class="text-xs font-bold text-navy">Split Dual-Layer</div>
+                            <div class="text-[10px] text-navy/60 mt-0.5">Solid di belakang + Outline di depan</div>
+                        </button>
+                        <button onclick="setTextLayerMode('front')" id="layer-btn-front" class="layer-mode-btn p-3 rounded-2xl border text-left transition">
+                            <div class="text-xs font-bold text-navy">In Front of Subject</div>
+                            <div class="text-[10px] text-navy/60 mt-0.5">Teks editorial di depan subjek</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Giant 3D Backdrop Word -->
+                <div class="bg-pearl/60 p-4 rounded-2xl border border-gold/25 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold uppercase tracking-wider text-navy">Giant Backdrop Word (Belakang Objek)</label>
+                        <span id="val-giant-size" class="text-[11px] font-bold text-wine">230px</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="setGiantWord('STYLE')" class="px-2.5 py-1 rounded-lg bg-white border border-gold/30 text-[11px] font-bold text-navy hover:bg-gold/15">STYLE</button>
+                        <button onclick="setGiantWord('SIGNATURE')" class="px-2.5 py-1 rounded-lg bg-white border border-gold/30 text-[11px] font-bold text-navy hover:bg-gold/15">SIGNATURE</button>
+                        <button onclick="setGiantWord('CHIC')" class="px-2.5 py-1 rounded-lg bg-white border border-gold/30 text-[11px] font-bold text-navy hover:bg-gold/15">CHIC</button>
+                        <button onclick="setGiantWord('VOGUE')" class="px-2.5 py-1 rounded-lg bg-white border border-gold/30 text-[11px] font-bold text-navy hover:bg-gold/15">VOGUE</button>
+                        <button onclick="setGiantWord('LUXURY')" class="px-2.5 py-1 rounded-lg bg-white border border-gold/30 text-[11px] font-bold text-navy hover:bg-gold/15">LUXURY</button>
+                        <button onclick="setGiantWord('EDIT')" class="px-2.5 py-1 rounded-lg bg-white border border-gold/30 text-[11px] font-bold text-navy hover:bg-gold/15">EDIT</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input type="text" id="input-giant-word" value="STYLE" oninput="onTypographyChange()" placeholder="Giant Backdrop Word" class="bg-white border border-gold/40 rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-widest text-navy focus:outline-none">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[11px] font-semibold text-navy whitespace-nowrap">Ukuran:</span>
+                            <input type="range" id="input-giant-size" min="130" max="320" step="5" value="230" oninput="onTypographyChange()" class="w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category & Auto-Headline Library -->
+                <div class="space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-navy">Kategori &amp; Auto-Headline Library</label>
+                        <select id="select-headline-category" onchange="onHeadlineCategoryChange(this.value)" class="bg-pearl border border-gold/40 rounded-xl px-3 py-1.5 text-xs font-bold text-navy focus:outline-none">
+                            <option value="Outfit">Outfit</option>
+                            <option value="Dress">Dress</option>
+                            <option value="Bags">Bags</option>
+                            <option value="Shoes">Shoes</option>
+                            <option value="Beauty">Beauty</option>
+                            <option value="Modest Fashion">Modest Fashion</option>
+                            <option value="Promotional">Promotional</option>
+                        </select>
+                    </div>
+                    <div id="auto-headline-pills" class="flex flex-wrap gap-1.5">
+                        <!-- Auto-headlines populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Editable Headline, Subtitle & Position -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-navy mb-1">Main Editorial Headline</label>
+                        <input type="text" id="input-main-headline" value="THE DAILY OUTFIT" oninput="onTypographyChange()" class="w-full bg-pearl border border-gold/40 rounded-xl px-3.5 py-2.5 text-xs font-bold text-navy focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-navy mb-1">Subtitle / Editorial Caption</label>
+                        <input type="text" id="input-subtitle" value="Effortlessly Chic • Curated Wardrobe" oninput="onTypographyChange()" class="w-full bg-pearl border border-gold/40 rounded-xl px-3.5 py-2.5 text-xs font-medium text-navy focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-pearl/50 p-3 rounded-xl border border-gold/20">
+                        <div class="flex justify-between text-[11px] font-bold text-navy mb-1">
+                            <span>Posisi Vertikal Headline</span>
+                            <span id="val-headline-y" class="text-wine">36%</span>
+                        </div>
+                        <input type="range" id="input-headline-y" min="18" max="84" step="1" value="36" oninput="onTypographyChange()" class="w-full">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-navy mb-1.5">Palette Background Cover</label>
+                        <div class="flex items-center gap-2">
+                            <button onclick="setBackgroundTheme('pearl')" class="w-8 h-8 rounded-xl bg-[#F7F2EA] border-2 border-gold shadow-sm" title="Pearl Ivory"></button>
+                            <button onclick="setBackgroundTheme('wine')" class="w-8 h-8 rounded-xl bg-[#803F50] border-2 border-gold shadow-sm" title="Rafael Wine"></button>
+                            <button onclick="setBackgroundTheme('ocean')" class="w-8 h-8 rounded-xl bg-[#526F85] border-2 border-gold shadow-sm" title="Ocean Blue"></button>
+                            <button onclick="setBackgroundTheme('navy')" class="w-8 h-8 rounded-xl bg-[#263746] border-2 border-gold shadow-sm" title="Deep Navy"></button>
+                            <button onclick="setBackgroundTheme('rose')" class="w-8 h-8 rounded-xl bg-[#CDA9A3] border-2 border-gold shadow-sm" title="Dusty Rose"></button>
+                            <button onclick="setBackgroundTheme('cocoa')" class="w-8 h-8 rounded-xl bg-[#6A5045] border-2 border-gold shadow-sm" title="Cocoa Brown"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== TAB 4: 12 ORIGINAL TEMPLATES & RECENT DESIGNS ==================== -->
+            <div id="tab-panel-templates" class="studio-tab-panel hidden bg-white rounded-3xl p-5 sm:p-6 border border-gold/30 shadow-sm space-y-5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h3 class="font-headline font-bold text-lg text-navy">12 Original Editorial Templates</h3>
+                        <p class="text-xs text-navy/65">Klik template untuk langsung menerapkan gaya tanpa menghapus foto kamu.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="filterTemplates('all')" id="tmpl-filter-all" class="tmpl-filter-btn px-3 py-1 rounded-full text-[11px] font-bold">Semua (12)</button>
+                        <button onclick="filterTemplates('typography-overlay')" id="tmpl-filter-typography-overlay" class="tmpl-filter-btn px-3 py-1 rounded-full text-[11px] font-bold">3D Typography</button>
+                        <button onclick="filterTemplates('double-exposure')" id="tmpl-filter-double-exposure" class="tmpl-filter-btn px-3 py-1 rounded-full text-[11px] font-bold">Double Exposure</button>
+                        <button onclick="filterTemplates('favorites')" id="tmpl-filter-favorites" class="tmpl-filter-btn px-3 py-1 rounded-full text-[11px] font-bold">Favorit ♥</button>
+                    </div>
+                </div>
+
+                <div id="templates-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[460px] overflow-y-auto pr-1">
+                    <!-- Rendered dynamically -->
+                </div>
+
+                <!-- Recent Saved Designs -->
+                <div id="recent-designs-section" class="pt-4 border-t border-gold/20">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-navy mb-2.5">Desain Tersimpan Terbaru (Recent Designs)</h4>
+                    <div id="recent-designs-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== TAB 5: PERSONAL BRANDING SETTINGS ==================== -->
+            <div id="tab-panel-branding" class="studio-tab-panel hidden bg-white rounded-3xl p-5 sm:p-6 border border-gold/30 shadow-sm space-y-5">
+                <div>
+                    <h3 class="font-headline font-bold text-lg text-navy">Personal Branding Settings</h3>
+                    <p class="text-xs text-navy/65">Atur identitas personal kamu sekali—otomatis diterapkan di setiap cover tanpa watermark aplikasi.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-navy mb-1">Username / Handle</label>
+                        <input type="text" id="brand-input-username" value="@chocoovora" oninput="syncWatermarkPreview()" class="w-full bg-pearl border border-gold/40 rounded-xl px-3.5 py-2.5 text-xs font-bold text-navy focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-navy mb-1">Gaya Personal Watermark</label>
+                        <select id="brand-select-style" onchange="syncWatermarkPreview()" class="w-full bg-pearl border border-gold/40 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-navy focus:outline-none">
+                            <option value="curated">Curated by @username</option>
+                            <option value="handle">@username</option>
+                            <option value="diary">Your Daily Style Diary</option>
+                            <option value="selected">Personally Selected</option>
+                            <option value="custom">Custom Text</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-navy mb-1">Teks Watermark Aktif</label>
+                        <input type="text" id="brand-input-watermark" value="Curated by @chocoovora" oninput="onBrandingLiveUpdate()" class="w-full bg-pearl border border-gold/40 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-navy focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-navy mb-1">Signature Italic Text</label>
+                        <input type="text" id="brand-input-signature" value="Your Signature. Your Style." oninput="onBrandingLiveUpdate()" class="w-full bg-pearl border border-gold/40 rounded-xl px-3.5 py-2.5 text-xs font-signature italic text-base text-navy focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-navy mb-1">Posisi Watermark</label>
+                        <select id="brand-select-position" onchange="onBrandingLiveUpdate()" class="w-full bg-pearl border border-gold/40 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-navy focus:outline-none">
+                            <option value="bottom-center">Bottom Center (Editorial)</option>
+                            <option value="bottom-left">Bottom Left</option>
+                            <option value="bottom-right">Bottom Right</option>
+                            <option value="top-editorial">Top Issue Bar</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end">
+                        <button onclick="saveBrandingPreferences()" class="w-full bg-navy hover:bg-wine text-pearl py-2.5 px-5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-gold"></i>
+                            <span>Simpan Personal Branding</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- ==================== EXPORT MODAL ==================== -->
+    <div id="export-modal" class="fixed inset-0 z-50 bg-navy/75 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-pearl rounded-3xl max-w-md w-full p-6 border border-gold/50 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-gold/25 pb-3">
+                <div>
+                    <h3 class="font-headline font-bold text-xl text-navy">Export Cover HD</h3>
+                    <p class="text-xs text-navy/65">Resolusi Asli 1080 × 1920 px (9:16) • Tanpa Watermark Website</p>
+                </div>
+                <button onclick="closeExportModal()" class="p-1.5 rounded-full bg-white text-navy hover:bg-gold/20">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="exportCover('png'); closeExportModal();" class="p-4 rounded-2xl bg-navy hover:bg-navy/90 text-pearl flex flex-col items-center text-center gap-2 shadow-lg transition">
+                    <i data-lucide="file-image" class="w-7 h-7 text-gold"></i>
+                    <span class="text-xs font-bold uppercase tracking-wider">Download PNG</span>
+                    <span class="text-[10px] text-pearl/70">Lossless Ultra Sharp</span>
+                </button>
+                <button onclick="exportCover('jpg'); closeExportModal();" class="p-4 rounded-2xl bg-gold hover:bg-gold/90 text-navy flex flex-col items-center text-center gap-2 shadow-lg transition">
+                    <i data-lucide="image" class="w-7 h-7 text-navy"></i>
+                    <span class="text-xs font-bold uppercase tracking-wider">Download JPG</span>
+                    <span class="text-[10px] text-navy/75">Social Media Ready</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ==================== APPLICATION SCRIPT ==================== -->
+    <script>
+        /* ============================================================================
+           1. DATA CONFIGURATION: PALETTES, HEADLINES, TEXTURES & 12 TEMPLATES
+           ============================================================================ */
+        const BG_THEMES = {
+            pearl: {
+                name: 'Pearl Ivory',
+                top: '#F7F2EA',
+                bottom: '#EAE0D2',
+                primaryText: '#263746',
+                giantText: 'rgba(197, 164, 119, 0.36)',
+                accent: '#C5A477',
+                subText: '#6A5045',
+                isDark: false
+            },
+            wine: {
+                name: 'Rafael Wine',
+                top: '#3B1D27',
+                bottom: '#803F50',
+                primaryText: '#F7F2EA',
+                giantText: 'rgba(205, 169, 163, 0.25)',
+                accent: '#C5A477',
+                subText: '#CDA9A3',
+                isDark: true
+            },
+            ocean: {
+                name: 'Ocean Blue',
+                top: '#263746',
+                bottom: '#526F85',
+                primaryText: '#F7F2EA',
+                giantText: 'rgba(247, 242, 234, 0.22)',
+                accent: '#C5A477',
+                subText: '#CDA9A3',
+                isDark: true
+            },
+            navy: {
+                name: 'Deep Navy',
+                top: '#1B2834',
+                bottom: '#263746',
+                primaryText: '#F7F2EA',
+                giantText: 'rgba(197, 164, 119, 0.24)',
+                accent: '#C5A477',
+                subText: '#CDA9A3',
+                isDark: true
+            },
+            rose: {
+                name: 'Dusty Rose',
+                top: '#F7F2EA',
+                bottom: '#CDA9A3',
+                primaryText: '#263746',
+                giantText: 'rgba(128, 63, 80, 0.20)',
+                accent: '#803F50',
+                subText: '#6A5045',
+                isDark: false
+            },
+            cocoa: {
+                name: 'Cocoa Brown',
+                top: '#F7F2EA',
+                bottom: '#D7C7B8',
+                primaryText: '#6A5045',
+                giantText: 'rgba(106, 80, 69, 0.20)',
+                accent: '#C5A477',
+                subText: '#263746',
+                isDark: false
+            }
+        };
+
+        const AUTO_HEADLINES = {
+            'Outfit': ['THE DAILY OUTFIT', 'EFFORTLESSLY CHIC', 'YOUR NEW FAVORITE', 'OUTFIT INSPO'],
+            'Dress': ['THE PERFECT DRESS', 'DRESS TO IMPRESS', 'TIMELESS SILHOUETTE'],
+            'Bags': ['THE BAG EDIT', 'A LITTLE LUXURY', 'SIGNATURE CARRY'],
+            'Shoes': ['STEP INTO STYLE', 'THE PERFECT PAIR', 'WALK IN ELEGANCE'],
+            'Beauty': ['BEAUTY FINDS', 'LITTLE BEAUTY SECRET', 'LUMINOUS GLOW'],
+            'Modest Fashion': ['MODESTLY CHIC', 'ELEGANCE IN EVERY DETAIL', 'GRACEFUL EDIT'],
+            'Promotional': ['WORTH EVERY PENNY', 'SPECIAL FASHION FINDS', 'LIMITED LUXURY DROP']
+        };
+
+        const EXPOSURE_TEXTURES = [
+            { id: 'rafael-silk', name: 'Rafael Wine Silk', colors: ['#803F50', '#CDA9A3', '#263746'] },
+            { id: 'golden-bokeh', name: 'Golden Hour Bokeh', colors: ['#C5A477', '#F7F2EA', '#803F50'] },
+            { id: 'ocean-mist', name: 'Ocean Mist', colors: ['#263746', '#526F85', '#F7F2EA'] },
+            { id: 'rose-shadow', name: 'Rose Petal Shadow', colors: ['#CDA9A3', '#803F50', '#F7F2EA'] },
+            { id: 'seoul-grain', name: 'Seoul Editorial Grain', colors: ['#6A5045', '#C5A477', '#F7F2EA'] },
+            { id: 'arch-light', name: 'Architectural Light', colors: ['#263746', '#C5A477', '#F7F2EA'] }
+        ];
+
+        const TEMPLATES_JSON = [
+            {
+                id: 't1',
+                name: 'The Editorial',
+                category: 'Outfit',
+                compositionStyle: 'typography-overlay',
+                bgTheme: 'pearl',
+                giantWord: 'STYLE',
+                giantSize: 235,
+                headline: 'THE DAILY OUTFIT',
+                subtitle: 'Effortlessly Chic • Parisian Capsule',
+                textLayerMode: 'behind',
+                headlineY: 36,
+                exposureTexture: 'golden-bokeh',
+                blendMode: 'screen',
+                blendIntensity: 55,
+                echoColor: '#C5A477',
+                gradePreset: 'natural',
+                swatchColors: ['#F7F2EA', '#263746', '#C5A477']
+            },
+            {
+                id: 't2',
+                name: 'Rafael Signature',
+                category: 'Dress',
+                compositionStyle: 'double-exposure',
+                bgTheme: 'wine',
+                giantWord: 'SIGNATURE',
+                giantSize: 175,
+                headline: 'DRESS TO IMPRESS',
+                subtitle: 'Romantic Wine & Velvet Silhouette',
+                textLayerMode: 'behind',
+                headlineY: 34,
+                exposureTexture: 'rafael-silk',
+                blendMode: 'screen',
+                blendIntensity: 72,
+                echoColor: '#803F50',
+                gradePreset: 'rafael-wine',
+                swatchColors: ['#803F50', '#CDA9A3', '#C5A477']
+            },
+            {
+                id: 't3',
+                name: 'Korean Chic',
+                category: 'Outfit',
+                compositionStyle: 'typography-overlay',
+                bgTheme: 'cocoa',
+                giantWord: 'CHIC',
+                giantSize: 265,
+                headline: 'EFFORTLESSLY CHIC',
+                subtitle: 'Seoul Minimalist Street Diary',
+                textLayerMode: 'split',
+                headlineY: 38,
+                exposureTexture: 'seoul-grain',
+                blendMode: 'soft-light',
+                blendIntensity: 50,
+                echoColor: '#6A5045',
+                gradePreset: 'korean-soft',
+                swatchColors: ['#F7F2EA', '#6A5045', '#C5A477']
+            },
+            {
+                id: 't4',
+                name: 'Ocean Mist Exposure',
+                category: 'Outfit',
+                compositionStyle: 'double-exposure',
+                bgTheme: 'ocean',
+                giantWord: 'OCEAN',
+                giantSize: 225,
+                headline: 'YOUR NEW FAVORITE',
+                subtitle: 'Deep Serenity & Modern Tailoring',
+                textLayerMode: 'behind',
+                headlineY: 35,
+                exposureTexture: 'ocean-mist',
+                blendMode: 'screen',
+                blendIntensity: 68,
+                echoColor: '#526F85',
+                gradePreset: 'natural',
+                swatchColors: ['#263746', '#526F85', '#F7F2EA']
+            },
+            {
+                id: 't5',
+                name: 'The Perfect Find',
+                category: 'Dress',
+                compositionStyle: 'typography-overlay',
+                bgTheme: 'rose',
+                giantWord: 'VOGUE',
+                giantSize: 220,
+                headline: 'THE PERFECT DRESS',
+                subtitle: 'Feminine Grace & Timeless Cut',
+                textLayerMode: 'split',
+                headlineY: 36,
+                exposureTexture: 'rose-shadow',
+                blendMode: 'overlay',
+                blendIntensity: 60,
+                echoColor: '#803F50',
+                gradePreset: 'warm-champagne',
+                swatchColors: ['#CDA9A3', '#803F50', '#263746']
+            },
+            {
+                id: 't6',
+                name: 'Little Luxury',
+                category: 'Bags',
+                compositionStyle: 'double-exposure',
+                bgTheme: 'pearl',
+                giantWord: 'LUXURY',
+                giantSize: 205,
+                headline: 'A LITTLE LUXURY',
+                subtitle: 'Golden Hour Hardware & Leather',
+                textLayerMode: 'behind',
+                headlineY: 37,
+                exposureTexture: 'golden-bokeh',
+                blendMode: 'overlay',
+                blendIntensity: 65,
+                echoColor: '#C5A477',
+                gradePreset: 'warm-champagne',
+                swatchColors: ['#F7F2EA', '#C5A477', '#6A5045']
+            },
+            {
+                id: 't7',
+                name: 'Fashion Must Have',
+                category: 'Outfit',
+                compositionStyle: 'ghost-echo',
+                bgTheme: 'navy',
+                giantWord: 'EDIT',
+                giantSize: 260,
+                headline: 'OUTFIT INSPO',
+                subtitle: 'Double Silhouette Editorial Series',
+                textLayerMode: 'behind',
+                headlineY: 34,
+                exposureTexture: 'arch-light',
+                blendMode: 'screen',
+                blendIntensity: 65,
+                echoColor: '#803F50',
+                gradePreset: 'korean-soft',
+                swatchColors: ['#263746', '#803F50', '#C5A477']
+            },
+            {
+                id: 't8',
+                name: 'Modest Elegance',
+                category: 'Modest Fashion',
+                compositionStyle: 'double-exposure',
+                bgTheme: 'pearl',
+                giantWord: 'GRACE',
+                giantSize: 220,
+                headline: 'MODESTLY CHIC',
+                subtitle: 'Elegance in Every Detail',
+                textLayerMode: 'behind',
+                headlineY: 36,
+                exposureTexture: 'rose-shadow',
+                blendMode: 'soft-light',
+                blendIntensity: 62,
+                echoColor: '#CDA9A3',
+                gradePreset: 'korean-soft',
+                swatchColors: ['#F7F2EA', '#CDA9A3', '#6A5045']
+            },
+            {
+                id: 't9',
+                name: 'The Bag Edit',
+                category: 'Bags',
+                compositionStyle: 'typography-overlay',
+                bgTheme: 'navy',
+                giantWord: 'BAGS',
+                giantSize: 245,
+                headline: 'THE BAG EDIT',
+                subtitle: 'Iconic Silhouettes Worth Investing',
+                textLayerMode: 'split',
+                headlineY: 35,
+                exposureTexture: 'arch-light',
+                blendMode: 'screen',
+                blendIntensity: 55,
+                echoColor: '#C5A477',
+                gradePreset: 'natural',
+                swatchColors: ['#263746', '#C5A477', '#F7F2EA']
+            },
+            {
+                id: 't10',
+                name: 'Shoes Diary',
+                category: 'Shoes',
+                compositionStyle: 'ghost-echo',
+                bgTheme: 'pearl',
+                giantWord: 'STEP',
+                giantSize: 255,
+                headline: 'STEP INTO STYLE',
+                subtitle: 'The Perfect Pair for Every Walk',
+                textLayerMode: 'behind',
+                headlineY: 36,
+                exposureTexture: 'arch-light',
+                blendMode: 'overlay',
+                blendIntensity: 58,
+                echoColor: '#526F85',
+                gradePreset: 'natural',
+                swatchColors: ['#F7F2EA', '#526F85', '#263746']
+            },
+            {
+                id: 't11',
+                name: 'Beauty Finds',
+                category: 'Beauty',
+                compositionStyle: 'double-exposure',
+                bgTheme: 'rose',
+                giantWord: 'GLOW',
+                giantSize: 240,
+                headline: 'BEAUTY FINDS',
+                subtitle: 'Little Beauty Secret & Dewy Finish',
+                textLayerMode: 'behind',
+                headlineY: 35,
+                exposureTexture: 'golden-bokeh',
+                blendMode: 'screen',
+                blendIntensity: 74,
+                echoColor: '#CDA9A3',
+                gradePreset: 'korean-soft',
+                swatchColors: ['#CDA9A3', '#F7F2EA', '#803F50']
+            },
+            {
+                id: 't12',
+                name: 'Special Price',
+                category: 'Promotional',
+                compositionStyle: 'duotone-exposure',
+                bgTheme: 'wine',
+                giantWord: 'DROP',
+                giantSize: 245,
+                headline: 'WORTH EVERY PENNY',
+                subtitle: 'Special Fashion Finds • Curated Deal',
+                textLayerMode: 'split',
+                headlineY: 36,
+                exposureTexture: 'rafael-silk',
+                blendMode: 'overlay',
+                blendIntensity: 70,
+                echoColor: '#C5A477',
+                gradePreset: 'bw-noir',
+                swatchColors: ['#803F50', '#263746', '#C5A477']
+            }
+        ];
+
+        /* ============================================================================
+           2. APPLICATION STATE & LOCALSTORAGE PERSISTENCE
+           ============================================================================ */
+        const savedBranding = JSON.parse(localStorage.getItem('tse_branding_v2') || 'null');
+        const savedFavorites = JSON.parse(localStorage.getItem('tse_favorites_v2') || '["t1","t2","t3"]');
+        const savedRecents = JSON.parse(localStorage.getItem('tse_recents_v2') || '[]');
+
+        const state = {
+            lang: 'id', // 'id' or 'en'
+            activeTab: 'cutout',
+            templateFilter: 'all',
+            selectedTemplateId: 't1',
+
+            // Cutout & Subject State
+            autoCutout: true,
+            segmentationMode: 'person', // 'person' (MediaPipe) | 'object' (Smart Flood/Chroma)
+            edgeFeather: 3,
+            maskThreshold: 0.50,
+            bottomFade: 0.24,
+            compareOriginal: false,
+
+            subjectZoom: 1.0,
+            subjectX: 0,
+            subjectY: 0,
+            gradePreset: 'natural',
+
+            // Double Exposure State
+            compositionStyle: 'typography-overlay', // 'typography-overlay' | 'double-exposure' | 'ghost-echo' | 'duotone-exposure'
+            exposureTexture: 'rafael-silk',
+            blendMode: 'screen',
+            blendIntensity: 0.65,
+            echoColor: '#803F50',
+            hasSecondPhoto: false,
+
+            // Typography & Theme State
+            textLayerMode: 'behind', // 'behind' | 'split' | 'front'
+            giantWord: 'STYLE',
+            giantSize: 235,
+            headlineCategory: 'Outfit',
+            mainHeadline: 'THE DAILY OUTFIT',
+            subtitle: 'Effortlessly Chic • Parisian Capsule',
+            headlineY: 36, // % of canvas height
+            bgTheme: 'pearl',
+
+            // Personal Branding State
+            branding: savedBranding || {
+                username: '@chocoovora',
+                watermarkStyle: 'curated',
+                watermarkText: 'Curated by @chocoovora',
+                signatureText: 'Your Signature. Your Style.',
+                watermarkPosition: 'bottom-center'
+            },
+
+            favorites: savedFavorites,
+            recentDesigns: savedRecents
+        };
+
+        /* ============================================================================
+           3. OFFSCREEN CANVASES FOR AI SEGMENTATION & COMPOSITING PIPELINE
+           ============================================================================ */
+        const sourceCanvas = document.createElement('canvas');   // Original uploaded/default photo
+        const rawMaskCanvas = document.createElement('canvas');  // Soft grayscale mask (0..255)
+        const blurMaskCanvas = document.createElement('canvas'); // Feathered mask
+        const cutoutCanvas = document.createElement('canvas');   // Final RGBA cutout sprite
+        const textureCanvas = document.createElement('canvas');  // Procedural or 2nd photo exposure texture
+        const secondPhotoCanvas = document.createElement('canvas');
+
+        let selfieSegmenter = null;
+        let isSegmenterBusy = false;
+
+        // Initialize MediaPipe Selfie Segmentation if available
+        function getMediaPipeSegmenter() {
+            if (selfieSegmenter) return selfieSegmenter;
+            if (typeof SelfieSegmentation === 'undefined') return null;
+            try {
+                selfieSegmenter = new SelfieSegmentation({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/${file}`
+                });
+                selfieSegmenter.setOptions({
+                    modelSelection: 1 // 1 = high-accuracy landscape/general person model
+                });
+                return selfieSegmenter;
+            } catch (err) {
+                console.warn('MediaPipe init fallback:', err);
+                return null;
+            }
+        }
+
+        /* ============================================================================
+           4. DEFAULT BUILT-IN EDITORIAL MUSE PORTRAIT (TRANSPARENT CUTOUT READY)
+           ============================================================================ */
+        function createDefaultEditorialPortrait() {
+            const w = 900;
+            const h = 1350;
+            sourceCanvas.width = w;
+            sourceCanvas.height = h;
+            rawMaskCanvas.width = w;
+            rawMaskCanvas.height = h;
+
+            const sCtx = sourceCanvas.getContext('2d');
+            const mCtx = rawMaskCanvas.getContext('2d');
+
+            sCtx.clearRect(0, 0, w, h);
+            mCtx.fillStyle = '#000000';
+            mCtx.fillRect(0, 0, w, h);
+
+            // Helper to draw clean sculpted fashion portrait silhouette onto both source & mask
+            function drawMuseShape(ctx, isMask) {
+                ctx.save();
+
+                // 1. Flowing Editorial Hair & Back Waves
+                ctx.beginPath();
+                ctx.moveTo(310, 340);
+                ctx.bezierCurveTo(235, 480, 220, 720, 270, 910);
+                ctx.lineTo(630, 910);
+                ctx.bezierCurveTo(680, 720, 665, 480, 590, 340);
+                ctx.closePath();
+                if (isMask) {
+                    ctx.fillStyle = '#FFFFFF';
+                } else {
+                    const hairGrad = ctx.createLinearGradient(250, 300, 650, 900);
+                    hairGrad.addColorStop(0, '#263746');
+                    hairGrad.addColorStop(0.5, '#3A2824');
+                    hairGrad.addColorStop(1, '#1E2936');
+                    ctx.fillStyle = hairGrad;
+                }
+                ctx.fill();
+
+                // 2. Sculpted Luxury Trench Coat & Shoulders
+                ctx.beginPath();
+                ctx.moveTo(115, 1350);
+                ctx.lineTo(145, 920);
+                ctx.bezierCurveTo(165, 765, 275, 710, 385, 690);
+                ctx.lineTo(515, 690);
+                ctx.bezierCurveTo(625, 710, 735, 765, 755, 920);
+                ctx.lineTo(785, 1350);
+                ctx.closePath();
+
+                if (isMask) {
+                    ctx.fillStyle = '#FFFFFF';
+                } else {
+                    const coatGrad = ctx.createLinearGradient(140, 690, 760, 1350);
+                    coatGrad.addColorStop(0, '#6A5045');
+                    coatGrad.addColorStop(0.45, '#4A362F');
+                    coatGrad.addColorStop(1, '#263746');
+                    ctx.fillStyle = coatGrad;
+                }
+                ctx.fill();
+
+                // 3. Neck & Collarbone Highlight
+                ctx.beginPath();
+                ctx.moveTo(395, 560);
+                ctx.lineTo(505, 560);
+                ctx.lineTo(525, 740);
+                ctx.lineTo(450, 825);
+                ctx.lineTo(375, 740);
+                ctx.closePath();
+                if (isMask) {
+                    ctx.fillStyle = '#FFFFFF';
+                } else {
+                    const skinGrad = ctx.createLinearGradient(395, 560, 505, 810);
+                    skinGrad.addColorStop(0, '#E8C5B0');
+                    skinGrad.addColorStop(1, '#CFA48C');
+                    ctx.fillStyle = skinGrad;
+                }
+                ctx.fill();
+
+                // 4. Tailored Trench Lapels (Editorial V-Line)
+                if (!isMask) {
+                    ctx.beginPath();
+                    ctx.moveTo(370, 705);
+                    ctx.lineTo(450, 960);
+                    ctx.lineTo(295, 865);
+                    ctx.closePath();
+                    ctx.fillStyle = '#803F50';
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.moveTo(530, 705);
+                    ctx.lineTo(450, 960);
+                    ctx.lineTo(605, 865);
+                    ctx.closePath();
+                    ctx.fillStyle = '#6A3241';
+                    ctx.fill();
+
+                    // Champagne Gold Belt Buckle Accent
+                    ctx.fillStyle = '#C5A477';
+                    ctx.fillRect(210, 1085, 480, 26);
+                    ctx.strokeStyle = '#F7F2EA';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(422, 1077, 56, 42);
+                }
+
+                // 5. Editorial Portrait Head & Jawline
+                ctx.beginPath();
+                ctx.ellipse(450, 445, 112, 148, 0, 0, Math.PI * 2);
+                if (isMask) {
+                    ctx.fillStyle = '#FFFFFF';
+                } else {
+                    const faceGrad = ctx.createRadialGradient(425, 415, 20, 450, 445, 155);
+                    faceGrad.addColorStop(0, '#F3D6C4');
+                    faceGrad.addColorStop(0.75, '#DFB69F');
+                    faceGrad.addColorStop(1, '#C5977E');
+                    ctx.fillStyle = faceGrad;
+                }
+                ctx.fill();
+
+                // 6. Wide-Brim Parisian Editorial Hat
+                ctx.beginPath();
+                ctx.ellipse(450, 315, 265, 62, -0.08, 0, Math.PI * 2);
+                if (isMask) {
+                    ctx.fillStyle = '#FFFFFF';
+                } else {
+                    const hatGrad = ctx.createLinearGradient(190, 270, 710, 360);
+                    hatGrad.addColorStop(0, '#263746');
+                    hatGrad.addColorStop(0.5, '#34495C');
+                    hatGrad.addColorStop(1, '#1B2733');
+                    ctx.fillStyle = hatGrad;
+                }
+                ctx.fill();
+
+                // Hat Crown
+                ctx.beginPath();
+                ctx.arc(450, 300, 125, Math.PI, 0, false);
+                ctx.closePath();
+                ctx.fillStyle = isMask ? '#FFFFFF' : '#263746';
+                ctx.fill();
+
+                // Hat Champagne Ribbon
+                if (!isMask) {
+                    ctx.beginPath();
+                    ctx.ellipse(450, 302, 134, 22, -0.05, 0, Math.PI);
+                    ctx.strokeStyle = '#C5A477';
+                    ctx.lineWidth = 10;
+                    ctx.stroke();
+
+                    // Subtle Editorial Rim Highlight
+                    ctx.beginPath();
+                    ctx.ellipse(450, 445, 112, 148, 0, -0.3, 1.3);
+                    ctx.strokeStyle = 'rgba(247, 242, 234, 0.55)';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+
+            drawMuseShape(sCtx, false);
+            drawMuseShape(mCtx, true);
+        }
+
+        /* ============================================================================
+           5. AUTOMATIC AI PERSON & SMART OBJECT BACKGROUND REMOVAL ENGINE
+           ============================================================================ */
+        async function processUploadedImageCutout(imgElement) {
+            const overlay = document.getElementById('ai-processing-overlay');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            }
+            updateCutoutStatus('processing', state.lang === 'id' ? 'Memproses AI Cutout...' : 'Running AI Cutout...');
+
+            // Normalize image size up to 1280px max dimension for sharp HD export + fast inference
+            const maxDim = 1280;
+            let w = imgElement.naturalWidth || imgElement.width;
+            let h = imgElement.naturalHeight || imgElement.height;
+            if (w > maxDim || h > maxDim) {
+                const ratio = Math.min(maxDim / w, maxDim / h);
+                w = Math.round(w * ratio);
+                h = Math.round(h * ratio);
+            }
+
+            sourceCanvas.width = w;
+            sourceCanvas.height = h;
+            rawMaskCanvas.width = w;
+            rawMaskCanvas.height = h;
+
+            const sCtx = sourceCanvas.getContext('2d');
+            sCtx.clearRect(0, 0, w, h);
+            sCtx.drawImage(imgElement, 0, 0, w, h);
+
+            let usedMethod = 'fallback';
+
+            // Try MediaPipe Selfie Segmentation when in 'person' mode
+            if (state.segmentationMode === 'person') {
+                const segmenter = getMediaPipeSegmenter();
+                if (segmenter && !isSegmenterBusy) {
+                    try {
+                        isSegmenterBusy = true;
+                        const maskResult = await runMediaPipeWithTimeout(segmenter, sourceCanvas, 7500);
+                        if (maskResult) {
+                            const mCtx = rawMaskCanvas.getContext('2d');
+                            mCtx.clearRect(0, 0, w, h);
+                            mCtx.drawImage(maskResult, 0, 0, w, h);
+
+                            // Verify mask actually captured a person (between 3% and 97% foreground)
+                            const fgRatio = measureMaskCoverage(rawMaskCanvas);
+                            if (fgRatio >= 0.03 && fgRatio <= 0.97) {
+                                usedMethod = 'mediapipe';
+                            }
+                        }
+                    } catch (err) {
+                        console.warn('MediaPipe segmentation fallback triggered:', err);
+                    } finally {
+                        isSegmenterBusy = false;
+                    }
+                }
+            }
+
+            // If user chose 'object' mode OR MediaPipe didn't detect a person, run Smart Edge-Flood Matte
+            if (usedMethod === 'fallback') {
+                computeSmartObjectMatte(sourceCanvas, rawMaskCanvas);
+            }
+
+            rebuildCutoutSprite();
+            renderCoverCanvas();
+
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
+
+            if (usedMethod === 'mediapipe') {
+                updateCutoutStatus('active', state.lang === 'id' ? 'AI Person Cutout Aktif' : 'AI Person Cutout Active');
+                showToast(state.lang === 'id' ? 'Background dihapus otomatis! Hanya objek orang yang diambil.' : 'Background automatically removed! Person isolated.');
+            } else {
+                updateCutoutStatus('active', state.lang === 'id' ? 'Smart Cutout Aktif' : 'Smart Cutout Active');
+                showToast(state.lang === 'id' ? 'Background subjek berhasil dihapus otomatis!' : 'Subject background removed automatically!');
+            }
+        }
+
+        function runMediaPipeWithTimeout(segmenter, inputCanvas, timeoutMs) {
+            return new Promise((resolve, reject) => {
+                let settled = false;
+                const timer = setTimeout(() => {
+                    if (!settled) {
+                        settled = true;
+                        reject(new Error('MediaPipe timeout'));
+                    }
+                }, timeoutMs);
+
+                segmenter.onResults((results) => {
+                    if (!settled) {
+                        settled = true;
+                        clearTimeout(timer);
+                        resolve(results.segmentationMask || null);
+                    }
+                });
+
+                segmenter.send({ image: inputCanvas }).catch((err) => {
+                    if (!settled) {
+                        settled = true;
+                        clearTimeout(timer);
+                        reject(err);
+                    }
+                });
+            });
+        }
+
+        function measureMaskCoverage(maskCvs) {
+            const ctx = maskCvs.getContext('2d');
+            const { width, height } = maskCvs;
+            const data = ctx.getImageData(0, 0, width, height).data;
+            let fgPixels = 0;
+            const step = 16; // fast stride sampling
+            let totalSampled = 0;
+            for (let i = 0; i < data.length; i += 4 * step) {
+                totalSampled++;
+                if (data[i] > 128) fgPixels++;
+            }
+            return totalSampled > 0 ? fgPixels / totalSampled : 0;
+        }
+
+        /* Client-Side Corner-Sampled BFS Flood + Soft Perceptual Chroma Matte */
+        function computeSmartObjectMatte(srcCvs, dstMaskCvs) {
+            const w = srcCvs.width;
+            const h = srcCvs.height;
+            const sCtx = srcCvs.getContext('2d');
+            const mCtx = dstMaskCvs.getContext('2d');
+
+            const srcData = sCtx.getImageData(0, 0, w, h).data;
+            const maskImg = mCtx.createImageData(w, h);
+            const mData = maskImg.data;
+
+            // Sample border pixels (top, left, right) to estimate background colors
+            const borderSamples = [];
+            const sampleStep = Math.max(2, Math.floor(Math.min(w, h) / 40));
+            for (let x = 0; x < w; x += sampleStep) {
+                const idxTop = x * 4;
+                borderSamples.push([srcData[idxTop], srcData[idxTop + 1], srcData[idxTop + 2]]);
+            }
+            for (let y = 0; y < Math.floor(h * 0.85); y += sampleStep) {
+                const idxL = (y * w) * 4;
+                const idxR = (y * w + (w - 1)) * 4;
+                borderSamples.push([srcData[idxL], srcData[idxL + 1], srcData[idxL + 2]]);
+                borderSamples.push([srcData[idxR], srcData[idxR + 1], srcData[idxR + 2]]);
+            }
+
+            // Compute average border color + variance
+            let sumR = 0, sumG = 0, sumB = 0;
+            for (const s of borderSamples) {
+                sumR += s[0]; sumG += s[1]; sumB += s[2];
+            }
+            const count = Math.max(1, borderSamples.length);
+            const avgR = sumR / count;
+            const avgG = sumG / count;
+            const avgB = sumB / count;
+
+            function colorDist(r, g, b, r2, g2, b2) {
+                const dr = r - r2;
+                const dg = g - g2;
+                const db = b - b2;
+                return Math.sqrt(2 * dr * dr + 4 * dg * dg + 3 * db * db);
+            }
+
+            // BFS flood fill from outer border pixels that match background
+            const visited = new Uint8Array(w * h);
+            const isBg = new Uint8Array(w * h);
+            const queue = new Int32Array(w * h);
+            let head = 0, tail = 0;
+
+            const floodTolerance = 95;
+
+            function trySeed(x, y) {
+                const pos = y * w + x;
+                if (visited[pos]) return;
+                const i = pos * 4;
+                const d = colorDist(srcData[i], srcData[i + 1], srcData[i + 2], avgR, avgG, avgB);
+                if (d < floodTolerance * 1.25) {
+                    visited[pos] = 1;
+                    isBg[pos] = 1;
+                    queue[tail++] = pos;
+                }
+            }
+
+            for (let x = 0; x < w; x++) {
+                trySeed(x, 0);
+                trySeed(x, h - 1);
+            }
+            for (let y = 0; y < h; y++) {
+                trySeed(0, y);
+                trySeed(w - 1, y);
+            }
+
+            while (head < tail) {
+                const curr = queue[head++];
+                const cx = curr % w;
+                const cy = (curr - cx) / w;
+                const ci = curr * 4;
+                const cr = srcData[ci], cg = srcData[ci + 1], cb = srcData[ci + 2];
+
+                const neighbors = [
+                    cx > 0 ? curr - 1 : -1,
+                    cx < w - 1 ? curr + 1 : -1,
+                    cy > 0 ? curr - w : -1,
+                    cy < h - 1 ? curr + w : -1
+                ];
+
+                for (let k = 0; k < 4; k++) {
+                    const nPos = neighbors[k];
+                    if (nPos < 0 || visited[nPos]) continue;
+                    visited[nPos] = 1;
+                    const ni = nPos * 4;
+                    const nr = srcData[ni], ng = srcData[ni + 1], nb = srcData[ni + 2];
+                    const distFromAvg = colorDist(nr, ng, nb, avgR, avgG, avgB);
+                    const distFromNeighbor = colorDist(nr, ng, nb, cr, cg, cb);
+
+                    if (distFromAvg < floodTolerance && distFromNeighbor < 42) {
+                        isBg[nPos] = 1;
+                        queue[tail++] = nPos;
+                    }
+                }
+            }
+
+            // Write smooth alpha matte
+            for (let p = 0; p < w * h; p++) {
+                const idx = p * 4;
+                let alpha = isBg[p] ? 0 : 255;
+                if (!isBg[p]) {
+                    const d = colorDist(srcData[idx], srcData[idx + 1], srcData[idx + 2], avgR, avgG, avgB);
+                    if (d < floodTolerance * 0.72) {
+                        alpha = Math.max(0, Math.min(255, Math.round(((d - 30) / (floodTolerance * 0.72 - 30)) * 255)));
+                    }
+                }
+                mData[idx] = alpha;
+                mData[idx + 1] = alpha;
+                mData[idx + 2] = alpha;
+                mData[idx + 3] = 255;
+            }
+
+            mCtx.putImageData(maskImg, 0, 0);
+        }
+
+        /* ============================================================================
+           6. REAL-TIME MATTE REFINEMENT (FEATHER, THRESHOLD, BOTTOM FADE & GRADING)
+           ============================================================================ */
+        function rebuildCutoutSprite() {
+            const w = sourceCanvas.width;
+            const h = sourceCanvas.height;
+            if (!w || !h) return;
+
+            cutoutCanvas.width = w;
+            cutoutCanvas.height = h;
+            const cCtx = cutoutCanvas.getContext('2d');
+            cCtx.clearRect(0, 0, w, h);
+
+            // If Auto-Cutout is toggled OFF or user holds "Compare Original"
+            if (!state.autoCutout || state.compareOriginal) {
+                cCtx.drawImage(sourceCanvas, 0, 0);
+                return;
+            }
+
+            // 1. Apply Edge Feather blur to rawMaskCanvas onto blurMaskCanvas
+            blurMaskCanvas.width = w;
+            blurMaskCanvas.height = h;
+            const bCtx = blurMaskCanvas.getContext('2d');
+            bCtx.clearRect(0, 0, w, h);
+            if (state.edgeFeather > 0) {
+                bCtx.filter = `blur(${state.edgeFeather}px)`;
+            }
+            bCtx.drawImage(rawMaskCanvas, 0, 0);
+            bCtx.filter = 'none';
+
+            // 2. Apply Sigmoid / Threshold Remapping + Subject Color Grading
+            const srcImg = sourceCanvas.getContext('2d').getImageData(0, 0, w, h);
+            const maskImg = bCtx.getImageData(0, 0, w, h);
+            const outImg = cCtx.createImageData(w, h);
+
+            const sData = srcImg.data;
+            const mData = maskImg.data;
+            const oData = outImg.data;
+
+            const thresh = state.maskThreshold; // 0.15 .. 0.85
+            const band = 0.08; // smooth anti-aliased transition band
+            const low = Math.max(0.01, thresh - band);
+            const high = Math.min(0.99, thresh + band);
+            const invRange = 1 / (high - low);
+
+            const grade = state.gradePreset;
+
+            for (let i = 0; i < sData.length; i += 4) {
+                const mNorm = mData[i] / 255;
+                let alpha = 0;
+                if (mNorm <= low) {
+                    alpha = 0;
+                } else if (mNorm >= high) {
+                    alpha = 255;
+                } else {
+                    const t = (mNorm - low) * invRange;
+                    // Smoothstep curve for crisp studio cutout without halo
+                    alpha = Math.round((t * t * (3 - 2 * t)) * 255);
+                }
+
+                let r = sData[i];
+                let g = sData[i + 1];
+                let b = sData[i + 2];
+
+                // Editorial Color Grading Presets
+                if (grade === 'korean-soft') {
+                    r = Math.min(255, r * 1.04 + 8);
+                    g = Math.min(255, g * 1.03 + 6);
+                    b = Math.min(255, b * 1.02 + 7);
+                } else if (grade === 'warm-champagne') {
+                    r = Math.min(255, r * 1.07 + 6);
+                    g = Math.min(255, g * 1.02 + 2);
+                    b = Math.max(0, b * 0.93);
+                } else if (grade === 'rafael-wine') {
+                    r = Math.min(255, r * 1.05 + 8);
+                    g = Math.max(0, g * 0.94);
+                    b = Math.min(255, b * 1.03 + 6);
+                } else if (grade === 'bw-noir') {
+                    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                    const contrastLum = Math.max(0, Math.min(255, (lum - 128) * 1.22 + 128));
+                    r = contrastLum;
+                    g = contrastLum;
+                    b = contrastLum;
+                }
+
+                oData[i] = r;
+                oData[i + 1] = g;
+                oData[i + 2] = b;
+                oData[i + 3] = Math.round((alpha * sData[i + 3]) / 255);
+            }
+
+            cCtx.putImageData(outImg, 0, 0);
+
+            // 3. Apply Bottom Seamless Fade so torso/waist cuts blend into magazine background
+            if (state.bottomFade > 0) {
+                cCtx.save();
+                cCtx.globalCompositeOperation = 'destination-in';
+                const fadeStartY = h * (1 - state.bottomFade);
+                const fadeGrad = cCtx.createLinearGradient(0, fadeStartY, 0, h);
+                fadeGrad.addColorStop(0, 'rgba(0,0,0,1)');
+                fadeGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                cCtx.fillStyle = fadeGrad;
+                cCtx.fillRect(0, fadeStartY, w, h - fadeStartY);
+                cCtx.restore();
+            }
+        }
+
+        /* ============================================================================
+           7. PROCEDURAL HIGH-RES DOUBLE EXPOSURE ARTISTIC TEXTURES
+           ============================================================================ */
+        function buildArtisticTextureCanvas(textureId) {
+            const W = 1080;
+            const H = 1920;
+            textureCanvas.width = W;
+            textureCanvas.height = H;
+            const ctx = textureCanvas.getContext('2d');
+
+            if (state.hasSecondPhoto && secondPhotoCanvas.width > 0) {
+                // Draw user's 2nd uploaded photo scaled to cover
+                const sw = secondPhotoCanvas.width;
+                const sh = secondPhotoCanvas.height;
+                const scale = Math.max(W / sw, H / sh);
+                const dw = sw * scale;
+                const dh = sh * scale;
+                ctx.drawImage(secondPhotoCanvas, (W - dw) / 2, (H - dh) / 2, dw, dh);
+                return textureCanvas;
+            }
+
+            ctx.clearRect(0, 0, W, H);
+
+            if (textureId === 'rafael-silk') {
+                const g = ctx.createLinearGradient(0, 0, W, H);
+                g.addColorStop(0, '#803F50');
+                g.addColorStop(0.5, '#CDA9A3');
+                g.addColorStop(1, '#263746');
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, W, H);
+
+                // Flowing silk light waves
+                for (let i = 0; i < 9; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, 200 + i * 190);
+                    ctx.bezierCurveTo(360, 80 + i * 170, 720, 360 + i * 180, W, 180 + i * 190);
+                    ctx.lineWidth = 55;
+                    ctx.strokeStyle = i % 2 === 0 ? 'rgba(247, 242, 234, 0.22)' : 'rgba(197, 164, 119, 0.25)';
+                    ctx.stroke();
+                }
+            } else if (textureId === 'golden-bokeh') {
+                const g = ctx.createLinearGradient(0, 0, 0, H);
+                g.addColorStop(0, '#C5A477');
+                g.addColorStop(0.55, '#F7F2EA');
+                g.addColorStop(1, '#803F50');
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, W, H);
+
+                // Dreamy golden bokeh circles
+                const orbs = [
+                    [260, 420, 180, 'rgba(255,248,230,0.45)'],
+                    [780, 620, 230, 'rgba(197,164,119,0.42)'],
+                    [440, 950, 290, 'rgba(247,242,234,0.38)'],
+                    [720, 1280, 200, 'rgba(205,169,163,0.42)'],
+                    [310, 1480, 240, 'rgba(197,164,119,0.35)']
+                ];
+                orbs.forEach(([x, y, r, col]) => {
+                    const rg = ctx.createRadialGradient(x, y, 10, x, y, r);
+                    rg.addColorStop(0, col);
+                    rg.addColorStop(1, 'rgba(255,255,255,0)');
+                    ctx.fillStyle = rg;
+                    ctx.beginPath();
+                    ctx.arc(x, y, r, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            } else if (textureId === 'ocean-mist') {
+                const g = ctx.createLinearGradient(0, 0, W, H);
+                g.addColorStop(0, '#263746');
+                g.addColorStop(0.5, '#526F85');
+                g.addColorStop(1, '#F7F2EA');
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, W, H);
+
+                for (let i = 0; i < 6; i++) {
+                    const rg = ctx.createRadialGradient(200 + i * 140, 450 + i * 210, 30, 200 + i * 140, 450 + i * 210, 420);
+                    rg.addColorStop(0, 'rgba(247, 242, 234, 0.32)');
+                    rg.addColorStop(1, 'rgba(82, 111, 133, 0)');
+                    ctx.fillStyle = rg;
+                    ctx.fillRect(0, 0, W, H);
+                }
+            } else if (textureId === 'rose-shadow') {
+                const g = ctx.createLinearGradient(0, 0, 0, H);
+                g.addColorStop(0, '#F7F2EA');
+                g.addColorStop(0.5, '#CDA9A3');
+                g.addColorStop(1, '#803F50');
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, W, H);
+
+                // Botanical petal arcs
+                for (let i = 0; i < 8; i++) {
+                    ctx.save();
+                    ctx.translate(540, 900);
+                    ctx.rotate((i * Math.PI) / 4);
+                    ctx.beginPath();
+                    ctx.ellipse(0, -280, 140, 340, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(247, 242, 234, 0.18)';
+                    ctx.fill();
+                    ctx.restore();
+                }
+            } else if (textureId === 'seoul-grain') {
+                const g = ctx.createLinearGradient(0, 0, W, H);
+                g.addColorStop(0, '#6A5045');
+                g.addColorStop(0.5, '#C5A477');
+                g.addColorStop(1, '#F7F2EA');
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, W, H);
+
+                // Diagonal sunlight beams
+                ctx.fillStyle = 'rgba(255, 250, 240, 0.25)';
+                ctx.beginPath();
+                ctx.moveTo(0, 150);
+                ctx.lineTo(W, 650);
+                ctx.lineTo(W, 980);
+                ctx.lineTo(0, 480);
+                ctx.closePath();
+                ctx.fill();
+            } else {
+                // Architectural Light
+                const g = ctx.createLinearGradient(0, 0, W, H);
+                g.addColorStop(0, '#263746');
+                g.addColorStop(1, '#C5A477');
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, W, H);
+
+                // Venetian studio light slats
+                for (let y = 120; y < H; y += 130) {
+                    ctx.fillStyle = 'rgba(247, 242, 234, 0.24)';
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(W, y - 160);
+                    ctx.lineTo(W, y - 95);
+                    ctx.lineTo(0, y + 65);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+
+            return textureCanvas;
+        }
+
+        /* ============================================================================
+           8. MAIN 1080x1920 COMPOSITING ENGINE (3D TYPOGRAPHY + DOUBLE EXPOSURE)
+           ============================================================================ */
+        function renderCoverCanvas() {
+            const canvas = document.getElementById('cover-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const W = 1080;
+            const H = 1920;
+
+            const theme = BG_THEMES[state.bgTheme] || BG_THEMES.pearl;
+
+            // ------------------------------------------------------------------------
+            // LAYER 1: LUXURY EDITORIAL BACKGROUND & SUBTLE STUDIO HALO
+            // ------------------------------------------------------------------------
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+            bgGrad.addColorStop(0, theme.top);
+            bgGrad.addColorStop(1, theme.bottom);
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Soft radial studio spotlight behind center subject
+            const haloGrad = ctx.createRadialGradient(W / 2, H * 0.45, 60, W / 2, H * 0.45, 680);
+            haloGrad.addColorStop(0, theme.isDark ? 'rgba(197, 164, 119, 0.22)' : 'rgba(255, 255, 255, 0.65)');
+            haloGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = haloGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Minimal Editorial Border Frame & Issue Masthead
+            ctx.save();
+            ctx.strokeStyle = theme.accent;
+            ctx.globalAlpha = 0.45;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(46, 46, W - 92, H - 92);
+            ctx.restore();
+
+            // Top Editorial Issue Bar
+            ctx.save();
+            ctx.fillStyle = theme.accent;
+            ctx.font = '700 22px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`THE STYLE EDIT  •  ${state.headlineCategory.toUpperCase()} EDITION`, W / 2, 102);
+            ctx.restore();
+
+            // ------------------------------------------------------------------------
+            // LAYER 2: GIANT BACKDROP WORD (ALWAYS BEHIND SUBJECT FOR 3D DEPTH)
+            // ------------------------------------------------------------------------
+            if (state.giantWord && state.giantWord.trim().length > 0) {
+                ctx.save();
+                const word = state.giantWord.toUpperCase();
+                ctx.font = `800 ${state.giantSize}px "Playfair Display", serif`;
+                ctx.fillStyle = theme.giantText;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                // Auto-fit width if word is long
+                const measured = ctx.measureText(word).width;
+                const maxAllowedW = W - 80;
+                if (measured > maxAllowedW) {
+                    const scaledFont = Math.floor(state.giantSize * (maxAllowedW / measured));
+                    ctx.font = `800 ${scaledFont}px "Playfair Display", serif`;
+                }
+
+                ctx.fillText(word, W / 2, H * 0.30);
+                ctx.restore();
+            }
+
+            // ------------------------------------------------------------------------
+            // LAYER 3: MAIN HEADLINE (WHEN SET TO 'BEHIND' OR 'SPLIT' 3D SANDWICH)
+            // ------------------------------------------------------------------------
+            const headlineYPos = H * (state.headlineY / 100);
+            if (state.textLayerMode === 'behind' || state.textLayerMode === 'split') {
+                drawEditorialHeadline(ctx, W, headlineYPos, theme, false);
+            }
+
+            // ------------------------------------------------------------------------
+            // LAYER 4 & 5: SUBJECT CUTOUT + DOUBLE EXPOSURE / GHOST ECHO / DUOTONE
+            // ------------------------------------------------------------------------
+            if (cutoutCanvas.width > 0 && cutoutCanvas.height > 0) {
+                const baseScale = Math.min((W * 0.94) / cutoutCanvas.width, (H * 0.78) / cutoutCanvas.height);
+                const finalW = cutoutCanvas.width * baseScale * state.subjectZoom;
+                const finalH = cutoutCanvas.height * baseScale * state.subjectZoom;
+                const posX = (W - finalW) / 2 + state.subjectX;
+                const posY = (H * 0.54 - finalH / 2) + state.subjectY;
+
+                // MODE A: GHOST ECHO EXPOSURE (Offset Tinted Double Silhouette Behind Subject)
+                if (state.compositionStyle === 'ghost-echo') {
+                    const echoCanvas = document.createElement('canvas');
+                    echoCanvas.width = cutoutCanvas.width;
+                    echoCanvas.height = cutoutCanvas.height;
+                    const eCtx = echoCanvas.getContext('2d');
+                    eCtx.drawImage(cutoutCanvas, 0, 0);
+                    eCtx.globalCompositeOperation = 'source-in';
+                    eCtx.fillStyle = state.echoColor;
+                    eCtx.fillRect(0, 0, echoCanvas.width, echoCanvas.height);
+
+                    ctx.save();
+                    ctx.globalAlpha = 0.42 * state.blendIntensity + 0.15;
+                    ctx.drawImage(echoCanvas, posX - 65, posY - 28, finalW * 1.05, finalH * 1.05);
+                    ctx.globalAlpha = 0.24 * state.blendIntensity + 0.08;
+                    ctx.drawImage(echoCanvas, posX + 75, posY + 18, finalW * 1.08, finalH * 1.08);
+                    ctx.restore();
+                }
+
+                // Prepare Subject Composite Sprite (Handles Double Exposure Blend & Duotone)
+                const subjectComposite = document.createElement('canvas');
+                subjectComposite.width = W;
+                subjectComposite.height = H;
+                const scCtx = subjectComposite.getContext('2d');
+
+                // Draw primary cutout subject
+                scCtx.drawImage(cutoutCanvas, posX, posY, finalW, finalH);
+
+                // MODE B: DOUBLE EXPOSURE BLEND (Texture or 2nd Photo Masked Inside Subject)
+                if (state.compositionStyle === 'double-exposure') {
+                    const texCvs = buildArtisticTextureCanvas(state.exposureTexture);
+
+                    // Create masked texture clipped strictly to the person's cutout alpha
+                    const maskedTex = document.createElement('canvas');
+                    maskedTex.width = W;
+                    maskedTex.height = H;
+                    const mtCtx = maskedTex.getContext('2d');
+                    mtCtx.drawImage(cutoutCanvas, posX, posY, finalW, finalH);
+                    mtCtx.globalCompositeOperation = 'source-in';
+                    mtCtx.drawImage(texCvs, 0, 0, W, H);
+
+                    // Blend masked texture over the cutout person
+                    scCtx.save();
+                    scCtx.globalCompositeOperation = state.blendMode;
+                    scCtx.globalAlpha = state.blendIntensity;
+                    scCtx.drawImage(maskedTex, 0, 0);
+                    scCtx.restore();
+
+                    // Also add subtle atmospheric double-exposure aura behind person
+                    ctx.save();
+                    ctx.globalAlpha = 0.22 * state.blendIntensity;
+                    ctx.globalCompositeOperation = 'screen';
+                    ctx.drawImage(texCvs, 0, 0, W, H);
+                    ctx.restore();
+                }
+
+                // MODE C: DUOTONE MAGAZINE EXPOSURE
+                if (state.compositionStyle === 'duotone-exposure') {
+                    const duoCvs = document.createElement('canvas');
+                    duoCvs.width = W;
+                    duoCvs.height = H;
+                    const dCtx = duoCvs.getContext('2d');
+                    dCtx.drawImage(cutoutCanvas, posX, posY, finalW, finalH);
+                    dCtx.globalCompositeOperation = 'source-in';
+
+                    const duoGrad = dCtx.createLinearGradient(0, posY, W, posY + finalH);
+                    duoGrad.addColorStop(0, state.echoColor);
+                    duoGrad.addColorStop(1, '#C5A477');
+                    dCtx.fillStyle = duoGrad;
+                    dCtx.fillRect(0, 0, W, H);
+
+                    scCtx.save();
+                    scCtx.globalCompositeOperation = 'color';
+                    scCtx.globalAlpha = Math.max(0.55, state.blendIntensity);
+                    scCtx.drawImage(duoCvs, 0, 0);
+                    scCtx.restore();
+                }
+
+                // Draw final subject onto main cover with realistic studio depth shadow
+                ctx.save();
+                ctx.shadowColor = 'rgba(20, 28, 38, 0.32)';
+                ctx.shadowBlur = 42;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 18;
+                ctx.drawImage(subjectComposite, 0, 0);
+                ctx.restore();
+            }
+
+            // ------------------------------------------------------------------------
+            // LAYER 6: SPLIT DUAL-LAYER OUTLINE FRONT OR FRONT HEADLINE
+            // ------------------------------------------------------------------------
+            if (state.textLayerMode === 'split') {
+                // Draws crisp metallic outline IN FRONT of the person's body/head!
+                drawEditorialHeadline(ctx, W, headlineYPos, theme, true);
+            } else if (state.textLayerMode === 'front') {
+                drawEditorialHeadline(ctx, W, headlineYPos, theme, false);
+            }
+
+            // ------------------------------------------------------------------------
+            // LAYER 7: LOWER EDITORIAL SUBTITLE, DIVIDER & PERSONAL WATERMARK
+            // ------------------------------------------------------------------------
+            // Subtle bottom gradient scrim so foreground subtitle & watermark are always legible
+            const bottomScrim = ctx.createLinearGradient(0, H * 0.72, 0, H);
+            bottomScrim.addColorStop(0, 'rgba(0,0,0,0)');
+            bottomScrim.addColorStop(1, theme.isDark ? 'rgba(20, 28, 36, 0.72)' : 'rgba(247, 242, 234, 0.85)');
+            ctx.fillStyle = bottomScrim;
+            ctx.fillRect(48, H * 0.72, W - 96, H * 0.28 - 48);
+
+            // Decorative Champagne Gold Hairline Divider
+            ctx.save();
+            ctx.strokeStyle = theme.accent;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(W / 2 - 90, H - 255);
+            ctx.lineTo(W / 2 + 90, H - 255);
+            ctx.stroke();
+            ctx.restore();
+
+            // Editorial Subtitle
+            if (state.subtitle && state.subtitle.trim().length > 0) {
+                ctx.save();
+                ctx.font = '600 30px Montserrat, sans-serif';
+                ctx.fillStyle = theme.primaryText;
+                ctx.textAlign = 'center';
+                ctx.fillText(state.subtitle, W / 2, H - 198);
+                ctx.restore();
+            }
+
+            // Personal Signature Line
+            if (state.branding.signatureText) {
+                ctx.save();
+                ctx.font = 'italic 32px "Cormorant Garamond", serif';
+                ctx.fillStyle = theme.accent;
+                ctx.textAlign = 'center';
+                ctx.fillText(state.branding.signatureText, W / 2, H - 150);
+                ctx.restore();
+            }
+
+            // Personal Watermark (Customizable Position)
+            const wmText = state.branding.watermarkText || `Curated by ${state.branding.username}`;
+            if (wmText.trim().length > 0) {
+                ctx.save();
+                ctx.font = '700 22px Montserrat, sans-serif';
+                ctx.fillStyle = theme.primaryText;
+                ctx.globalAlpha = 0.88;
+
+                const pos = state.branding.watermarkPosition || 'bottom-center';
+                if (pos === 'bottom-left') {
+                    ctx.textAlign = 'left';
+                    ctx.fillText(wmText, 82, H - 84);
+                } else if (pos === 'bottom-right') {
+                    ctx.textAlign = 'right';
+                    ctx.fillText(wmText, W - 82, H - 84);
+                } else if (pos === 'top-editorial') {
+                    ctx.textAlign = 'center';
+                    ctx.fillText(wmText, W / 2, 146);
+                } else {
+                    ctx.textAlign = 'center';
+                    ctx.fillText(wmText, W / 2, H - 84);
+                }
+                ctx.restore();
+            }
+        }
+
+        /* Helper to render Main Editorial Headline (Solid Behind or Outline Front) */
+        function drawEditorialHeadline(ctx, W, centerY, theme, outlineOnly) {
+            const text = (state.mainHeadline || '').toUpperCase().trim();
+            if (!text) return;
+
+            ctx.save();
+            let fontSize = 86;
+            ctx.font = `800 ${fontSize}px "Playfair Display", serif`;
+            const maxW = W - 120;
+            const measured = ctx.measureText(text).width;
+            if (measured > maxW) {
+                fontSize = Math.max(44, Math.floor(fontSize * (maxW / measured)));
+                ctx.font = `800 ${fontSize}px "Playfair Display", serif`;
+            }
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            if (outlineOnly) {
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = theme.accent;
+                ctx.strokeText(text, W / 2, centerY);
+            } else {
+                ctx.fillStyle = theme.primaryText;
+                ctx.fillText(text, W / 2, centerY);
+            }
+            ctx.restore();
+        }
+
+        /* ============================================================================
+           9. INTERACTIVE CANVAS DRAG-TO-PAN & WHEEL ZOOM (MOUSE + TOUCH)
+           ============================================================================ */
+        function setupCanvasGestures() {
+            const canvas = document.getElementById('cover-canvas');
+            if (!canvas) return;
+
+            let isDragging = false;
+            let startClientX = 0;
+            let startClientY = 0;
+            let origSubjX = 0;
+            let origSubjY = 0;
+
+            function getScaleRatio() {
+                const rect = canvas.getBoundingClientRect();
+                return rect.width > 0 ? 1080 / rect.width : 1;
+            }
+
+            canvas.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                startClientX = e.clientX;
+                startClientY = e.clientY;
+                origSubjX = state.subjectX;
+                origSubjY = state.subjectY;
+                canvas.setPointerCapture(e.pointerId);
+            });
+
+            canvas.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                const ratio = getScaleRatio();
+                const dx = (e.clientX - startClientX) * ratio;
+                const dy = (e.clientY - startClientY) * ratio;
+                state.subjectX = Math.max(-450, Math.min(450, Math.round(origSubjX + dx)));
+                state.subjectY = Math.max(-500, Math.min(500, Math.round(origSubjY + dy)));
+
+                syncTransformSlidersUI();
+                renderCoverCanvas();
+            });
+
+            canvas.addEventListener('pointerup', (e) => {
+                isDragging = false;
+                try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+            });
+
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 0.05 : -0.05;
+                state.subjectZoom = Math.max(0.5, Math.min(2.2, +(state.subjectZoom + delta).toFixed(2)));
+                syncTransformSlidersUI();
+                renderCoverCanvas();
+            }, { passive: false });
+        }
+
+        function syncTransformSlidersUI() {
+            const zSlider = document.getElementById('input-subj-zoom');
+            const xSlider = document.getElementById('input-subj-x');
+            const ySlider = document.getElementById('input-subj-y');
+            if (zSlider) zSlider.value = Math.round(state.subjectZoom * 100);
+            if (xSlider) xSlider.value = state.subjectX;
+            if (ySlider) ySlider.value = state.subjectY;
+
+            const zVal = document.getElementById('val-subj-zoom');
+            const xVal = document.getElementById('val-subj-x');
+            const yVal = document.getElementById('val-subj-y');
+            if (zVal) zVal.textContent = `${Math.round(state.subjectZoom * 100)}%`;
+            if (xVal) xVal.textContent = state.subjectX;
+            if (yVal) yVal.textContent = state.subjectY;
+        }
+
+        /* ============================================================================
+           10. FILE UPLOAD & DRAG-AND-DROP HANDLERS
+           ============================================================================ */
+        function handleDragOver(e) {
+            e.preventDefault();
+            const dz = document.getElementById('dropzone-area');
+            if (dz) dz.classList.add('bg-gold/15', 'border-wine');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            const dz = document.getElementById('dropzone-area');
+            if (dz) dz.classList.remove('bg-gold/15', 'border-wine');
+        }
+
+        function handleFileDrop(e) {
+            e.preventDefault();
+            handleDragLeave(e);
+            const file = e.dataTransfer?.files?.[0];
+            if (file) loadImageFile(file);
+        }
+
+        function handlePrimaryPhotoUpload(e) {
+            const file = e.target.files?.[0];
+            if (file) loadImageFile(file);
+        }
+
+        function loadImageFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('Harap pilih file gambar (JPG, PNG, atau WEBP).');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    state.subjectZoom = 1.0;
+                    state.subjectX = 0;
+                    state.subjectY = 0;
+                    state.autoCutout = true;
+                    const toggleEl = document.getElementById('toggle-auto-cutout');
+                    if (toggleEl) toggleEl.checked = true;
+                    syncTransformSlidersUI();
+                    processUploadedImageCutout(img);
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleSecondPhotoUpload(e) {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    secondPhotoCanvas.width = img.naturalWidth || img.width;
+                    secondPhotoCanvas.height = img.naturalHeight || img.height;
+                    secondPhotoCanvas.getContext('2d').drawImage(img, 0, 0);
+                    state.hasSecondPhoto = true;
+                    state.compositionStyle = 'double-exposure';
+                    document.getElementById('remove-second-photo-btn')?.classList.remove('hidden');
+                    updateAllUIStates();
+                    renderCoverCanvas();
+                    showToast(state.lang === 'id' ? 'Foto ke-2 berhasil dipadukan untuk Double Exposure!' : '2nd Photo blended for Double Exposure!');
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeSecondPhoto() {
+            state.hasSecondPhoto = false;
+            secondPhotoCanvas.width = 0;
+            secondPhotoCanvas.height = 0;
+            document.getElementById('remove-second-photo-btn')?.classList.add('hidden');
+            renderCoverCanvas();
+            showToast('Foto ke-2 dihapus.');
+        }
+
+        /* ============================================================================
+           11. STUDIO CONTROL EVENT HANDLERS
+           ============================================================================ */
+        function switchStudioTab(tabName) {
+            state.activeTab = tabName;
+            document.querySelectorAll('.studio-tab-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`tab-panel-${tabName}`)?.classList.remove('hidden');
+
+            document.querySelectorAll('.studio-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-navy', 'text-pearl', 'shadow');
+                btn.classList.add('text-navy', 'hover:bg-gold/15');
+            });
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-navy', 'hover:bg-gold/15');
+                activeBtn.classList.add('bg-navy', 'text-pearl', 'shadow');
+            }
+        }
+
+        function onToggleAutoCutout(enabled) {
+            state.autoCutout = enabled;
+            updateCutoutStatus(
+                enabled ? 'active' : 'off',
+                enabled
+                    ? (state.lang === 'id' ? 'AI Cutout Aktif' : 'AI Cutout Active')
+                    : (state.lang === 'id' ? 'Foto Asli (Tanpa Potong)' : 'Original Photo (No Cutout)')
+            );
+            rebuildCutoutSprite();
+            renderCoverCanvas();
+        }
+
+        function switchSegmentationMode(mode) {
+            state.segmentationMode = mode;
+            updateAllUIStates();
+            if (sourceCanvas.width > 0) {
+                const img = new Image();
+                img.onload = () => processUploadedImageCutout(img);
+                img.src = sourceCanvas.toDataURL();
+            }
+        }
+
+        function onCutoutParamChange() {
+            state.edgeFeather = parseInt(document.getElementById('input-edge-feather').value, 10);
+            state.maskThreshold = parseInt(document.getElementById('input-mask-threshold').value, 10) / 100;
+            state.bottomFade = parseInt(document.getElementById('input-bottom-fade').value, 10) / 100;
+
+            document.getElementById('val-edge-feather').textContent = `${state.edgeFeather}px`;
+            document.getElementById('val-mask-threshold').textContent = `${Math.round(state.maskThreshold * 100)}%`;
+            document.getElementById('val-bottom-fade').textContent = `${Math.round(state.bottomFade * 100)}%`;
+
+            rebuildCutoutSprite();
+            renderCoverCanvas();
+        }
+
+        function onTransformSliderChange() {
+            state.subjectZoom = parseInt(document.getElementById('input-subj-zoom').value, 10) / 100;
+            state.subjectX = parseInt(document.getElementById('input-subj-x').value, 10);
+            state.subjectY = parseInt(document.getElementById('input-subj-y').value, 10);
+            syncTransformSlidersUI();
+            renderCoverCanvas();
+        }
+
+        function resetSubjectPosition() {
+            state.subjectZoom = 1.0;
+            state.subjectX = 0;
+            state.subjectY = 0;
+            syncTransformSlidersUI();
+            renderCoverCanvas();
+        }
+
+        function setCompareOriginal(active) {
+            state.compareOriginal = active;
+            rebuildCutoutSprite();
+            renderCoverCanvas();
+        }
+
+        function setSubjectGrade(preset) {
+            state.gradePreset = preset;
+            updateAllUIStates();
+            rebuildCutoutSprite();
+            renderCoverCanvas();
+        }
+
+        function setCompositionStyle(style) {
+            state.compositionStyle = style;
+            updateAllUIStates();
+            renderCoverCanvas();
+        }
+
+        function setExposureTexture(textureId) {
+            state.exposureTexture = textureId;
+            state.hasSecondPhoto = false;
+            document.getElementById('remove-second-photo-btn')?.classList.add('hidden');
+            if (state.compositionStyle === 'typography-overlay') {
+                state.compositionStyle = 'double-exposure';
+            }
+            updateAllUIStates();
+            renderCoverCanvas();
+        }
+
+        function onExposureParamChange() {
+            state.blendMode = document.getElementById('select-blend-mode').value;
+            state.blendIntensity = parseInt(document.getElementById('input-blend-intensity').value, 10) / 100;
+            document.getElementById('val-blend-intensity').textContent = `${Math.round(state.blendIntensity * 100)}%`;
+            renderCoverCanvas();
+        }
+
+        function setEchoColor(hex) {
+            state.echoColor = hex;
+            if (state.compositionStyle === 'typography-overlay') {
+                state.compositionStyle = 'ghost-echo';
+            }
+            updateAllUIStates();
+            renderCoverCanvas();
+        }
+
+        function setTextLayerMode(mode) {
+            state.textLayerMode = mode;
+            updateAllUIStates();
+            renderCoverCanvas();
+        }
+
+        function setGiantWord(word) {
+            state.giantWord = word;
+            const inp = document.getElementById('input-giant-word');
+            if (inp) inp.value = word;
+            renderCoverCanvas();
+        }
+
+        function onTypographyChange() {
+            state.giantWord = document.getElementById('input-giant-word').value;
+            state.giantSize = parseInt(document.getElementById('input-giant-size').value, 10);
+            state.mainHeadline = document.getElementById('input-main-headline').value;
+            state.subtitle = document.getElementById('input-subtitle').value;
+            state.headlineY = parseInt(document.getElementById('input-headline-y').value, 10);
+
+            document.getElementById('val-giant-size').textContent = `${state.giantSize}px`;
+            document.getElementById('val-headline-y').textContent = `${state.headlineY}%`;
+            renderCoverCanvas();
+        }
+
+        function onHeadlineCategoryChange(cat) {
+            state.headlineCategory = cat;
+            const list = AUTO_HEADLINES[cat] || AUTO_HEADLINES['Outfit'];
+            state.mainHeadline = list[0];
+            const inp = document.getElementById('input-main-headline');
+            if (inp) inp.value = state.mainHeadline;
+            renderAutoHeadlinePills();
+            renderCoverCanvas();
+        }
+
+        function selectAutoHeadline(text) {
+            state.mainHeadline = text;
+            const inp = document.getElementById('input-main-headline');
+            if (inp) inp.value = text;
+            renderCoverCanvas();
+        }
+
+        function setBackgroundTheme(themeKey) {
+            state.bgTheme = themeKey;
+            renderCoverCanvas();
+        }
+
+        /* ============================================================================
+           12. TEMPLATES LIBRARY, FAVORITES & RECENT DESIGNS
+           ============================================================================ */
+        function applyTemplate(tmplId) {
+            const tmpl = TEMPLATES_JSON.find(t => t.id === tmplId);
+            if (!tmpl) return;
+
+            state.selectedTemplateId = tmpl.id;
+            state.compositionStyle = tmpl.compositionStyle;
+            state.bgTheme = tmpl.bgTheme;
+            state.giantWord = tmpl.giantWord;
+            state.giantSize = tmpl.giantSize;
+            state.headlineCategory = tmpl.category;
+            state.mainHeadline = tmpl.headline;
+            state.subtitle = tmpl.subtitle;
+            state.textLayerMode = tmpl.textLayerMode;
+            state.headlineY = tmpl.headlineY;
+            state.exposureTexture = tmpl.exposureTexture;
+            state.blendMode = tmpl.blendMode;
+            state.blendIntensity = tmpl.blendIntensity / 100;
+            state.echoColor = tmpl.echoColor;
+            state.gradePreset = tmpl.gradePreset;
+
+            // Sync UI controls
+            document.getElementById('input-giant-word').value = state.giantWord;
+            document.getElementById('input-giant-size').value = state.giantSize;
+            document.getElementById('val-giant-size').textContent = `${state.giantSize}px`;
+            document.getElementById('select-headline-category').value = state.headlineCategory;
+            document.getElementById('input-main-headline').value = state.mainHeadline;
+            document.getElementById('input-subtitle').value = state.subtitle;
+            document.getElementById('input-headline-y').value = state.headlineY;
+            document.getElementById('val-headline-y').textContent = `${state.headlineY}%`;
+            document.getElementById('select-blend-mode').value = state.blendMode;
+            document.getElementById('input-blend-intensity').value = tmpl.blendIntensity;
+            document.getElementById('val-blend-intensity').textContent = `${tmpl.blendIntensity}%`;
+
+            renderAutoHeadlinePills();
+            updateAllUIStates();
+            rebuildCutoutSprite();
+            renderCoverCanvas();
+            showToast(`Template "${tmpl.name}" diterapkan!`);
+        }
+
+        function toggleTemplateFavorite(e, tmplId) {
+            e.stopPropagation();
+            if (state.favorites.includes(tmplId)) {
+                state.favorites = state.favorites.filter(id => id !== tmplId);
+            } else {
+                state.favorites.push(tmplId);
+            }
+            localStorage.setItem('tse_favorites_v2', JSON.stringify(state.favorites));
+            renderTemplatesGrid();
+        }
+
+        function filterTemplates(filterKey) {
+            state.templateFilter = filterKey;
+            renderTemplatesGrid();
+        }
+
+        function renderTemplatesGrid() {
+            const grid = document.getElementById('templates-grid');
+            if (!grid) return;
+
+            // Update filter pills
+            document.querySelectorAll('.tmpl-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-navy', 'text-pearl');
+                btn.classList.add('bg-pearl', 'text-navy', 'border', 'border-gold/30');
+            });
+            const activeFilter = document.getElementById(`tmpl-filter-${state.templateFilter}`);
+            if (activeFilter) {
+                activeFilter.classList.remove('bg-pearl', 'text-navy', 'border', 'border-gold/30');
+                activeFilter.classList.add('bg-navy', 'text-pearl');
+            }
+
+            let list = TEMPLATES_JSON;
+            if (state.templateFilter === 'favorites') {
+                list = TEMPLATES_JSON.filter(t => state.favorites.includes(t.id));
+            } else if (state.templateFilter !== 'all') {
+                list = TEMPLATES_JSON.filter(t => t.compositionStyle === state.templateFilter);
+            }
+
+            grid.innerHTML = list.map(t => {
+                const isSelected = state.selectedTemplateId === t.id;
+                const isFav = state.favorites.includes(t.id);
+                const [c1, c2, c3] = t.swatchColors;
+                return `
+                    <div onclick="applyTemplate('${t.id}')" class="cursor-pointer rounded-2xl p-3 border transition flex flex-col justify-between ${isSelected ? 'border-wine bg-wine/5 ring-2 ring-wine/25' : 'border-gold/30 bg-pearl/40 hover:bg-pearl'}">
+                        <div>
+                            <div class="h-24 rounded-xl mb-2.5 p-2.5 flex flex-col justify-between relative overflow-hidden border border-black/10" style="background: linear-gradient(135deg, ${c1}, ${c2});">
+                                <div class="flex justify-between items-center z-10">
+                                    <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-white/85 text-navy">${t.category}</span>
+                                    <button onclick="toggleTemplateFavorite(event, '${t.id}')" class="w-6 h-6 rounded-full bg-white/90 flex items-center justify-center text-wine shadow-sm hover:scale-110 transition">
+                                        <span class="text-xs leading-none">${isFav ? '♥' : '♡'}</span>
+                                    </button>
+                                </div>
+                                <div class="font-headline font-extrabold text-lg tracking-tight opacity-85 truncate" style="color: ${c3};">${t.giantWord}</div>
+                            </div>
+                            <div class="text-xs font-bold text-navy truncate">${t.name}</div>
+                            <div class="text-[10px] text-navy/60 truncate mt-0.5">${t.headline}</div>
+                        </div>
+                        <div class="mt-2 pt-1.5 border-t border-gold/20 flex items-center justify-between text-[9px] font-bold uppercase tracking-wider text-wine">
+                            <span>${t.compositionStyle.replace('-', ' ')}</span>
+                            <span>${isSelected ? 'Aktif' : 'Pilih →'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function saveToRecentDesigns() {
+            const canvas = document.getElementById('cover-canvas');
+            if (!canvas) return;
+
+            // Create lightweight thumbnail (270x480) for localStorage
+            const thumb = document.createElement('canvas');
+            thumb.width = 270;
+            thumb.height = 480;
+            thumb.getContext('2d').drawImage(canvas, 0, 0, 270, 480);
+
+            const entry = {
+                id: 'des_' + Date.now(),
+                headline: state.mainHeadline,
+                date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                thumb: thumb.toDataURL('image/jpeg', 0.78)
+            };
+
+            state.recentDesigns.unshift(entry);
+            if (state.recentDesigns.length > 8) state.recentDesigns.pop();
+            localStorage.setItem('tse_recents_v2', JSON.stringify(state.recentDesigns));
+            renderRecentDesigns();
+            showToast(state.lang === 'id' ? 'Desain disimpan ke Riwayat!' : 'Saved to Recent Designs!');
+        }
+
+        function renderRecentDesigns() {
+            const container = document.getElementById('recent-designs-list');
+            if (!container) return;
+
+            if (state.recentDesigns.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-xs text-navy/50 italic">Belum ada desain tersimpan. Klik ikon bookmark di bawah preview untuk menyimpan.</p>`;
+                return;
+            }
+
+            container.innerHTML = state.recentDesigns.map(item => `
+                <div class="bg-pearl/60 rounded-xl p-2 border border-gold/25 flex flex-col gap-1.5">
+                    <img src="${item.thumb}" alt="${item.headline}" class="w-full aspect-[9/16] object-cover rounded-lg border border-gold/20">
+                    <div class="text-[10px] font-bold text-navy truncate">${item.headline}</div>
+                    <div class="text-[9px] text-navy/55">${item.date}</div>
+                </div>
+            `).join('');
+        }
+
+        /* ============================================================================
+           13. PERSONAL BRANDING & EXPORT (1080x1920 PNG / JPG)
+           ============================================================================ */
+        function syncWatermarkPreview() {
+            const username = document.getElementById('brand-input-username').value.trim() || '@chocoovora';
+            const style = document.getElementById('brand-select-style').value;
+            const wmInput = document.getElementById('brand-input-watermark');
+
+            if (style === 'curated') wmInput.value = `Curated by ${username}`;
+            else if (style === 'handle') wmInput.value = username;
+            else if (style === 'diary') wmInput.value = 'Your Daily Style Diary';
+            else if (style === 'selected') wmInput.value = 'Personally Selected';
+
+            onBrandingLiveUpdate();
+        }
+
+        function onBrandingLiveUpdate() {
+            state.branding.username = document.getElementById('brand-input-username').value;
+            state.branding.watermarkStyle = document.getElementById('brand-select-style').value;
+            state.branding.watermarkText = document.getElementById('brand-input-watermark').value;
+            state.branding.signatureText = document.getElementById('brand-input-signature').value;
+            state.branding.watermarkPosition = document.getElementById('brand-select-position').value;
+
+            const pill = document.getElementById('header-watermark-pill');
+            if (pill) pill.textContent = state.branding.username || '@chocoovora';
+
+            renderCoverCanvas();
+        }
+
+        function saveBrandingPreferences() {
+            onBrandingLiveUpdate();
+            localStorage.setItem('tse_branding_v2', JSON.stringify(state.branding));
+            showToast(state.lang === 'id' ? 'Personal branding tersimpan permanen!' : 'Personal branding saved!');
+        }
+
+        function openExportModal() {
+            const modal = document.getElementById('export-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeExportModal() {
+            const modal = document.getElementById('export-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function exportCover(format) {
+            const canvas = document.getElementById('cover-canvas');
+            if (!canvas) return;
+
+            // Ensure latest frame is rendered cleanly without any temporary compare state
+            state.compareOriginal = false;
+            rebuildCutoutSprite();
+            renderCoverCanvas();
+
+            const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
+            const quality = format === 'jpg' ? 0.96 : 1.0;
+            const dataUrl = canvas.toDataURL(mimeType, quality);
+
+            const link = document.createElement('a');
+            const slug = (state.mainHeadline || 'style-edit').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            link.download = `THE-STYLE-EDIT-${slug}-1080x1920.${format}`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast(state.lang === 'id'
+                ? `Cover berhasil didownload (${format.toUpperCase()} 1080×1920 HD)!`
+                : `Cover exported (${format.toUpperCase()} 1080×1920 HD)!`
+            );
+        }
+
+        /* ============================================================================
+           14. UI HELPERS, BILINGUAL SUPPORT & INITIALIZATION
+           ============================================================================ */
+        function updateCutoutStatus(status, label) {
+            const dot = document.getElementById('cutout-status-dot');
+            const txt = document.getElementById('cutout-status-text');
+            if (txt) txt.textContent = label;
+            if (dot) {
+                dot.className = 'w-2 h-2 rounded-full ' + (
+                    status === 'processing' ? 'bg-amber-400 animate-ping' :
+                    status === 'active' ? 'bg-emerald-400 animate-pulse' : 'bg-gray-400'
+                );
+            }
+        }
+
+        function renderExposureTexturesGrid() {
+            const grid = document.getElementById('exposure-textures-grid');
+            if (!grid) return;
+
+            grid.innerHTML = EXPOSURE_TEXTURES.map(tex => {
+                const active = state.exposureTexture === tex.id && !state.hasSecondPhoto;
+                return `
+                    <button onclick="setExposureTexture('${tex.id}')" class="p-2.5 rounded-2xl border text-left transition flex items-center gap-2.5 ${active ? 'border-wine bg-wine/10 ring-1 ring-wine' : 'border-gold/30 bg-pearl/50 hover:bg-pearl'}">
+                        <span class="w-8 h-8 rounded-xl shrink-0 shadow-inner border border-white/50" style="background: linear-gradient(135deg, ${tex.colors[0]}, ${tex.colors[1]}, ${tex.colors[2]});"></span>
+                        <span class="text-[11px] font-bold text-navy leading-tight">${tex.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderAutoHeadlinePills() {
+            const container = document.getElementById('auto-headline-pills');
+            if (!container) return;
+            const list = AUTO_HEADLINES[state.headlineCategory] || AUTO_HEADLINES['Outfit'];
+            container.innerHTML = list.map(text => `
+                <button onclick="selectAutoHeadline('${text}')" class="px-3 py-1.5 rounded-full text-[11px] font-bold border transition ${state.mainHeadline === text ? 'bg-navy text-pearl border-navy' : 'bg-pearl text-navy border-gold/40 hover:bg-gold/15'}">
+                    ${text}
+                </button>
+            `).join('');
+        }
+
+        function updateAllUIStates() {
+            // 1. Top Composition Mode Pills
+            document.querySelectorAll('.comp-mode-btn').forEach(btn => {
+                btn.classList.remove('bg-navy', 'text-pearl', 'shadow');
+                btn.classList.add('text-navy/75', 'hover:bg-gold/15');
+            });
+            const activeCompBtn = document.getElementById(`mode-btn-${state.compositionStyle}`);
+            if (activeCompBtn) {
+                activeCompBtn.classList.remove('text-navy/75', 'hover:bg-gold/15');
+                activeCompBtn.classList.add('bg-navy', 'text-pearl', 'shadow');
+            }
+
+            // 2. Exposure Style Cards
+            document.querySelectorAll('.exp-style-card').forEach(card => {
+                card.classList.remove('border-wine', 'bg-wine/5', 'ring-1', 'ring-wine');
+                card.classList.add('border-gold/30', 'bg-pearl/40');
+            });
+            const activeExpCard = document.getElementById(`exp-card-${state.compositionStyle}`);
+            if (activeExpCard) {
+                activeExpCard.classList.remove('border-gold/30', 'bg-pearl/40');
+                activeExpCard.classList.add('border-wine', 'bg-wine/5', 'ring-1', 'ring-wine');
+            }
+
+            // 3. Segmentation Mode Cards
+            const pBtn = document.getElementById('seg-mode-person');
+            const oBtn = document.getElementById('seg-mode-object');
+            if (pBtn && oBtn) {
+                if (state.segmentationMode === 'person') {
+                    pBtn.className = 'p-3 rounded-2xl border border-wine bg-wine/5 ring-1 ring-wine text-left transition flex items-center gap-3';
+                    oBtn.className = 'p-3 rounded-2xl border border-gold/30 bg-pearl/40 hover:bg-pearl text-left transition flex items-center gap-3';
+                } else {
+                    oBtn.className = 'p-3 rounded-2xl border border-wine bg-wine/5 ring-1 ring-wine text-left transition flex items-center gap-3';
+                    pBtn.className = 'p-3 rounded-2xl border border-gold/30 bg-pearl/40 hover:bg-pearl text-left transition flex items-center gap-3';
+                }
+            }
+
+            // 4. Grade Presets
+            document.querySelectorAll('.grade-chip').forEach(chip => {
+                chip.classList.remove('bg-navy', 'text-pearl', 'border-navy');
+                chip.classList.add('bg-pearl', 'text-navy', 'border-gold/35');
+            });
+            const activeGrade = document.getElementById(`grade-btn-${state.gradePreset}`);
+            if (activeGrade) {
+                activeGrade.classList.remove('bg-pearl', 'text-navy', 'border-gold/35');
+                activeGrade.classList.add('bg-navy', 'text-pearl', 'border-navy');
+            }
+
+            // 5. Text Layering Mode Cards
+            document.querySelectorAll('.layer-mode-btn').forEach(btn => {
+                btn.classList.remove('border-wine', 'bg-wine/5', 'ring-1', 'ring-wine');
+                btn.classList.add('border-gold/30', 'bg-pearl/40');
+            });
+            const activeLayer = document.getElementById(`layer-btn-${state.textLayerMode}`);
+            if (activeLayer) {
+                activeLayer.classList.remove('border-gold/30', 'bg-pearl/40');
+                activeLayer.classList.add('border-wine', 'bg-wine/5', 'ring-1', 'ring-wine');
+            }
+
+            renderExposureTexturesGrid();
+            renderTemplatesGrid();
+        }
+
+        const I18N = {
+            id: {
+                nav_templates: 'Templates (12)',
+                btn_export: 'Export HD',
+                btn_hold_compare: 'Tahan: Asli',
+                ai_processing_title: 'Memotong Objek Orang (AI)...',
+                ai_processing_sub: 'Menghapus background otomatis agar menyatu dengan tipografi',
+                canvas_drag_hint: 'Geser subjek di kanvas untuk atur posisi',
+                upload_title: 'Upload Foto Fashion Kamu',
+                upload_desc: 'Otomatis hapus background & ambil orangnya saja (JPG, PNG, WEBP)',
+                btn_choose_photo: 'Pilih Foto',
+                tab_cutout: 'AI Cutout',
+                tab_exposure: 'Exposure',
+                tab_typography: 'Typography',
+                tab_templates: 'Templates',
+                tab_branding: 'Branding',
+                cutout_master_title: 'Auto Hapus Background (AI Cutout)',
+                cutout_master_desc: 'Hanya mengambil foto orang/subjek dan menghilangkan latar belakang otomatis.',
+                cutout_engine_label: 'Mode Deteksi Potongan Otomatis',
+                seg_person_title: 'AI Person (Orang)',
+                seg_person_sub: 'MediaPipe Neural Cutout',
+                seg_object_title: 'Smart Object (Produk)',
+                seg_object_sub: 'Tas, Sepatu & Flatlay',
+                slider_feather: 'Haluskan Tepi',
+                slider_threshold: 'Sensitivitas',
+                slider_bottom_fade: 'Gradasi Bawah',
+                subject_transform_label: 'Ukuran & Posisi Subjek',
+                btn_reset_pos: 'Reset Posisi',
+                grade_label: 'Tone Warna Subjek (Editorial Grading)',
+                exp_title: 'Double Exposure Cover Engine',
+                exp_desc: 'Padukan siluet orang dengan tekstur artistik editorial atau foto ke-2.',
+                exp_textures_label: 'Tekstur Double Exposure & Foto Ke-2',
+                btn_upload_second: 'Upload Foto Ke-2',
+                typo_layer_label: 'Posisi Layer Teks Utama (3D Sandwich Depth)'
+            },
+            en: {
+                nav_templates: 'Templates (12)',
+                btn_export: 'Export HD',
+                btn_hold_compare: 'Hold: Original',
+                ai_processing_title: 'Isolating Person (AI Cutout)...',
+                ai_processing_sub: 'Automatically removing background for 3D editorial layering',
+                canvas_drag_hint: 'Drag subject on canvas to reposition',
+                upload_title: 'Upload Your Fashion Photo',
+                upload_desc: 'Auto-removes background & isolates person only (JPG, PNG, WEBP)',
+                btn_choose_photo: 'Upload Photo',
+                tab_cutout: 'AI Cutout',
+                tab_exposure: 'Exposure',
+                tab_typography: 'Typography',
+                tab_templates: 'Templates',
+                tab_branding: 'Branding',
+                cutout_master_title: 'Auto Background Removal (AI Cutout)',
+                cutout_master_desc: 'Automatically keeps only the person/subject on a transparent layer.',
+                cutout_engine_label: 'Segmentation Engine Mode',
+                seg_person_title: 'AI Person (Human)',
+                seg_person_sub: 'MediaPipe Neural Cutout',
+                seg_object_title: 'Smart Object (Product)',
+                seg_object_sub: 'Bags, Shoes & Flatlay',
+                slider_feather: 'Edge Feather',
+                slider_threshold: 'Sensitivity',
+                slider_bottom_fade: 'Bottom Fade',
+                subject_transform_label: 'Subject Scale & Position',
+                btn_reset_pos: 'Reset Position',
+                grade_label: 'Subject Color Grading',
+                exp_title: 'Double Exposure Cover Engine',
+                exp_desc: 'Blend subject silhouette with artistic textures or a 2nd custom photo.',
+                exp_textures_label: 'Double Exposure Textures & 2nd Photo',
+                btn_upload_second: 'Upload 2nd Photo',
+                typo_layer_label: 'Main Headline Layering (3D Sandwich Depth)'
+            }
+        };
+
+        function toggleLanguage() {
+            state.lang = state.lang === 'id' ? 'en' : 'id';
+            document.getElementById('lang-label').textContent = state.lang.toUpperCase();
+            const dict = I18N[state.lang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.textContent = dict[key];
+            });
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'bg-navy text-pearl px-4 py-3 rounded-2xl shadow-xl border border-gold/50 text-xs font-semibold flex items-center gap-2.5 transition-all';
+            toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-gold"></span><span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        /* ============================================================================
+           15. BOOTSTRAP ON WINDOW LOAD
+           ============================================================================ */
+        window.onload = function () {
+            lucide.createIcons();
+
+            // Load persisted Personal Branding values into inputs
+            document.getElementById('brand-input-username').value = state.branding.username;
+            document.getElementById('brand-select-style').value = state.branding.watermarkStyle;
+            document.getElementById('brand-input-watermark').value = state.branding.watermarkText;
+            document.getElementById('brand-input-signature').value = state.branding.signatureText;
+            document.getElementById('brand-select-position').value = state.branding.watermarkPosition;
+            document.getElementById('header-watermark-pill').textContent = state.branding.username;
+
+            // Initialize default studio portrait with clean alpha mask
+            createDefaultEditorialPortrait();
+            rebuildCutoutSprite();
+
+            // Initialize UI controls & render canvas
+            switchStudioTab('cutout');
+            renderAutoHeadlinePills();
+            renderRecentDesigns();
+            updateAllUIStates();
+            setupCanvasGestures();
+            renderCoverCanvas();
+        };
+    </script>
+</body>
+</html>
