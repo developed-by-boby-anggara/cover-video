@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>THE STYLE EDIT — Your Signature. Your Style.</title>
+    <title>LALUCIENNE MANAGEMENT — Twibbon & Open Recruitment Studio</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,476 +12,552 @@
             theme: {
                 extend: {
                     colors: {
-                        pearl: '#F7F2EA',
-                        navy: '#263746',
-                        gold: '#C5A477',
-                        wine: '#803F50',
-                        rose: '#CDA9A3',
-                        cocoa: '#6A5045',
-                        ocean: '#526F85'
+                        crimson: '#B83333',
+                        crimsonDark: '#8E2222',
+                        cream: '#FBF7F2',
+                        charcoal: '#232326',
+                        goldAccent: '#D9A036'
                     },
                     fontFamily: {
-                        playfair: ['"Playfair Display"', 'serif'],
+                        oswald: ['Oswald', 'sans-serif'],
                         montserrat: ['Montserrat', 'sans-serif'],
-                        cormorant: ['"Cormorant Garamond"', 'serif']
+                        fredoka: ['Fredoka', 'sans-serif']
                     }
                 }
             }
         }
     </script>
 
-    <!-- Google Fonts: Playfair Display, Montserrat, Cormorant Garamond -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Montserrat:wght@500;600;700;800;900&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- MediaPipe Selfie Segmentation for Automatic Person Background Removal -->
+    <!-- MediaPipe Selfie Segmentation for Person Cutout -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
 
     <style>
-        /* Lock viewport height on mobile so pinching & dragging never scrolls the page */
         html, body {
             height: 100dvh;
             width: 100%;
             overflow: hidden;
             overscroll-behavior: none;
             font-family: 'Montserrat', sans-serif;
-            background-color: #F7F2EA;
-            color: #263746;
+            background-color: #FBF7F2;
+            color: #232326;
             -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            -webkit-user-select: none;
         }
 
-        .font-headline { font-family: 'Playfair Display', serif; }
-        .font-signature { font-family: 'Cormorant Garamond', serif; }
+        .font-agency { font-family: 'Oswald', sans-serif; }
+        .font-round { font-family: 'Fredoka', sans-serif; }
 
-        /* Subtle Studio Checker/Dot Backdrop behind 9:16 Cover Stage */
         .studio-backdrop {
-            background-color: #ECE4D8;
-            background-image: radial-gradient(rgba(197, 164, 119, 0.28) 1px, transparent 1px);
+            background-color: #EAE4DC;
+            background-image: radial-gradient(rgba(184, 51, 51, 0.20) 1.2px, transparent 1.2px);
             background-size: 18px 18px;
         }
 
-        /* Smooth Slide-Up Drawer Animation */
-        .drawer-sheet {
-            transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
-        }
-        .drawer-closed {
-            transform: translateY(105%);
-            pointer-events: none;
-            opacity: 0;
-        }
-        .drawer-open {
-            transform: translateY(0);
-            pointer-events: auto;
-            opacity: 1;
-        }
+        /* Custom clean scrollbars for PC side panel */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(184, 51, 51, 0.25); border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(184, 51, 51, 0.45); }
 
-        /* Clean Custom Range Input */
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             height: 5px;
             border-radius: 999px;
-            background: rgba(197, 164, 119, 0.35);
+            background: #E2D9CE;
             outline: none;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            background: #263746;
-            border: 2px solid #C5A477;
+            background: #B83333;
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.25);
             cursor: pointer;
         }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="flex flex-col justify-between h-[100dvh] overflow-hidden">
+<body class="flex flex-col h-[100dvh] overflow-hidden select-none">
 
-    <!-- ==================== COMPACT EDITORIAL HEADER ==================== -->
-    <header class="h-12 px-3 sm:px-6 bg-pearl/95 backdrop-blur-md border-b border-gold/30 flex items-center justify-between shrink-0 z-30">
-        <div class="flex items-center gap-2 min-w-0">
-            <div class="w-7 h-7 rounded-full bg-navy text-pearl font-headline font-bold text-xs flex items-center justify-center border border-gold/60 shrink-0 shadow-sm">
-                S
+    <!-- ==================== TOP HEADER BAR ==================== -->
+    <header class="bg-cream border-b border-crimson/20 px-3 sm:px-5 h-14 flex items-center justify-between gap-2 shrink-0 z-30">
+        <!-- Brand Identity -->
+        <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-crimson text-white font-round font-bold text-sm flex items-center justify-center border-2 border-goldAccent shadow-sm shrink-0">
+                LM
             </div>
             <div class="truncate leading-tight">
-                <div class="font-headline font-bold text-sm sm:text-base tracking-wider text-navy">THE STYLE EDIT</div>
-                <div class="text-[9px] sm:text-[10px] font-signature italic text-cocoa tracking-wide">Your Signature. Your Style.</div>
+                <div class="font-agency font-bold text-base tracking-wide text-charcoal uppercase">LALUCIENNE MANAGEMENT</div>
+                <div class="text-[10px] font-semibold text-crimson">Twibbon Talent, Reels &amp; Open Recruitment</div>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
-            <!-- Photo Counter Pill -->
-            <span id="photo-count-badge" class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full bg-gold/15 border border-gold/40 text-[10px] font-bold text-navy">
-                0 Foto
-            </span>
+        <!-- Mode Switcher Pills -->
+        <div class="hidden md:flex items-center gap-1.5 bg-white p-1 rounded-full border border-crimson/20 shadow-sm">
+            <button onclick="switchMode('feed')" id="tab-desk-feed" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5">
+                <i data-lucide="square" class="w-3.5 h-3.5"></i>
+                <span>Feed IG (1:1)</span>
+            </button>
+            <button onclick="switchMode('reels')" id="tab-desk-reels" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5">
+                <i data-lucide="clapperboard" class="w-3.5 h-3.5"></i>
+                <span>Reels (9:16)</span>
+            </button>
+            <button onclick="switchMode('oprec')" id="tab-desk-oprec" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5">
+                <i data-lucide="megaphone" class="w-3.5 h-3.5"></i>
+                <span>Open Recruitment</span>
+            </button>
+        </div>
 
-            <!-- Primary Save HD Button -->
-            <button onclick="openExportModal()" class="h-8 px-3.5 rounded-full bg-navy hover:bg-wine active:scale-95 text-pearl text-[11px] font-bold uppercase tracking-wider shadow-sm border border-gold/40 flex items-center gap-1.5 transition">
-                <i data-lucide="download" class="w-3.5 h-3.5 text-gold"></i>
+        <!-- Export HD Action -->
+        <div class="flex items-center gap-2 shrink-0">
+            <button onclick="openExportModal()" class="h-9 px-4 rounded-full bg-crimson hover:bg-crimsonDark active:scale-95 text-white text-xs font-bold uppercase tracking-wider shadow flex items-center gap-1.5 transition">
+                <i data-lucide="download" class="w-4 h-4"></i>
                 <span>Simpan HD</span>
             </button>
         </div>
     </header>
 
-    <!-- ==================== CENTER 9:16 INTERACTIVE COVER STAGE ==================== -->
-    <main
-        id="stage-dropzone"
-        ondragover="handleStageDragOver(event)"
-        ondragleave="handleStageDragLeave(event)"
-        ondrop="handleStageDrop(event)"
-        class="studio-backdrop flex-1 min-h-0 w-full flex flex-col items-center justify-center px-3 py-2 relative overflow-hidden">
+    <!-- Mobile Mode Tabs (Only visible on small screens < md) -->
+    <div class="md:hidden bg-cream border-b border-crimson/15 px-2 py-1.5 flex items-center justify-center gap-1.5 shrink-0">
+        <button onclick="switchMode('feed')" id="tab-mob-feed" class="px-3 py-1 rounded-full text-[11px] font-bold transition flex items-center gap-1">
+            <i data-lucide="square" class="w-3 h-3"></i>
+            <span>Feed IG (1:1)</span>
+        </button>
+        <button onclick="switchMode('reels')" id="tab-mob-reels" class="px-3 py-1 rounded-full text-[11px] font-bold transition flex items-center gap-1">
+            <i data-lucide="clapperboard" class="w-3 h-3"></i>
+            <span>Reels (9:16)</span>
+        </button>
+        <button onclick="switchMode('oprec')" id="tab-mob-oprec" class="px-3 py-1 rounded-full text-[11px] font-bold transition flex items-center gap-1">
+            <i data-lucide="megaphone" class="w-3 h-3"></i>
+            <span>Open Recruitment</span>
+        </button>
+    </div>
 
-        <!-- Contextual Photo Mini-Toolbar (Appears only when a photo is selected) -->
-        <div id="photo-mini-toolbar" class="hidden mb-1.5 z-20 max-w-full">
-            <div class="bg-navy/95 backdrop-blur-md text-pearl px-2 py-1 rounded-full shadow-lg border border-gold/40 flex items-center gap-1 overflow-x-auto no-scrollbar">
-                <button onclick="toggleSelectedCutout()" id="btn-toggle-cutout" class="px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap">
-                    <i data-lucide="scissors" class="w-3 h-3"></i>
-                    <span>Potong BG</span>
-                </button>
-                <button onclick="toggleSelectedFrame()" id="btn-toggle-frame" class="px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap">
-                    <i data-lucide="square" class="w-3 h-3"></i>
-                    <span>Bingkai</span>
-                </button>
-                <button onclick="moveSelectedLayer(1)" class="px-2 py-1 rounded-full hover:bg-white/15 text-[10px] font-semibold flex items-center gap-1 transition whitespace-nowrap" title="Pindah ke Depan">
-                    <i data-lucide="arrow-up" class="w-3 h-3 text-gold"></i>
-                    <span>Depan</span>
-                </button>
-                <button onclick="moveSelectedLayer(-1)" class="px-2 py-1 rounded-full hover:bg-white/15 text-[10px] font-semibold flex items-center gap-1 transition whitespace-nowrap" title="Pindah ke Belakang">
-                    <i data-lucide="arrow-down" class="w-3 h-3 text-gold"></i>
-                    <span>Belakang</span>
-                </button>
-                <div class="w-px h-3.5 bg-white/20 mx-0.5"></div>
-                <button onclick="deleteSelectedPhoto()" class="px-2 py-1 rounded-full hover:bg-wine text-rose hover:text-white text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap" title="Hapus Foto">
-                    <i data-lucide="trash-2" class="w-3 h-3"></i>
-                    <span>Hapus</span>
-                </button>
-            </div>
-        </div>
+    <!-- ==================== WORKSPACE: CANVAS STAGE + CONTROL PANEL ==================== -->
+    <div class="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
 
-        <!-- 9:16 Aspect-Ratio Cover Frame -->
-        <div id="canvas-shell" class="relative h-full max-h-[calc(100dvh-152px)] aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border border-gold/50 bg-pearl flex items-center justify-center">
-            <canvas id="cover-canvas" width="1080" height="1920" class="w-full h-full block touch-none cursor-grab active:cursor-grabbing"></canvas>
+        <!-- LEFT / CENTER: INTERACTIVE STAGE -->
+        <main
+            id="stage-dropzone"
+            ondragover="handleStageDragOver(event)"
+            ondragleave="handleStageDragLeave(event)"
+            ondrop="handleStageDrop(event)"
+            class="studio-backdrop flex-1 min-h-0 flex flex-col items-center justify-center p-2 sm:p-4 relative overflow-hidden">
 
-            <!-- AI Background Removal Processing Overlay -->
-            <div id="ai-loading-badge" class="hidden absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-navy/90 backdrop-blur-md text-pearl px-3.5 py-1.5 rounded-full border border-gold/50 shadow-lg items-center gap-2 whitespace-nowrap">
-                <span class="w-3.5 h-3.5 rounded-full border-2 border-gold/30 border-t-gold animate-spin"></span>
-                <span id="ai-loading-text" class="text-[10px] font-bold tracking-wide">Memotong background otomatis...</span>
-            </div>
+            <!-- Active Layer Contextual Toolbar (Works for Photo/Video, Logo Agency, AND Logo App) -->
+            <div id="layer-toolbar" class="mb-2 z-20 max-w-full flex items-center justify-center">
+                <div class="bg-charcoal/95 backdrop-blur-md text-white px-2.5 py-1.5 rounded-full shadow-lg border border-white/15 flex items-center gap-1.5 overflow-x-auto">
+                    <span id="selected-layer-badge" class="px-2.5 py-0.5 rounded-full bg-crimson text-[10px] font-extrabold uppercase tracking-wider whitespace-nowrap">
+                        Pilih Elemen di Kanvas
+                    </span>
 
-            <!-- Subtle Gesture Guide Pill (Visible when photos exist & no drawer open) -->
-            <div id="gesture-hint-pill" class="pointer-events-none absolute bottom-2.5 left-1/2 -translate-x-1/2 bg-navy/65 backdrop-blur-sm text-pearl/95 px-3 py-1 rounded-full text-[9px] font-medium tracking-wide whitespace-nowrap border border-white/15">
-                Cubit 2 jari: Zoom &amp; Putar • Geser: Posisi
-            </div>
-        </div>
-    </main>
-
-    <!-- ==================== MINIMALIST 3-BUTTON BOTTOM DOCK ==================== -->
-    <footer class="bg-pearl/95 backdrop-blur-md border-t border-gold/30 px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shrink-0 z-30">
-        <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
-            <!-- 1. + Tambah Foto (Multi-select gallery input) -->
-            <label class="h-11 rounded-2xl bg-navy hover:bg-wine active:scale-[0.98] text-pearl font-bold text-xs shadow-md border border-gold/40 flex items-center justify-center gap-1.5 cursor-pointer transition">
-                <i data-lucide="image-plus" class="w-4 h-4 text-gold shrink-0"></i>
-                <span class="truncate">+ Tambah Foto</span>
-                <input id="multi-photo-input" type="file" accept="image/*" multiple class="hidden" onchange="handleFilesInput(event)">
-            </label>
-
-            <!-- 2. Teks Cover -->
-            <button onclick="toggleDrawer('text')" id="dock-btn-text" class="h-11 rounded-2xl bg-white hover:bg-gold/15 active:scale-[0.98] text-navy font-bold text-xs border border-gold/45 shadow-sm flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="type" class="w-4 h-4 text-wine shrink-0"></i>
-                <span class="truncate">Teks Cover</span>
-            </button>
-
-            <!-- 3. Tema & Susunan -->
-            <button onclick="toggleDrawer('theme')" id="dock-btn-theme" class="h-11 rounded-2xl bg-white hover:bg-gold/15 active:scale-[0.98] text-navy font-bold text-xs border border-gold/45 shadow-sm flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="palette" class="w-4 h-4 text-wine shrink-0"></i>
-                <span class="truncate">Tema &amp; Susunan</span>
-            </button>
-        </div>
-    </footer>
-
-    <!-- ==================== DRAWER BACKDROP ==================== -->
-    <div id="drawer-backdrop" onclick="closeAllDrawers()" class="hidden fixed inset-0 bg-navy/35 backdrop-blur-[1px] z-30"></div>
-
-    <!-- ==================== SLIDE-UP DRAWER 1: TEKS COVER ==================== -->
-    <section id="drawer-text" class="drawer-sheet drawer-closed fixed inset-x-0 bottom-0 z-40 bg-pearl rounded-t-3xl border-t border-gold/50 shadow-2xl max-h-[78dvh] flex flex-col">
-        <div class="w-10 h-1 bg-gold/50 rounded-full mx-auto mt-2.5 shrink-0"></div>
-        <div class="px-5 py-3 border-b border-gold/25 flex items-center justify-between shrink-0">
-            <div>
-                <h2 class="font-headline font-bold text-base text-navy">Teks &amp; Watermark Signature</h2>
-                <p class="text-[10px] text-cocoa">Otomatis tersimpan permanen untuk semua videomu</p>
-            </div>
-            <button onclick="closeAllDrawers()" class="w-8 h-8 rounded-full bg-white border border-gold/30 flex items-center justify-center text-navy">
-                <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-        </div>
-
-        <div class="p-5 overflow-y-auto space-y-4 pb-8">
-            <!-- Quick Indonesian & English Fashion Presets -->
-            <div>
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-navy mb-1.5">Preset Judul Cepat</label>
-                <div class="flex flex-wrap gap-1.5">
-                    <button onclick="applyHeadlinePreset('THE DAILY OUTFIT', 'STYLE')" class="px-2.5 py-1 rounded-full bg-white border border-gold/40 text-[10px] font-bold text-navy hover:bg-navy hover:text-pearl transition">THE DAILY OUTFIT</button>
-                    <button onclick="applyHeadlinePreset('OUTFIT INSPO', 'OUTFIT')" class="px-2.5 py-1 rounded-full bg-white border border-gold/40 text-[10px] font-bold text-navy hover:bg-navy hover:text-pearl transition">OUTFIT INSPO</button>
-                    <button onclick="applyHeadlinePreset('RACUN OUTFIT', 'CHIC')" class="px-2.5 py-1 rounded-full bg-white border border-gold/40 text-[10px] font-bold text-navy hover:bg-navy hover:text-pearl transition">RACUN OUTFIT</button>
-                    <button onclick="applyHeadlinePreset('THE BAG EDIT', 'LUXE')" class="px-2.5 py-1 rounded-full bg-white border border-gold/40 text-[10px] font-bold text-navy hover:bg-navy hover:text-pearl transition">THE BAG EDIT</button>
-                    <button onclick="applyHeadlinePreset('STEP INTO STYLE', 'EDIT')" class="px-2.5 py-1 rounded-full bg-white border border-gold/40 text-[10px] font-bold text-navy hover:bg-navy hover:text-pearl transition">STEP INTO STYLE</button>
-                    <button onclick="applyHeadlinePreset('MODEST CHIC', 'GRACE')" class="px-2.5 py-1 rounded-full bg-white border border-gold/40 text-[10px] font-bold text-navy hover:bg-navy hover:text-pearl transition">MODEST CHIC</button>
-                </div>
-            </div>
-
-            <!-- Main Headline & Giant 3D Backdrop Word -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navy mb-1">Judul Utama (Headline)</label>
-                    <input type="text" id="inp-headline" oninput="updateTextSettings()" class="w-full bg-white border border-gold/45 rounded-xl px-3 py-2 text-xs font-bold text-navy focus:outline-none focus:border-wine">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navy mb-1">Teks Raksasa 3D (Belakang Foto)</label>
-                    <input type="text" id="inp-giant-word" oninput="updateTextSettings()" placeholder="Contoh: STYLE, OUTFIT, CHIC" class="w-full bg-white border border-gold/45 rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-widest text-navy focus:outline-none focus:border-wine">
-                </div>
-            </div>
-
-            <!-- Top Micro-Caption & Subtitle -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navy mb-1">Label Atas (Micro-Header)</label>
-                    <input type="text" id="inp-top-tag" oninput="updateTextSettings()" class="w-full bg-white border border-gold/45 rounded-xl px-3 py-2 text-xs font-semibold text-navy focus:outline-none focus:border-wine">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navy mb-1">Subjudul Bawah</label>
-                    <input type="text" id="inp-subtitle" oninput="updateTextSettings()" class="w-full bg-white border border-gold/45 rounded-xl px-3 py-2 text-xs font-medium text-navy focus:outline-none focus:border-wine">
-                </div>
-            </div>
-
-            <!-- Personal Watermark / Username -->
-            <div>
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-navy mb-1">Personal Watermark / @Username</label>
-                <input type="text" id="inp-watermark" oninput="updateTextSettings()" placeholder="@username • Your Signature. Your Style." class="w-full bg-white border border-gold/45 rounded-xl px-3 py-2 text-xs font-semibold text-navy focus:outline-none focus:border-wine">
-            </div>
-
-            <!-- 3D Layering Toggle (Behind Subject vs Front) -->
-            <div class="flex items-center justify-between bg-white px-3.5 py-2.5 rounded-2xl border border-gold/30">
-                <div>
-                    <div class="text-xs font-bold text-navy">Efek 3D Teks di Belakang Subjek</div>
-                    <div class="text-[10px] text-cocoa">Subjek foto tampil menimpa huruf raksasa</div>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="chk-3d-behind" onchange="updateTextSettings()" class="sr-only peer">
-                    <div class="w-11 h-6 bg-navy/20 rounded-full peer peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-wine"></div>
-                </label>
-            </div>
-        </div>
-    </section>
-
-    <!-- ==================== SLIDE-UP DRAWER 2: TEMA & SUSUNAN ==================== -->
-    <section id="drawer-theme" class="drawer-sheet drawer-closed fixed inset-x-0 bottom-0 z-40 bg-pearl rounded-t-3xl border-t border-gold/50 shadow-2xl max-h-[78dvh] flex flex-col">
-        <div class="w-10 h-1 bg-gold/50 rounded-full mx-auto mt-2.5 shrink-0"></div>
-        <div class="px-5 py-3 border-b border-gold/25 flex items-center justify-between shrink-0">
-            <div>
-                <h2 class="font-headline font-bold text-base text-navy">Tema Warna &amp; Susunan Foto</h2>
-                <p class="text-[10px] text-cocoa">Pilih palet mewah &amp; tata letak otomatis 1–3+ foto</p>
-            </div>
-            <button onclick="closeAllDrawers()" class="w-8 h-8 rounded-full bg-white border border-gold/30 flex items-center justify-center text-navy">
-                <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-        </div>
-
-        <div class="p-5 overflow-y-auto space-y-5 pb-8">
-            <!-- 6 Luxury Color Palettes -->
-            <div>
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-navy mb-2">6 Palet Warna Signature</label>
-                <div id="palette-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    <!-- Rendered dynamically -->
-                </div>
-            </div>
-
-            <!-- 1-Click Photo Auto-Layout Presets -->
-            <div>
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-navy mb-2">Susun Otomatis Foto di Kanvas</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="applyAutoLayout('hero-detail')" class="p-3 rounded-2xl bg-white hover:bg-gold/15 border border-gold/40 text-left transition">
-                        <div class="text-xs font-bold text-navy flex items-center gap-1.5">
-                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-wine"></i>
-                            <span>Utama + Detail</span>
-                        </div>
-                        <div class="text-[10px] text-cocoa mt-0.5">Foto 1 besar + foto lain berbingkai</div>
-                    </button>
-
-                    <button onclick="applyAutoLayout('editorial-collage')" class="p-3 rounded-2xl bg-white hover:bg-gold/15 border border-gold/40 text-left transition">
-                        <div class="text-xs font-bold text-navy flex items-center gap-1.5">
-                            <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-wine"></i>
-                            <span>Kolase Seimbang</span>
-                        </div>
-                        <div class="text-[10px] text-cocoa mt-0.5">Susun rapi semua foto berdampingan</div>
-                    </button>
-
-                    <button onclick="applyAutoLayout('center-portrait')" class="p-3 rounded-2xl bg-white hover:bg-gold/15 border border-gold/40 text-left transition">
-                        <div class="text-xs font-bold text-navy flex items-center gap-1.5">
-                            <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-wine"></i>
-                            <span>Potret Tengah</span>
-                        </div>
-                        <div class="text-[10px] text-cocoa mt-0.5">Reset posisi &amp; sudut ke 0°</div>
-                    </button>
-
-                    <button onclick="clearAllPhotos()" class="p-3 rounded-2xl bg-white hover:bg-wine/10 border border-rose/50 text-left transition">
-                        <div class="text-xs font-bold text-wine flex items-center gap-1.5">
+                    <div id="selected-layer-actions" class="hidden items-center gap-1">
+                        <button onclick="toggleSelectedCutout()" id="btn-cutout-toggle" class="px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap bg-white/10 hover:bg-white/20">
+                            <i data-lucide="scissors" class="w-3 h-3 text-goldAccent"></i>
+                            <span>Hapus BG</span>
+                        </button>
+                        <button onclick="nudgeScale(1.08)" class="px-2 py-1 rounded-full hover:bg-white/15 text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap" title="Perbesar">
+                            <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-goldAccent"></i>
+                        </button>
+                        <button onclick="nudgeScale(0.92)" class="px-2 py-1 rounded-full hover:bg-white/15 text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap" title="Perkecil">
+                            <i data-lucide="zoom-out" class="w-3.5 h-3.5 text-goldAccent"></i>
+                        </button>
+                        <button onclick="nudgeRotation(-5)" class="px-2 py-1 rounded-full hover:bg-white/15 text-[10px] font-bold transition" title="Putar Kiri 5°">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-goldAccent"></i>
+                        </button>
+                        <button onclick="nudgeRotation(5)" class="px-2 py-1 rounded-full hover:bg-white/15 text-[10px] font-bold transition" title="Putar Kanan 5°">
+                            <i data-lucide="rotate-cw" class="w-3.5 h-3.5 text-goldAccent"></i>
+                        </button>
+                        <button onclick="resetSelectedLayerTransform()" class="px-2.5 py-1 rounded-full hover:bg-white/15 text-[10px] font-semibold transition whitespace-nowrap">
+                            Reset Posisi
+                        </button>
+                        <button onclick="removeSelectedLayer()" class="px-2 py-1 rounded-full hover:bg-crimson text-red-300 hover:text-white text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            <span>Kosongkan Foto</span>
-                        </div>
-                        <div class="text-[10px] text-cocoa mt-0.5">Hapus foto, pertahankan teks &amp; tema</div>
+                            <span>Hapus</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div id="canvas-shell" class="relative aspect-square max-h-[calc(100%-74px)] max-w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-crimson/30 bg-white flex items-center justify-center transition-all duration-200">
+                <canvas id="twibbon-canvas" width="1080" height="1080" class="w-full h-full block touch-none cursor-move"></canvas>
+
+                <!-- AI Processing Spinner -->
+                <div id="ai-loading-badge" class="hidden absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-charcoal/90 backdrop-blur-md text-white px-3.5 py-1.5 rounded-full border border-goldAccent/50 shadow-lg items-center gap-2 whitespace-nowrap">
+                    <span class="w-3.5 h-3.5 rounded-full border-2 border-goldAccent/30 border-t-goldAccent animate-spin"></span>
+                    <span id="ai-loading-text" class="text-[10px] font-bold">Memproses gambar...</span>
+                </div>
+
+                <!-- Video Reels Playback Controls (Appears when a video is loaded in Reels mode) -->
+                <div id="reels-video-bar" class="hidden absolute bottom-9 left-1/2 -translate-x-1/2 z-20 bg-charcoal/90 backdrop-blur-md text-white px-3 py-1 rounded-full border border-white/20 shadow-lg items-center gap-2">
+                    <button onclick="toggleReelsVideoPlay()" id="btn-video-play" class="flex items-center gap-1 text-[10px] font-bold text-goldAccent">
+                        <i data-lucide="pause" class="w-3.5 h-3.5"></i>
+                        <span>Jeda Video</span>
                     </button>
                 </div>
+
+                <!-- Device-Aware Instruction Pill (Automatically changes between PC Mouse vs Mobile Touch) -->
+                <div id="device-hint-pill" class="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 bg-charcoal/75 backdrop-blur-sm text-white px-3 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
+                    Klik elemen di kanvas untuk geser • Tarik titik sudut untuk ubah ukuran
+                </div>
+            </div>
+        </main>
+
+        <!-- RIGHT SIDEBAR (PC) / BOTTOM PANEL (MOBILE): ALL CONTROLS IN ONE ORGANIZED PLACE -->
+        <aside class="w-full lg:w-[390px] xl:w-[420px] bg-cream border-t lg:border-t-0 lg:border-l border-crimson/20 flex flex-col shrink-0 h-[44dvh] lg:h-full z-20">
+            <!-- Panel Navigation Tabs -->
+            <div class="grid grid-cols-3 border-b border-crimson/15 bg-white shrink-0">
+                <button onclick="switchSideTab('media')" id="sidetab-media" class="py-2.5 text-xs font-extrabold border-b-2 transition flex items-center justify-center gap-1.5">
+                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                    <span>Media &amp; Logo</span>
+                </button>
+                <button onclick="switchSideTab('text')" id="sidetab-text" class="py-2.5 text-xs font-extrabold border-b-2 transition flex items-center justify-center gap-1.5">
+                    <i data-lucide="type" class="w-3.5 h-3.5"></i>
+                    <span>Teks &amp; Oprec</span>
+                </button>
+                <button onclick="switchSideTab('style')" id="sidetab-style" class="py-2.5 text-xs font-extrabold border-b-2 transition flex items-center justify-center gap-1.5">
+                    <i data-lucide="palette" class="w-3.5 h-3.5"></i>
+                    <span>Warna &amp; Bingkai</span>
+                </button>
             </div>
 
-            <!-- Decorative Frame Visibility -->
-            <div class="flex items-center justify-between bg-white px-3.5 py-2.5 rounded-2xl border border-gold/30">
-                <div>
-                    <div class="text-xs font-bold text-navy">Bingkai Garis Editorial &amp; Tanda Sudut</div>
-                    <div class="text-[10px] text-cocoa">Garis bingkai tipis mewah di tepi cover</div>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="chk-decor-frame" onchange="updateThemeDecor()" class="sr-only peer">
-                    <div class="w-11 h-6 bg-navy/20 rounded-full peer peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-wine"></div>
-                </label>
-            </div>
-        </div>
-    </section>
+            <!-- Scrollable Controls Container -->
+            <div class="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-4 select-text">
 
-    <!-- ==================== EXPORT HD MODAL (WITH LONG-PRESS GALLERY SAVE) ==================== -->
-    <div id="export-modal" class="hidden fixed inset-0 z-50 bg-navy/80 backdrop-blur-sm items-center justify-center p-4">
-        <div class="bg-pearl rounded-3xl max-w-sm w-full p-4 border border-gold/50 shadow-2xl flex flex-col gap-3 max-h-[92dvh]">
-            <div class="flex items-center justify-between border-b border-gold/25 pb-2.5 shrink-0">
-                <div>
-                    <h3 class="font-headline font-bold text-base text-navy">Cover Siap (1080 × 1920)</h3>
-                    <p class="text-[10px] text-cocoa">Resolusi penuh 9:16 tanpa watermark aplikasi</p>
+                <!-- ==================== TAB 1: MEDIA & LOGO (UPLOAD + ADJUST) ==================== -->
+                <div id="panel-media" class="space-y-4">
+
+                    <!-- 1. Upload Foto Talent / Video Reels -->
+                    <div class="bg-white p-3.5 rounded-2xl border border-crimson/20 shadow-sm space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-xs font-extrabold text-charcoal uppercase" id="media-card-title">1. Foto Talent / Konten</div>
+                                <div class="text-[10px] text-gray-500" id="media-card-desc">Upload foto talent atau seret file ke kanvas</div>
+                            </div>
+                            <label class="px-3.5 py-2 rounded-xl bg-crimson hover:bg-crimsonDark text-white text-xs font-bold cursor-pointer transition flex items-center gap-1.5 shrink-0 shadow-sm">
+                                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                                <span>Pilih File</span>
+                                <input id="talent-media-input" type="file" accept="image/*,video/mp4,video/webm,video/quicktime" class="hidden" onchange="handleTalentMediaUpload(event)">
+                            </label>
+                        </div>
+
+                        <!-- Quick Layer Selector Pills so user can easily click & adjust any layer -->
+                        <div class="pt-1 border-t border-gray-100">
+                            <div class="text-[10px] font-bold text-gray-500 mb-1.5">Klik untuk pilih &amp; atur posisi elemen:</div>
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <button onclick="selectLayerByType('media')" id="layer-pick-media" class="py-1.5 px-2 rounded-lg border text-[11px] font-bold transition truncate">
+                                    Foto / Video
+                                </button>
+                                <button onclick="selectLayerByType('agency')" id="layer-pick-agency" class="py-1.5 px-2 rounded-lg border text-[11px] font-bold transition truncate">
+                                    Logo Agency
+                                </button>
+                                <button onclick="selectLayerByType('app')" id="layer-pick-app" class="py-1.5 px-2 rounded-lg border text-[11px] font-bold transition truncate">
+                                    Logo Aplikasi
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Precision Sliders for Selected Layer (Very handy on PC Mouse!) -->
+                        <div id="precision-sliders-box" class="hidden bg-cream/70 p-2.5 rounded-xl border border-crimson/15 space-y-2">
+                            <div class="flex items-center justify-between text-[10px] font-bold text-charcoal">
+                                <span>Ukuran (<span id="lbl-scale-val">100%</span>)</span>
+                                <button onclick="resetSelectedLayerTransform()" class="text-crimson hover:underline">Reset</button>
+                            </div>
+                            <input type="range" id="slider-layer-scale" min="10" max="300" value="100" oninput="onSliderScaleChange(this.value)" class="w-full">
+
+                            <div class="flex items-center justify-between text-[10px] font-bold text-charcoal pt-1">
+                                <span>Kemiringan / Rotasi (<span id="lbl-rot-val">0°</span>)</span>
+                                <button onclick="onSliderRotChange(0)" class="text-crimson hover:underline">0° Lurus</button>
+                            </div>
+                            <input type="range" id="slider-layer-rot" min="-180" max="180" value="0" oninput="onSliderRotChange(this.value)" class="w-full">
+                        </div>
+                    </div>
+
+                    <!-- 2. Upload Logo Agency (Lalucienne Management) -->
+                    <div class="bg-white p-3.5 rounded-2xl border border-crimson/20 shadow-sm space-y-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="min-w-0">
+                                <div class="text-xs font-extrabold text-charcoal uppercase">2. Logo Agency (Lalucienne)</div>
+                                <div class="text-[10px] text-gray-500">Upload file logo agensi kamu (rasio asli, anti gepeng)</div>
+                            </div>
+                            <label class="px-3 py-2 rounded-xl bg-charcoal hover:bg-crimson text-white text-[11px] font-bold cursor-pointer transition shrink-0 flex items-center gap-1">
+                                <i data-lucide="image-plus" class="w-3.5 h-3.5"></i>
+                                <span>Upload Logo</span>
+                                <input type="file" accept="image/*" class="hidden" onchange="handleAgencyLogoUpload(event)">
+                            </label>
+                        </div>
+
+                        <div id="agency-logo-actions" class="hidden flex items-center justify-between pt-2 border-t border-gray-100 text-[11px]">
+                            <button onclick="toggleAgencyLogoBgRemoval()" id="btn-agency-bg" class="px-2.5 py-1 rounded-lg bg-cream border border-crimson/25 font-bold text-charcoal hover:bg-crimson/10 transition">
+                                Hapus BG Putih/Hitam: ON
+                            </button>
+                            <button onclick="clearAgencyLogo()" class="text-crimson font-bold hover:underline">
+                                Hapus Logo
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Upload Logo Aplikasi (Pojok Kanan Atas) -->
+                    <div class="bg-white p-3.5 rounded-2xl border border-crimson/20 shadow-sm space-y-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="min-w-0">
+                                <div class="text-xs font-extrabold text-charcoal uppercase">3. Logo Aplikasi (Pojok Atas)</div>
+                                <div class="text-[10px] text-gray-500">Upload logo Mango, Papaya, Bigo, TikTok, dll. sendiri</div>
+                            </div>
+                            <label class="px-3 py-2 rounded-xl bg-charcoal hover:bg-crimson text-white text-[11px] font-bold cursor-pointer transition shrink-0 flex items-center gap-1">
+                                <i data-lucide="image-plus" class="w-3.5 h-3.5"></i>
+                                <span>Upload App</span>
+                                <input type="file" accept="image/*" class="hidden" onchange="handleAppLogoUpload(event)">
+                            </label>
+                        </div>
+
+                        <div id="app-logo-actions" class="hidden flex items-center justify-between pt-2 border-t border-gray-100 text-[11px]">
+                            <button onclick="selectLayerByType('app')" class="px-2.5 py-1 rounded-lg bg-cream border border-crimson/25 font-bold text-charcoal hover:bg-crimson/10 transition">
+                                Atur Posisi &amp; Ukuran
+                            </button>
+                            <button onclick="clearAppLogo()" class="text-crimson font-bold hover:underline">
+                                Hapus Logo App
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <button onclick="closeExportModal()" class="w-8 h-8 rounded-full bg-white border border-gold/30 flex items-center justify-center text-navy">
+
+                <!-- ==================== TAB 2: TEKS TALENT & OPEN RECRUITMENT ==================== -->
+                <div id="panel-text" class="hidden space-y-4">
+                    <!-- Talent Twibbon Text -->
+                    <div class="bg-white p-3.5 rounded-2xl border border-crimson/20 shadow-sm space-y-3">
+                        <div class="text-xs font-extrabold text-crimson uppercase">Teks Twibbon Talent (Feed &amp; Reels)</div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-600 mb-1">Nama Aplikasi (Teks Melengkung Atas)</label>
+                            <input type="text" id="inp-app-title" oninput="updateTextSettings()" placeholder="MANGO LIVE / PAPAYA LIVE" class="w-full bg-cream/60 border border-gray-300 rounded-xl px-3 py-2 text-xs font-bold text-charcoal focus:outline-none focus:border-crimson">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-gray-600 mb-1">ID Host / Talent</label>
+                                <input type="text" id="inp-talent-id" oninput="updateTextSettings()" placeholder="ID 26025386" class="w-full bg-cream/60 border border-gray-300 rounded-xl px-3 py-2 text-xs font-bold text-charcoal focus:outline-none focus:border-crimson">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-gray-600 mb-1">Nama Talent (Opsional)</label>
+                                <input type="text" id="inp-talent-name" oninput="updateTextSettings()" placeholder="Nama Host" class="w-full bg-cream/60 border border-gray-300 rounded-xl px-3 py-2 text-xs font-semibold text-charcoal focus:outline-none focus:border-crimson">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-600 mb-1">Teks Pita Merah (Ribbon)</label>
+                            <input type="text" id="inp-ribbon-text" oninput="updateTextSettings()" placeholder="LA LUCIENNE MANAGEMENT" class="w-full bg-cream/60 border border-gray-300 rounded-xl px-3 py-2 text-xs font-bold text-charcoal focus:outline-none focus:border-crimson">
+                        </div>
+                    </div>
+
+                    <!-- Open Recruitment Poster Text -->
+                    <div class="bg-white p-3.5 rounded-2xl border border-crimson/20 shadow-sm space-y-3">
+                        <div class="text-xs font-extrabold text-crimson uppercase">Teks Poster Open Recruitment</div>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-gray-600 mb-1">Judul Oprec</label>
+                                <input type="text" id="inp-oprec-headline" oninput="updateTextSettings()" class="w-full bg-cream/60 border border-gray-300 rounded-xl px-3 py-2 text-xs font-bold text-charcoal focus:outline-none focus:border-crimson">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-gray-600 mb-1">Posisi Dibuka</label>
+                                <input type="text" id="inp-oprec-role" oninput="updateTextSettings()" class="w-full bg-cream/60 border border-gray-300 rounded-xl px-3 py-2 text-xs font-bold text-charcoal focus:outline-none focus:border-crimson">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-600 mb-1">Benefit &amp; Kualifikasi (1 Poin per Baris)</label>
+                            <textarea id="inp-oprec-benefits" rows="4" oninput="updateTextSettings()" class="w-full bg-cream/60 border border-gray-300 rounded-xl px-3 py-2 text-xs font-semibold text-charcoal focus:outline-none focus:border-crimson"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-600 mb-1">Kontak Pendaftaran (WA / IG)</label>
+                            <input type="text" id="inp-oprec-contact" oninput="updateTextSettings()" class="w-full bg-cream/60 border border-gray-300 rounded-xl px-3 py-2 text-xs font-bold text-charcoal focus:outline-none focus:border-crimson">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== TAB 3: WARNA & BINGKAI ==================== -->
+                <div id="panel-style" class="hidden space-y-4">
+                    <div class="bg-white p-3.5 rounded-2xl border border-crimson/20 shadow-sm space-y-2.5">
+                        <div class="text-xs font-extrabold text-charcoal uppercase">Palet Warna Tema</div>
+                        <div id="palette-grid" class="grid grid-cols-2 gap-2"></div>
+                    </div>
+
+                    <div class="bg-white p-3.5 rounded-2xl border border-crimson/20 shadow-sm space-y-2.5">
+                        <div class="text-xs font-extrabold text-charcoal uppercase">Opsi Tampilan</div>
+                        <label class="flex items-center justify-between py-1 cursor-pointer">
+                            <span class="text-xs font-semibold text-charcoal">Tampilkan Bintik Halftone Sudut</span>
+                            <input type="checkbox" id="chk-halftone" onchange="toggleHalftonePattern()" class="w-4 h-4 accent-crimson">
+                        </label>
+                        <label class="flex items-center justify-between py-1 cursor-pointer">
+                            <span class="text-xs font-semibold text-charcoal">Tampilkan Pita Merah (Feed IG)</span>
+                            <input type="checkbox" id="chk-ribbon" onchange="toggleRibbonVisibility()" class="w-4 h-4 accent-crimson">
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+    </div>
+
+    <!-- ==================== EXPORT HD MODAL ==================== -->
+    <div id="export-modal" class="hidden fixed inset-0 z-50 bg-charcoal/80 backdrop-blur-sm items-center justify-center p-4">
+        <div class="bg-cream rounded-3xl max-w-md w-full p-4 border border-crimson/30 shadow-2xl flex flex-col gap-3 max-h-[92dvh]">
+            <div class="flex items-center justify-between border-b border-gray-200 pb-2.5 shrink-0">
+                <div>
+                    <h3 id="export-modal-title" class="font-agency font-bold text-lg text-charcoal uppercase">Hasil Siap Unduh</h3>
+                    <p class="text-[10px] text-gray-600">Resolusi HD tajam • Bisa unduh gambar atau bingkai transparan Reels</p>
+                </div>
+                <button onclick="closeExportModal()" class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-charcoal">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <!-- High-Res Preview Image for Mobile Long-Press Save to Gallery -->
-            <div class="flex-1 min-h-0 flex flex-col items-center justify-center bg-white/60 rounded-2xl p-2 border border-gold/25 overflow-hidden">
-                <img id="export-preview-img" src="" alt="Cover 1080x1920" class="max-h-[48dvh] w-auto aspect-[9/16] object-contain rounded-xl shadow-md select-auto" style="-webkit-touch-callout: default; user-select: auto;">
-                <p class="text-[10px] text-center text-navy/75 mt-2 font-medium">
-                    Tips HP: Tekan &amp; tahan gambar di atas untuk <b>Simpan ke Galeri</b>, atau klik tombol unduh di bawah.
-                </p>
+            <div class="flex-1 min-h-0 flex flex-col items-center justify-center bg-white rounded-2xl p-2 border border-gray-200 overflow-hidden">
+                <img id="export-preview-img" src="" alt="Preview Export" class="max-h-[46dvh] w-auto object-contain rounded-xl shadow-md">
             </div>
 
-            <div class="grid grid-cols-2 gap-2.5 shrink-0">
-                <button onclick="downloadExportedFile('png')" class="h-11 rounded-2xl bg-navy hover:bg-wine text-pearl text-xs font-bold uppercase tracking-wider shadow flex items-center justify-center gap-1.5 transition">
-                    <i data-lucide="download" class="w-4 h-4 text-gold"></i>
-                    <span>Unduh PNG</span>
+            <div class="grid grid-cols-2 gap-2 shrink-0">
+                <button onclick="downloadExportedFile('png')" class="h-11 rounded-2xl bg-crimson hover:bg-crimsonDark text-white text-xs font-bold uppercase tracking-wider shadow flex items-center justify-center gap-1.5 transition">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>Unduh PNG HD</span>
                 </button>
-                <button onclick="downloadExportedFile('jpg')" class="h-11 rounded-2xl bg-gold hover:bg-gold/90 text-navy text-xs font-bold uppercase tracking-wider shadow flex items-center justify-center gap-1.5 transition">
-                    <i data-lucide="image" class="w-4 h-4"></i>
-                    <span>Unduh JPG</span>
+                <button onclick="downloadExportedFile('jpg')" class="h-11 rounded-2xl bg-charcoal hover:bg-black text-white text-xs font-bold uppercase tracking-wider shadow flex items-center justify-center gap-1.5 transition">
+                    <i data-lucide="image" class="w-4 h-4 text-goldAccent"></i>
+                    <span>Unduh JPG HD</span>
                 </button>
             </div>
+
+            <!-- Extra button for Reels Mode: Download Transparent Frame Overlay (PNG) for CapCut/IG Reels -->
+            <button id="btn-export-reels-overlay" onclick="downloadReelsTransparentOverlay()" class="hidden h-10 rounded-xl bg-white hover:bg-crimson/10 border border-crimson text-crimson text-xs font-extrabold uppercase tracking-wide flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="layers" class="w-4 h-4"></i>
+                <span>Unduh Bingkai Reels Transparan (PNG untuk CapCut)</span>
+            </button>
         </div>
     </div>
 
-    <!-- ==================== TOAST FEEDBACK ==================== -->
-    <div id="toast-box" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-1.5 pointer-events-none w-max max-w-[90vw]"></div>
+    <!-- ==================== TOAST NOTIFICATION ==================== -->
+    <div id="toast-box" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-1.5 pointer-events-none w-max max-w-[90vw]"></div>
 
-    <!-- ==================== APPLICATION LOGIC ==================== -->
+    <!-- ==================== APPLICATION SCRIPT ==================== -->
     <script>
         /* ============================================================================
-           1. CURATED LUXURY PALETTES & PERSISTENT STATE
+           1. STATE & PALETTES
            ============================================================================ */
-        const STORAGE_KEY = 'the_style_edit_signature_v3';
+        const STORAGE_KEY = 'lalucienne_studio_v4';
+        const AGENCY_LOGO_KEY = 'lalucienne_agency_logo_v4';
+        const APP_LOGO_KEY = 'lalucienne_app_logo_v4';
 
         const PALETTES = {
-            'pearl-navy': {
-                name: 'Pearl Ivory & Navy',
-                bgTop: '#F7F2EA',
-                bgBottom: '#EDE3D5',
-                accent: '#C5A477',
-                text: '#263746',
-                giantFill: 'rgba(197, 164, 119, 0.36)',
-                scrimTop: 'rgba(247, 242, 234, 0.86)',
-                scrimBottom: 'rgba(237, 227, 213, 0.92)',
-                isDark: false
+            'mango-sky': {
+                name: 'Sky Pastel & Crimson',
+                bgTop: '#BCE6F0',
+                bgMid: '#D8F1F7',
+                paperBottom: '#EAE6E1',
+                titleColor: '#7B2CBF',
+                circleRing: '#1E6B43',
+                circleInnerBg: '#125B38',
+                ribbonMain: '#B53834',
+                ribbonFold: '#7A1E1B',
+                ribbonText: '#FFFFFF',
+                idText: '#232326',
+                dotColor: 'rgba(181, 56, 52, 0.40)'
             },
-            'dusty-rose': {
-                name: 'Dusty Rose Editorial',
-                bgTop: '#F6ECEB',
-                bgBottom: '#E8D3D0',
-                accent: '#803F50',
-                text: '#263746',
-                giantFill: 'rgba(128, 63, 80, 0.20)',
-                scrimTop: 'rgba(246, 236, 235, 0.86)',
-                scrimBottom: 'rgba(232, 211, 208, 0.92)',
-                isDark: false
+            'lalucienne-crimson': {
+                name: 'Lalucienne Crimson & Cream',
+                bgTop: '#FDE8E8',
+                bgMid: '#FFF5F5',
+                paperBottom: '#F5ECE6',
+                titleColor: '#A61C1C',
+                circleRing: '#B83333',
+                circleInnerBg: '#5C1616',
+                ribbonMain: '#B83333',
+                ribbonFold: '#6E1818',
+                ribbonText: '#FFF8EB',
+                idText: '#261414',
+                dotColor: 'rgba(217, 160, 54, 0.48)'
             },
-            'rafael-wine': {
-                name: 'Rafael Wine & Gold',
-                bgTop: '#803F50',
-                bgBottom: '#4A202B',
-                accent: '#E6C79C',
-                text: '#F7F2EA',
-                giantFill: 'rgba(230, 199, 156, 0.22)',
-                scrimTop: 'rgba(74, 32, 43, 0.84)',
-                scrimBottom: 'rgba(54, 21, 30, 0.92)',
-                isDark: true
+            'royal-violet': {
+                name: 'Royal Violet & Gold',
+                bgTop: '#E9D8FD',
+                bgMid: '#F5EBFF',
+                paperBottom: '#EDE8F2',
+                titleColor: '#6B21A8',
+                circleRing: '#7E22CE',
+                circleInnerBg: '#3B0764',
+                ribbonMain: '#9D174D',
+                ribbonFold: '#500724',
+                ribbonText: '#FFFFFF',
+                idText: '#1E1B4B',
+                dotColor: 'rgba(126, 34, 206, 0.35)'
             },
-            'midnight-ocean': {
-                name: 'Midnight Ocean Luxe',
-                bgTop: '#263746',
-                bgBottom: '#17232E',
-                accent: '#C5A477',
-                text: '#F7F2EA',
-                giantFill: 'rgba(197, 164, 119, 0.24)',
-                scrimTop: 'rgba(23, 35, 46, 0.84)',
-                scrimBottom: 'rgba(18, 28, 37, 0.92)',
-                isDark: true
+            'peach-coral': {
+                name: 'Sweet Peach & Coral',
+                bgTop: '#FFE4D6',
+                bgMid: '#FFF1EA',
+                paperBottom: '#F2EAE4',
+                titleColor: '#C2410C',
+                circleRing: '#EA580C',
+                circleInnerBg: '#7C2D12',
+                ribbonMain: '#BE123C',
+                ribbonFold: '#881337',
+                ribbonText: '#FFFFFF',
+                idText: '#292524',
+                dotColor: 'rgba(234, 88, 12, 0.35)'
             },
-            'cocoa-latte': {
-                name: 'Warm Cocoa Latte',
-                bgTop: '#EFE6DD',
-                bgBottom: '#DECDBE',
-                accent: '#6A5045',
-                text: '#3B2B24',
-                giantFill: 'rgba(106, 80, 69, 0.22)',
-                scrimTop: 'rgba(239, 230, 221, 0.86)',
-                scrimBottom: 'rgba(222, 205, 190, 0.92)',
-                isDark: false
+            'mint-emerald': {
+                name: 'Mint Fresh & Emerald',
+                bgTop: '#D1FAE5',
+                bgMid: '#ECFDF5',
+                paperBottom: '#E6ECE9',
+                titleColor: '#047857',
+                circleRing: '#059669',
+                circleInnerBg: '#064E3B',
+                ribbonMain: '#B53834',
+                ribbonFold: '#7F1D1D',
+                ribbonText: '#FFFFFF',
+                idText: '#1F2937',
+                dotColor: 'rgba(5, 150, 105, 0.35)'
             },
-            'sage-cream': {
-                name: 'Soft Sage & Cream',
-                bgTop: '#F2F4EF',
-                bgBottom: '#DFE5DA',
-                accent: '#526F85',
-                text: '#263746',
-                giantFill: 'rgba(82, 111, 133, 0.20)',
-                scrimTop: 'rgba(242, 244, 239, 0.86)',
-                scrimBottom: 'rgba(223, 229, 218, 0.92)',
-                isDark: false
+            'midnight-gold': {
+                name: 'Midnight Gold VIP',
+                bgTop: '#1F1D2B',
+                bgMid: '#2D2A3E',
+                paperBottom: '#16151F',
+                titleColor: '#F3C65F',
+                circleRing: '#D9A036',
+                circleInnerBg: '#12111A',
+                ribbonMain: '#B83333',
+                ribbonFold: '#691919',
+                ribbonText: '#FFFFFF',
+                idText: '#F9FAFB',
+                dotColor: 'rgba(243, 198, 95, 0.35)'
             }
         };
 
         const DEFAULT_SETTINGS = {
-            paletteId: 'pearl-navy',
-            topTag: 'THE STYLE EDIT  •  OUTFIT DIARY',
-            giantWord: 'STYLE',
-            headline: 'THE DAILY OUTFIT',
-            subtitle: 'Effortlessly Chic • Personal Wardrobe Edit',
-            watermark: '@chocoovora • Your Signature. Your Style.',
-            textBehindSubject: true,
-            showDecorFrame: true
+            mode: 'feed', // 'feed' | 'reels' | 'oprec'
+            paletteId: 'mango-sky',
+            appTitle: 'MANGO LIVE',
+            ribbonText: 'LA LUCIENNE MANAGEMENT',
+            talentId: 'ID 26025386',
+            talentName: '',
+            showHalftone: true,
+            showRibbon: true,
+            agencyRemoveBg: true,
+            oprecHeadline: 'OPEN RECRUITMENT',
+            oprecRole: 'HOST LIVE STREAMING OFFICIAL',
+            oprecBenefits: '• Gaji Pokok + Bonus Target Harian/Bulanan\n• Bimbingan & Training Gratis Sampai Bisa\n• Kerja Fleksibel dari Rumah (WFH)\n• Wanita / Pria Percaya Diri & Komunikatif\n• Tanpa Pengalaman Dipersilakan Melamar',
+            oprecContact: 'DM IG: @laluciennemanagement  •  WA: 0812-3456-7890'
         };
 
-        function loadSavedSettings() {
+        function loadSettings() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
                 return raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : { ...DEFAULT_SETTINGS };
@@ -490,197 +566,108 @@
             }
         }
 
-        function persistSettings() {
+        function saveSettings() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appState.settings));
             } catch (_) {}
         }
 
+        /* Independent Transformable Layers so User Can Move & Resize Each One Freely */
         const appState = {
-            settings: loadSavedSettings(),
-            photos: [],          // Array of { id, origCanvas, cutoutCanvas, x, y, scale, rotation, useCutout, hasFrame }
-            selectedId: null,
-            snapX: false,
-            snapY: false,
-            isDragging: false,
-            exportDataUrlPng: '',
-            exportDataUrlJpg: ''
+            settings: loadSettings(),
+            selectedLayer: null, // 'media' | 'agency' | 'app' | null
+            mediaLayer: null,    // { type: 'image'|'video', source, cutoutSource, useCutout, x, y, scale, rotation, width, height }
+            agencyLayer: null,   // { rawCanvas, cutCanvas, x, y, scale, rotation }
+            appLayer: null,      // { canvas, x, y, scale, rotation }
+            videoAnimId: null,
+            exportPng: '',
+            exportJpg: ''
         };
 
-        const COVER_W = 1080;
-        const COVER_H = 1920;
-        const HANDLE_RADIUS = 24;
+        function getCanvasDimensions() {
+            return appState.settings.mode === 'feed'
+                ? { w: 1080, h: 1080 }
+                : { w: 1080, h: 1920 };
+        }
+
+        function isTouchDevice() {
+            return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        }
+
+        function updateDeviceHint() {
+            const el = document.getElementById('device-hint-pill');
+            if (!el) return;
+            if (isTouchDevice()) {
+                el.textContent = 'Sentuh elemen untuk pilih • 1 Jari: Geser • 2 Jari: Cubit Zoom & Putar';
+            } else {
+                el.textContent = 'PC: Klik & Geser • Tarik sudut untuk Resize • Scroll: Zoom • Panah Keyboard: Geser';
+            }
+        }
 
         /* ============================================================================
-           2. AUTOMATIC AI BACKGROUND REMOVAL (MEDIAPIPE + SMART FALLBACK)
+           2. IMAGE & VIDEO NORMALIZATION + PERSISTENCE
            ============================================================================ */
-        let selfieSegmenter = null;
-        let segmenterInitFailed = false;
-        let activeSegResolver = null;
-        let segQueue = Promise.resolve();
-
-        async function getMediaPipeSegmenter() {
-            if (segmenterInitFailed) return null;
-            if (selfieSegmenter) return selfieSegmenter;
-
-            if (typeof SelfieSegmentation === 'undefined') {
-                segmenterInitFailed = true;
-                return null;
-            }
-
-            try {
-                const seg = new SelfieSegmentation({
-                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
-                });
-                seg.setOptions({ modelSelection: 1 });
-                seg.onResults((results) => {
-                    if (activeSegResolver) {
-                        const resolve = activeSegResolver;
-                        activeSegResolver = null;
-                        resolve(results);
-                    }
-                });
-                await seg.initialize();
-                selfieSegmenter = seg;
-                return selfieSegmenter;
-            } catch (err) {
-                console.warn('MediaPipe init fallback:', err);
-                segmenterInitFailed = true;
-                return null;
-            }
-        }
-
-        function processPhotoCutoutQueued(origCanvas) {
-            segQueue = segQueue.then(() => generateCutoutCanvas(origCanvas)).catch(() => buildFallbackFloodCutout(origCanvas));
-            return segQueue;
-        }
-
-        async function generateCutoutCanvas(origCanvas) {
-            const w = origCanvas.width;
-            const h = origCanvas.height;
-
-            try {
-                const seg = await getMediaPipeSegmenter();
-                if (!seg) return buildFallbackFloodCutout(origCanvas);
-
-                const results = await new Promise((resolve, reject) => {
-                    const timer = setTimeout(() => {
-                        activeSegResolver = null;
-                        reject(new Error('Segmentation timeout'));
-                    }, 7500);
-
-                    activeSegResolver = (res) => {
-                        clearTimeout(timer);
-                        resolve(res);
+        async function decodeImageToCanvas(file, maxDim = 1500) {
+            let bmp = null;
+            if (typeof createImageBitmap === 'function') {
+                bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+            } else {
+                bmp = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const img = new Image();
+                        img.onload = () => resolve(img);
+                        img.onerror = reject;
+                        img.src = ev.target.result;
                     };
-
-                    seg.send({ image: origCanvas }).catch((e) => {
-                        clearTimeout(timer);
-                        activeSegResolver = null;
-                        reject(e);
-                    });
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
                 });
-
-                if (!results || !results.segmentationMask) {
-                    return buildFallbackFloodCutout(origCanvas);
-                }
-
-                // Feather the mask slightly for smooth hair & clothing edges
-                const maskCvs = document.createElement('canvas');
-                maskCvs.width = w;
-                maskCvs.height = h;
-                const mCtx = maskCvs.getContext('2d');
-                mCtx.filter = 'blur(3px)';
-                mCtx.drawImage(results.segmentationMask, 0, 0, w, h);
-                mCtx.filter = 'none';
-
-                // Check if MediaPipe found a person (at least 4% foreground)
-                const mData = mCtx.getImageData(0, 0, w, h).data;
-                let fgPixels = 0;
-                let sampled = 0;
-                for (let i = 0; i < mData.length; i += 64) {
-                    sampled++;
-                    if (mData[i] > 120) fgPixels++;
-                }
-                const ratio = sampled > 0 ? fgPixels / sampled : 0;
-
-                // If photo is a bag/shoe/accessory close-up where person ratio < 4%, use smart flood-fill cutout
-                if (ratio < 0.04 || ratio > 0.97) {
-                    return buildFallbackFloodCutout(origCanvas);
-                }
-
-                // Composite original RGB with smoothstep alpha mask
-                const outCvs = document.createElement('canvas');
-                outCvs.width = w;
-                outCvs.height = h;
-                const oCtx = outCvs.getContext('2d');
-                const srcImg = origCanvas.getContext('2d').getImageData(0, 0, w, h);
-                const outImg = oCtx.createImageData(w, h);
-                const sData = srcImg.data;
-                const oData = outImg.data;
-
-                for (let i = 0; i < sData.length; i += 4) {
-                    const m = mData[i] / 255;
-                    let alpha = 0;
-                    if (m <= 0.36) alpha = 0;
-                    else if (m >= 0.64) alpha = 255;
-                    else {
-                        const t = (m - 0.36) / 0.28;
-                        alpha = Math.round(t * t * (3 - 2 * t) * 255);
-                    }
-                    oData[i] = sData[i];
-                    oData[i + 1] = sData[i + 1];
-                    oData[i + 2] = sData[i + 2];
-                    oData[i + 3] = alpha;
-                }
-                oCtx.putImageData(outImg, 0, 0);
-                return outCvs;
-            } catch (_) {
-                return buildFallbackFloodCutout(origCanvas);
             }
+            const nw = bmp.naturalWidth || bmp.width;
+            const nh = bmp.naturalHeight || bmp.height;
+            const ratio = Math.min(1, maxDim / Math.max(nw, nh));
+            const w = Math.max(20, Math.round(nw * ratio));
+            const h = Math.max(20, Math.round(nh * ratio));
+
+            const cvs = document.createElement('canvas');
+            cvs.width = w;
+            cvs.height = h;
+            cvs.getContext('2d').drawImage(bmp, 0, 0, w, h);
+            return cvs;
         }
 
-        /* Smart Multi-Seed Border Flood-Fill Fallback (for product close-ups or offline mode) */
-        function buildFallbackFloodCutout(origCanvas) {
+        function buildCleanLogoCutout(origCanvas) {
             const w = origCanvas.width;
             const h = origCanvas.height;
             const sData = origCanvas.getContext('2d').getImageData(0, 0, w, h).data;
 
-            // Sample top & side edges for backdrop color
-            let rSum = 0, gSum = 0, bSum = 0, count = 0;
-            const step = Math.max(2, Math.floor(w / 40));
-            for (let x = 0; x < w; x += step) {
-                const i = x * 4;
-                rSum += sData[i]; gSum += sData[i + 1]; bSum += sData[i + 2]; count++;
-            }
-            for (let y = 0; y < Math.floor(h * 0.7); y += step) {
-                const iL = (y * w) * 4;
-                const iR = (y * w + w - 1) * 4;
-                rSum += sData[iL] + sData[iR];
-                gSum += sData[iL + 1] + sData[iR + 1];
-                bSum += sData[iL + 2] + sData[iR + 2];
-                count += 2;
-            }
-            const bgR = rSum / Math.max(1, count);
-            const bgG = gSum / Math.max(1, count);
-            const bgB = bSum / Math.max(1, count);
-
-            const colorDist = (r1, g1, b1, r2, g2, b2) => {
-                const dr = r1 - r2, dg = g1 - g2, db = b1 - b2;
-                return Math.sqrt(2 * dr * dr + 4 * dg * dg + 3 * db * db);
-            };
+            // Sample 4 corners to detect solid background color
+            const corners = [
+                [0, 0],
+                [w - 1, 0],
+                [0, h - 1],
+                [w - 1, h - 1]
+            ];
+            let rSum = 0, gSum = 0, bSum = 0;
+            corners.forEach(([cx, cy]) => {
+                const p = (cy * w + cx) * 4;
+                rSum += sData[p]; gSum += sData[p + 1]; bSum += sData[p + 2];
+            });
+            const bgR = rSum / 4, bgG = gSum / 4, bgB = bSum / 4;
+            const dist = (r1, g1, b1, r2, g2, b2) => Math.hypot(r1 - r2, g1 - g2, b1 - b2);
+            const tol = 42;
 
             const visited = new Uint8Array(w * h);
             const isBg = new Uint8Array(w * h);
             const queue = new Int32Array(w * h);
             let head = 0, tail = 0;
-            const tolerance = 95;
 
             const trySeed = (x, y) => {
                 const idx = y * w + x;
                 if (visited[idx]) return;
                 const p = idx * 4;
-                if (colorDist(sData[p], sData[p + 1], sData[p + 2], bgR, bgG, bgB) < tolerance * 1.25) {
+                if (sData[p + 3] < 20 || dist(sData[p], sData[p + 1], sData[p + 2], bgR, bgG, bgB) < tol) {
                     visited[idx] = 1;
                     isBg[idx] = 1;
                     queue[tail++] = idx;
@@ -694,9 +681,6 @@
                 const curr = queue[head++];
                 const cx = curr % w;
                 const cy = (curr - cx) / w;
-                const cp = curr * 4;
-                const cr = sData[cp], cg = sData[cp + 1], cb = sData[cp + 2];
-
                 const neighbors = [
                     cx > 0 ? curr - 1 : -1,
                     cx < w - 1 ? curr + 1 : -1,
@@ -708,602 +692,958 @@
                     if (n < 0 || visited[n]) continue;
                     visited[n] = 1;
                     const np = n * 4;
-                    const nr = sData[np], ng = sData[np + 1], nb = sData[np + 2];
-                    if (colorDist(nr, ng, nb, bgR, bgG, bgB) < tolerance && colorDist(nr, ng, nb, cr, cg, cb) < 42) {
+                    if (sData[np + 3] < 20 || dist(sData[np], sData[np + 1], sData[np + 2], bgR, bgG, bgB) < tol) {
                         isBg[n] = 1;
                         queue[tail++] = n;
                     }
                 }
             }
 
-            // Build feathered mask
-            const rawMask = document.createElement('canvas');
-            rawMask.width = w;
-            rawMask.height = h;
-            const rmCtx = rawMask.getContext('2d');
-            const rmImg = rmCtx.createImageData(w, h);
-            for (let i = 0; i < w * h; i++) {
-                const a = isBg[i] ? 0 : 255;
-                rmImg.data[i * 4] = a;
-                rmImg.data[i * 4 + 1] = a;
-                rmImg.data[i * 4 + 2] = a;
-                rmImg.data[i * 4 + 3] = 255;
-            }
-            rmCtx.putImageData(rmImg, 0, 0);
-
-            const blurMask = document.createElement('canvas');
-            blurMask.width = w;
-            blurMask.height = h;
-            const bmCtx = blurMask.getContext('2d');
-            bmCtx.filter = 'blur(2.5px)';
-            bmCtx.drawImage(rawMask, 0, 0);
-            const bmData = bmCtx.getImageData(0, 0, w, h).data;
-
             const outCvs = document.createElement('canvas');
             outCvs.width = w;
             outCvs.height = h;
             const oCtx = outCvs.getContext('2d');
             const outImg = oCtx.createImageData(w, h);
+            let keptPixels = 0;
             for (let i = 0; i < sData.length; i += 4) {
+                const alpha = isBg[i >> 2] ? 0 : sData[i + 3];
+                if (alpha > 30) keptPixels++;
                 outImg.data[i] = sData[i];
                 outImg.data[i + 1] = sData[i + 1];
                 outImg.data[i + 2] = sData[i + 2];
-                outImg.data[i + 3] = bmData[i];
+                outImg.data[i + 3] = alpha;
             }
             oCtx.putImageData(outImg, 0, 0);
-            return outCvs;
+            return keptPixels > (w * h * 0.02) ? outCvs : origCanvas;
+        }
+
+        /* MediaPipe Person Background Removal */
+        let selfieSegmenter = null;
+        let segFailed = false;
+        let activeSegResolve = null;
+
+        async function getSegmenter() {
+            if (segFailed) return null;
+            if (selfieSegmenter) return selfieSegmenter;
+            if (typeof SelfieSegmentation === 'undefined') { segFailed = true; return null; }
+            try {
+                const seg = new SelfieSegmentation({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+                });
+                seg.setOptions({ modelSelection: 1 });
+                seg.onResults((res) => {
+                    if (activeSegResolve) {
+                        const r = activeSegResolve;
+                        activeSegResolve = null;
+                        r(res);
+                    }
+                });
+                await seg.initialize();
+                selfieSegmenter = seg;
+                return seg;
+            } catch (_) {
+                segFailed = true;
+                return null;
+            }
+        }
+
+        async function cutPersonBackground(origCanvas) {
+            const w = origCanvas.width, h = origCanvas.height;
+            try {
+                const seg = await getSegmenter();
+                if (!seg) return buildCleanLogoCutout(origCanvas);
+
+                const results = await new Promise((resolve, reject) => {
+                    const t = setTimeout(() => { activeSegResolve = null; reject(new Error('timeout')); }, 7000);
+                    activeSegResolve = (r) => { clearTimeout(t); resolve(r); };
+                    seg.send({ image: origCanvas }).catch((e) => { clearTimeout(t); activeSegResolve = null; reject(e); });
+                });
+
+                if (!results?.segmentationMask) return buildCleanLogoCutout(origCanvas);
+
+                const maskCvs = document.createElement('canvas');
+                maskCvs.width = w; maskCvs.height = h;
+                const mCtx = maskCvs.getContext('2d');
+                mCtx.filter = 'blur(2.5px)';
+                mCtx.drawImage(results.segmentationMask, 0, 0, w, h);
+                mCtx.filter = 'none';
+
+                const mData = mCtx.getImageData(0, 0, w, h).data;
+                const srcImg = origCanvas.getContext('2d').getImageData(0, 0, w, h);
+                const outCvs = document.createElement('canvas');
+                outCvs.width = w; outCvs.height = h;
+                const oCtx = outCvs.getContext('2d');
+                const outImg = oCtx.createImageData(w, h);
+
+                for (let i = 0; i < srcImg.data.length; i += 4) {
+                    const m = mData[i] / 255;
+                    const alpha = m <= 0.36 ? 0 : m >= 0.64 ? 255 : Math.round(((m - 0.36) / 0.28) * 255);
+                    outImg.data[i] = srcImg.data[i];
+                    outImg.data[i + 1] = srcImg.data[i + 1];
+                    outImg.data[i + 2] = srcImg.data[i + 2];
+                    outImg.data[i + 3] = alpha;
+                }
+                oCtx.putImageData(outImg, 0, 0);
+                return outCvs;
+            } catch (_) {
+                return buildCleanLogoCutout(origCanvas);
+            }
+        }
+
+        function saveLogosToBrowser() {
+            try {
+                if (appState.agencyLayer?.rawCanvas) {
+                    localStorage.setItem(AGENCY_LOGO_KEY, appState.agencyLayer.rawCanvas.toDataURL('image/png'));
+                } else {
+                    localStorage.removeItem(AGENCY_LOGO_KEY);
+                }
+                if (appState.appLayer?.canvas) {
+                    localStorage.setItem(APP_LOGO_KEY, appState.appLayer.canvas.toDataURL('image/png'));
+                } else {
+                    localStorage.removeItem(APP_LOGO_KEY);
+                }
+            } catch (_) {}
+        }
+
+        function loadLogosFromBrowser() {
+            const { w, h } = getCanvasDimensions();
+            try {
+                const agUrl = localStorage.getItem(AGENCY_LOGO_KEY);
+                if (agUrl) {
+                    const img = new Image();
+                    img.onload = () => {
+                        const cvs = document.createElement('canvas');
+                        cvs.width = img.naturalWidth || img.width;
+                        cvs.height = img.naturalHeight || img.height;
+                        cvs.getContext('2d').drawImage(img, 0, 0);
+                        const fitScale = Math.min(270 / cvs.width, 165 / cvs.height);
+                        appState.agencyLayer = {
+                            rawCanvas: cvs,
+                            cutCanvas: buildCleanLogoCutout(cvs),
+                            x: 175,
+                            y: h - 105,
+                            scale: fitScale,
+                            rotation: 0
+                        };
+                        syncControlStates();
+                        redrawCanvas();
+                    };
+                    img.src = agUrl;
+                }
+
+                const appUrl = localStorage.getItem(APP_LOGO_KEY);
+                if (appUrl) {
+                    const img = new Image();
+                    img.onload = () => {
+                        const cvs = document.createElement('canvas');
+                        cvs.width = img.naturalWidth || img.width;
+                        cvs.height = img.naturalHeight || img.height;
+                        cvs.getContext('2d').drawImage(img, 0, 0);
+                        const fitScale = Math.min(165 / cvs.width, 165 / cvs.height);
+                        appState.appLayer = {
+                            canvas: cvs,
+                            x: w - 122,
+                            y: 120,
+                            scale: fitScale,
+                            rotation: 0
+                        };
+                        syncControlStates();
+                        redrawCanvas();
+                    };
+                    img.src = appUrl;
+                }
+            } catch (_) {}
         }
 
         /* ============================================================================
-           3. MULTI-PHOTO UPLOAD & SMART AUTO-PLACEMENT
+           3. UPLOAD HANDLERS (TALENT PHOTO/VIDEO, LOGO AGENCY, LOGO APP)
            ============================================================================ */
-        function handleStageDragOver(e) {
-            e.preventDefault();
-            document.getElementById('canvas-shell')?.classList.add('ring-4', 'ring-wine/40');
-        }
-        function handleStageDragLeave(e) {
-            e.preventDefault();
-            document.getElementById('canvas-shell')?.classList.remove('ring-4', 'ring-wine/40');
-        }
+        function handleStageDragOver(e) { e.preventDefault(); }
+        function handleStageDragLeave(e) { e.preventDefault(); }
         function handleStageDrop(e) {
             e.preventDefault();
-            handleStageDragLeave(e);
-            if (e.dataTransfer?.files?.length) {
-                addMultiplePhotoFiles(Array.from(e.dataTransfer.files));
-            }
+            const file = e.dataTransfer?.files?.[0];
+            if (file) processTalentFile(file);
         }
-        function handleFilesInput(e) {
-            if (e.target?.files?.length) {
-                addMultiplePhotoFiles(Array.from(e.target.files));
-            }
+        function handleTalentMediaUpload(e) {
+            const file = e.target?.files?.[0];
+            if (file) processTalentFile(file);
             e.target.value = '';
         }
 
-        async function decodeImageNormalized(file) {
-            let bmp = null;
-            let nw = 0, nh = 0;
+        async function processTalentFile(file) {
+            const { w, h } = getCanvasDimensions();
+            const mode = appState.settings.mode;
 
-            if (typeof createImageBitmap === 'function') {
-                bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
-                nw = bmp.width;
-                nh = bmp.height;
-            } else {
-                bmp = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        const img = new Image();
-                        img.onload = () => resolve(img);
-                        img.onerror = reject;
-                        img.src = ev.target.result;
-                    };
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
+            // Stop any running video loop first
+            stopReelsVideoLoop();
+
+            if (file.type.startsWith('video/')) {
+                // Switch to Reels mode automatically if user uploads a video
+                if (mode !== 'reels') {
+                    switchMode('reels');
+                }
+                const video = document.createElement('video');
+                video.src = URL.createObjectURL(file);
+                video.muted = true;
+                video.loop = true;
+                video.playsInline = true;
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => resolve();
                 });
-                nw = bmp.naturalWidth || bmp.width;
-                nh = bmp.naturalHeight || bmp.height;
+                await video.play();
+
+                const dim = getCanvasDimensions();
+                const scale = Math.max(dim.w / video.videoWidth, dim.h / video.videoHeight);
+                appState.mediaLayer = {
+                    type: 'video',
+                    source: video,
+                    cutoutSource: null,
+                    useCutout: false,
+                    x: dim.w / 2,
+                    y: dim.h / 2,
+                    scale,
+                    rotation: 0,
+                    width: video.videoWidth,
+                    height: video.videoHeight
+                };
+                appState.selectedLayer = 'media';
+                startReelsVideoLoop();
+                syncControlStates();
+                showToast('Video Reels terpasang! Geser atau atur ukuran sesuai selera.');
+                return;
             }
 
-            // Preserve crisp portrait resolution up to 1500px longest edge
-            const maxDim = 1500;
-            const ratio = Math.min(1, maxDim / Math.max(nw, nh));
-            const w = Math.max(32, Math.round(nw * ratio));
-            const h = Math.max(32, Math.round(nh * ratio));
-
-            const cvs = document.createElement('canvas');
-            cvs.width = w;
-            cvs.height = h;
-            const ctx = cvs.getContext('2d');
-            ctx.drawImage(bmp, 0, 0, w, h);
-            return cvs;
-        }
-
-        async function addMultiplePhotoFiles(files) {
-            const validFiles = files.filter(f => f.type.startsWith('image/'));
-            if (validFiles.length === 0) {
-                showToast('Pilih file foto (JPG, PNG, atau WEBP).');
+            if (!file.type.startsWith('image/')) {
+                showToast('Pilih file foto (JPG/PNG) atau video Reels (MP4).');
                 return;
             }
 
             const badge = document.getElementById('ai-loading-badge');
-            const badgeText = document.getElementById('ai-loading-text');
-            if (badge) {
-                badge.classList.remove('hidden');
-                badge.classList.add('flex');
-            }
+            badge?.classList.remove('hidden');
+            badge?.classList.add('flex');
 
-            for (let idx = 0; idx < validFiles.length; idx++) {
-                if (badgeText) {
-                    badgeText.textContent = validFiles.length > 1
-                        ? `Memotong background foto ${idx + 1}/${validFiles.length}...`
-                        : 'Memotong background otomatis...';
-                }
+            try {
+                const origCanvas = await decodeImageToCanvas(file, 1500);
+                const isFeed = mode === 'feed';
+                const isReels = mode === 'reels';
+                const isOprec = mode === 'oprec';
 
-                try {
-                    const origCanvas = await decodeImageNormalized(validFiles[idx]);
-                    const totalAfterAdd = appState.photos.length + 1;
-                    const slotIndex = appState.photos.length;
+                const scale = isReels
+                    ? Math.max(w / origCanvas.width, h / origCanvas.height)
+                    : isOprec
+                        ? Math.min(720 / origCanvas.width, 860 / origCanvas.height)
+                        : Math.max(600 / origCanvas.width, 600 / origCanvas.height);
 
-                    // Smart placement depending on whether this is 1st, 2nd, or 3rd+ photo
-                    const placement = computeSmartInitialPlacement(origCanvas.width, origCanvas.height, slotIndex, totalAfterAdd);
-
-                    const photoItem = {
-                        id: 'ph_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-                        origCanvas,
-                        cutoutCanvas: origCanvas, // Temporary until AI finishes
-                        x: placement.x,
-                        y: placement.y,
-                        scale: placement.scale,
-                        rotation: placement.rotation,
-                        useCutout: true,
-                        hasFrame: placement.hasFrame
-                    };
-
-                    appState.photos.push(photoItem);
-                    appState.selectedId = photoItem.id;
-                    updateUIControls();
-                    redrawCanvas();
-
-                    // Run automatic AI background removal
-                    const cut = await processPhotoCutoutQueued(origCanvas);
-                    photoItem.cutoutCanvas = cut;
-                    redrawCanvas();
-                } catch (err) {
-                    console.error('Error adding photo:', err);
-                }
-            }
-
-            if (badge) {
-                badge.classList.add('hidden');
-                badge.classList.remove('flex');
-            }
-            updateUIControls();
-            showToast(validFiles.length > 1
-                ? `${validFiles.length} foto ditambahkan! Cubit 2 jari untuk atur ukuran.`
-                : 'Foto siap! Cubit 2 jari untuk zoom & atur posisi.');
-        }
-
-        function computeSmartInitialPlacement(imgW, imgH, index, totalCount) {
-            if (index === 0) {
-                // Hero Subject: large editorial portrait (~78% cover height, bottom-aligned cleanly above watermark)
-                const targetH = COVER_H * 0.78;
-                const scale = Math.min((COVER_W * 0.94) / imgW, targetH / imgH);
-                const drawnH = imgH * scale;
-                return {
-                    x: COVER_W * 0.5,
-                    y: COVER_H - 190 - drawnH / 2,
+                appState.mediaLayer = {
+                    type: 'image',
+                    source: origCanvas,
+                    cutoutSource: origCanvas,
+                    useCutout: isOprec,
+                    x: isOprec ? w * 0.72 : w * 0.5,
+                    y: isFeed ? h * 0.515 : isOprec ? h * 0.72 : h * 0.5,
                     scale,
                     rotation: 0,
-                    hasFrame: false
+                    width: origCanvas.width,
+                    height: origCanvas.height
                 };
-            } else if (index === 1) {
-                // 2nd Photo: stylish bottom-right detail card with clean editorial frame
-                const targetH = COVER_H * 0.30;
-                const scale = Math.min((COVER_W * 0.42) / imgW, targetH / imgH);
-                return {
-                    x: COVER_W * 0.73,
-                    y: COVER_H * 0.67,
-                    scale,
-                    rotation: 0.04, // ~2.3 deg subtle editorial tilt
-                    hasFrame: true
-                };
-            } else {
-                // 3rd+ Photo: bottom-left or staggered detail card
-                const isLeft = index % 2 === 0;
-                const targetH = COVER_H * 0.28;
-                const scale = Math.min((COVER_W * 0.40) / imgW, targetH / imgH);
-                return {
-                    x: isLeft ? COVER_W * 0.27 : COVER_W * 0.72,
-                    y: COVER_H * (0.64 - Math.min(2, index - 2) * 0.14),
-                    scale,
-                    rotation: isLeft ? -0.04 : 0.03,
-                    hasFrame: true
-                };
+                appState.selectedLayer = 'media';
+                syncControlStates();
+                redrawCanvas();
+
+                const cut = await cutPersonBackground(origCanvas);
+                if (appState.mediaLayer && appState.mediaLayer.source === origCanvas) {
+                    appState.mediaLayer.cutoutSource = cut;
+                    redrawCanvas();
+                }
+                showToast('Foto terpasang! Klik & geser untuk mengatur posisi.');
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal membaca file gambar.');
+            } finally {
+                badge?.classList.add('hidden');
+                badge?.classList.remove('flex');
             }
+        }
+
+        function startReelsVideoLoop() {
+            const bar = document.getElementById('reels-video-bar');
+            bar?.classList.remove('hidden');
+            bar?.classList.add('flex');
+
+            const tick = () => {
+                if (appState.mediaLayer?.type === 'video') {
+                    redrawCanvas();
+                    appState.videoAnimId = requestAnimationFrame(tick);
+                }
+            };
+            appState.videoAnimId = requestAnimationFrame(tick);
+        }
+
+        function stopReelsVideoLoop() {
+            if (appState.videoAnimId) {
+                cancelAnimationFrame(appState.videoAnimId);
+                appState.videoAnimId = null;
+            }
+            const bar = document.getElementById('reels-video-bar');
+            bar?.classList.add('hidden');
+            bar?.classList.remove('flex');
+        }
+
+        function toggleReelsVideoPlay() {
+            const vid = appState.mediaLayer?.source;
+            const btn = document.getElementById('btn-video-play');
+            if (!vid || appState.mediaLayer?.type !== 'video') return;
+            if (vid.paused) {
+                vid.play();
+                if (btn) btn.innerHTML = `<i data-lucide="pause" class="w-3.5 h-3.5"></i><span>Jeda Video</span>`;
+            } else {
+                vid.pause();
+                if (btn) btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i><span>Putar Video</span>`;
+            }
+            lucide.createIcons();
+        }
+
+        async function handleAgencyLogoUpload(e) {
+            const file = e.target?.files?.[0];
+            if (!file) return;
+            try {
+                const rawCanvas = await decodeImageToCanvas(file, 1000);
+                const cutCanvas = buildCleanLogoCutout(rawCanvas);
+                const { w, h } = getCanvasDimensions();
+                const isOprec = appState.settings.mode === 'oprec';
+
+                // Proportional scale (NEVER stretched / gepeng)
+                const maxBoxW = isOprec ? 340 : 270;
+                const maxBoxH = isOprec ? 190 : 165;
+                const fitScale = Math.min(maxBoxW / rawCanvas.width, maxBoxH / rawCanvas.height);
+
+                appState.agencyLayer = {
+                    rawCanvas,
+                    cutCanvas,
+                    x: isOprec ? 210 : 175,
+                    y: isOprec ? 125 : h - 105,
+                    scale: fitScale,
+                    rotation: 0
+                };
+                appState.selectedLayer = 'agency';
+                saveLogosToBrowser();
+                syncControlStates();
+                redrawCanvas();
+                showToast('Logo Agency terpasang! Klik & geser di kanvas untuk menyesuaikan.');
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal memuat logo agency.');
+            }
+            e.target.value = '';
+        }
+
+        function toggleAgencyLogoBgRemoval() {
+            appState.settings.agencyRemoveBg = !appState.settings.agencyRemoveBg;
+            saveSettings();
+            syncControlStates();
+            redrawCanvas();
+        }
+
+        function clearAgencyLogo() {
+            appState.agencyLayer = null;
+            if (appState.selectedLayer === 'agency') appState.selectedLayer = null;
+            saveLogosToBrowser();
+            syncControlStates();
+            redrawCanvas();
+            showToast('Logo agency dihapus');
+        }
+
+        async function handleAppLogoUpload(e) {
+            const file = e.target?.files?.[0];
+            if (!file) return;
+            try {
+                const canvas = await decodeImageToCanvas(file, 800);
+                const { w } = getCanvasDimensions();
+                // Proportional scale (NEVER stretched / gepeng)
+                const fitScale = Math.min(165 / canvas.width, 165 / canvas.height);
+
+                appState.appLayer = {
+                    canvas,
+                    x: w - 122,
+                    y: appState.settings.mode === 'reels' ? 165 : 120,
+                    scale: fitScale,
+                    rotation: 0
+                };
+                appState.selectedLayer = 'app';
+                saveLogosToBrowser();
+                syncControlStates();
+                redrawCanvas();
+                showToast('Logo Aplikasi terpasang di pojok kanan atas! Bisa digeser & diubah ukurannya.');
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal memuat logo aplikasi.');
+            }
+            e.target.value = '';
+        }
+
+        function clearAppLogo() {
+            appState.appLayer = null;
+            if (appState.selectedLayer === 'app') appState.selectedLayer = null;
+            saveLogosToBrowser();
+            syncControlStates();
+            redrawCanvas();
+            showToast('Logo aplikasi dihapus');
         }
 
         /* ============================================================================
-           4. UNIFIED 1080x1920 WYSIWYG EDITORIAL RENDERER
+           4. UNIFIED WYSIWYG RENDERER (FEED IG, REELS FULL-FRAME, OPEN RECRUITMENT)
            ============================================================================ */
-        function getActiveSprite(photo) {
-            return photo.useCutout ? photo.cutoutCanvas : photo.origCanvas;
+        function getLayerRenderInfo(layerKey) {
+            if (layerKey === 'media' && appState.mediaLayer) {
+                const m = appState.mediaLayer;
+                const sprite = (m.type === 'image' && m.useCutout && m.cutoutSource) ? m.cutoutSource : m.source;
+                return {
+                    sprite,
+                    x: m.x,
+                    y: m.y,
+                    w: m.width * m.scale,
+                    h: m.height * m.scale,
+                    rotation: m.rotation,
+                    obj: m
+                };
+            }
+            if (layerKey === 'agency' && appState.agencyLayer) {
+                const a = appState.agencyLayer;
+                const sprite = appState.settings.agencyRemoveBg ? a.cutCanvas : a.rawCanvas;
+                return {
+                    sprite,
+                    x: a.x,
+                    y: a.y,
+                    w: sprite.width * a.scale,
+                    h: sprite.height * a.scale,
+                    rotation: a.rotation,
+                    obj: a
+                };
+            }
+            if (layerKey === 'app' && appState.appLayer) {
+                const ap = appState.appLayer;
+                return {
+                    sprite: ap.canvas,
+                    x: ap.x,
+                    y: ap.y,
+                    w: ap.canvas.width * ap.scale,
+                    h: ap.canvas.height * ap.scale,
+                    rotation: ap.rotation,
+                    obj: ap
+                };
+            }
+            return null;
         }
 
-        function renderCover(ctx, showSelectionHandles) {
-            const cfg = appState.settings;
-            const pal = PALETTES[cfg.paletteId] || PALETTES['pearl-navy'];
-
-            ctx.clearRect(0, 0, COVER_W, COVER_H);
-
-            // 1. Luxury Gradient Background
-            const bgGrad = ctx.createLinearGradient(0, 0, 0, COVER_H);
-            bgGrad.addColorStop(0, pal.bgTop);
-            bgGrad.addColorStop(1, pal.bgBottom);
-            ctx.fillStyle = bgGrad;
-            ctx.fillRect(0, 0, COVER_W, COVER_H);
-
-            // Subtle studio radial glow behind center
-            const glow = ctx.createRadialGradient(COVER_W / 2, COVER_H * 0.44, 60, COVER_W / 2, COVER_H * 0.44, 720);
-            glow.addColorStop(0, pal.isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.65)');
-            glow.addColorStop(1, 'rgba(255,255,255,0)');
-            ctx.fillStyle = glow;
-            ctx.fillRect(0, 0, COVER_W, COVER_H);
-
-            // Subtle Editorial Hairline Inner Border Frame + Corner Registration Marks
-            if (cfg.showDecorFrame) {
-                ctx.save();
-                ctx.strokeStyle = pal.accent;
-                ctx.globalAlpha = 0.48;
-                ctx.lineWidth = 2;
-                ctx.strokeRect(44, 44, COVER_W - 88, COVER_H - 88);
-
-                // Minimalist L-shaped corner registration marks
-                ctx.globalAlpha = 0.85;
-                ctx.lineWidth = 3;
-                const m = 64, len = 32;
-                // Top-left
-                ctx.beginPath(); ctx.moveTo(m, m + len); ctx.lineTo(m, m); ctx.lineTo(m + len, m); ctx.stroke();
-                // Top-right
-                ctx.beginPath(); ctx.moveTo(COVER_W - m - len, m); ctx.lineTo(COVER_W - m, m); ctx.lineTo(COVER_W - m, m + len); ctx.stroke();
-                // Bottom-left
-                ctx.beginPath(); ctx.moveTo(m, COVER_H - m - len); ctx.lineTo(m, COVER_H - m); ctx.lineTo(m + len, COVER_H - m); ctx.stroke();
-                // Bottom-right
-                ctx.beginPath(); ctx.moveTo(COVER_W - m - len, COVER_H - m); ctx.lineTo(COVER_W - m, COVER_H - m); ctx.lineTo(COVER_W - m, COVER_H - m - len); ctx.stroke();
-                ctx.restore();
-            }
-
-            // 2. Giant 3D Editorial Background Typography (Behind Subjects)
-            if (cfg.giantWord && cfg.giantWord.trim().length > 0 && cfg.textBehindSubject) {
-                drawGiantBackdropWord(ctx, cfg.giantWord, pal);
-            }
-
-            // 3. User Photo Layers (Full Natural Aspect Ratio, Cutout or Framed Card)
-            appState.photos.forEach((photo) => {
-                const sprite = getActiveSprite(photo);
-                if (!sprite || !sprite.width) return;
-
-                const w = sprite.width * photo.scale;
-                const h = sprite.height * photo.scale;
-
-                ctx.save();
-                ctx.translate(photo.x, photo.y);
-                ctx.rotate(photo.rotation);
-
-                if (photo.hasFrame) {
-                    // Clean Editorial Polaroid / Magazine Card Frame with Soft Drop Shadow
-                    const pad = 22;
-                    const bottomPad = 46;
-                    ctx.shadowColor = 'rgba(20, 28, 38, 0.26)';
-                    ctx.shadowBlur = 34;
-                    ctx.shadowOffsetX = 0;
-                    ctx.shadowOffsetY = 14;
-
-                    ctx.fillStyle = '#FDFBF7';
-                    ctx.fillRect(-w / 2 - pad, -h / 2 - pad, w + pad * 2, h + pad + bottomPad);
-
-                    // Reset shadow before drawing photo inside frame
-                    ctx.shadowColor = 'transparent';
-                    ctx.shadowBlur = 0;
-                    ctx.shadowOffsetY = 0;
-
-                    ctx.drawImage(sprite, -w / 2, -h / 2, w, h);
-
-                    // Thin inner champagne border
-                    ctx.strokeStyle = 'rgba(197, 164, 119, 0.45)';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(-w / 2 - pad, -h / 2 - pad, w + pad * 2, h + pad + bottomPad);
-                } else {
-                    // Cutout / Floating Subject with Subtle Depth Shadow
-                    ctx.shadowColor = 'rgba(18, 26, 36, 0.22)';
-                    ctx.shadowBlur = 38;
-                    ctx.shadowOffsetX = 0;
-                    ctx.shadowOffsetY = 16;
-                    ctx.drawImage(sprite, -w / 2, -h / 2, w, h);
-                }
-
-                ctx.restore();
-            });
-
-            // Empty State Helpful Guide (Only in live preview when 0 photos added)
-            if (appState.photos.length === 0 && showSelectionHandles) {
-                ctx.save();
-                ctx.strokeStyle = pal.accent;
-                ctx.globalAlpha = 0.55;
-                ctx.setLineDash([14, 12]);
-                ctx.lineWidth = 3;
-                const boxW = 680, boxH = 740;
-                ctx.strokeRect((COVER_W - boxW) / 2, (COVER_H - boxH) / 2 + 40, boxW, boxH);
-                ctx.setLineDash([]);
-
-                ctx.globalAlpha = 0.9;
-                ctx.fillStyle = pal.text;
-                ctx.font = '700 34px Montserrat, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Tap "+ Tambah Foto" di Bawah', COVER_W / 2, COVER_H / 2 + 20);
-
-                ctx.font = '500 24px Montserrat, sans-serif';
-                ctx.fillStyle = pal.accent;
-                ctx.fillText('Pilih 1, 2, atau beberapa foto sekaligus', COVER_W / 2, COVER_H / 2 + 72);
-                ctx.restore();
-            }
-
-            // If user toggled 3D Giant Word to Front
-            if (cfg.giantWord && cfg.giantWord.trim().length > 0 && !cfg.textBehindSubject) {
-                drawGiantBackdropWord(ctx, cfg.giantWord, pal);
-            }
-
-            // 4. Soft Top & Bottom Gradient Protection Scrims for Legible Typography
-            const topScrim = ctx.createLinearGradient(0, 0, 0, 390);
-            topScrim.addColorStop(0, pal.scrimTop);
-            topScrim.addColorStop(0.65, pal.isDark ? 'rgba(23,35,46,0.35)' : 'rgba(247,242,234,0.35)');
-            topScrim.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = topScrim;
-            ctx.fillRect(46, 46, COVER_W - 92, 344);
-
-            const botScrim = ctx.createLinearGradient(0, COVER_H - 360, 0, COVER_H);
-            botScrim.addColorStop(0, 'rgba(0,0,0,0)');
-            botScrim.addColorStop(0.42, pal.isDark ? 'rgba(23,35,46,0.45)' : 'rgba(247,242,234,0.48)');
-            botScrim.addColorStop(1, pal.scrimBottom);
-            ctx.fillStyle = botScrim;
-            ctx.fillRect(46, COVER_H - 360, COVER_W - 92, 314);
-
-            // 5. Top Micro-Header Pill & Foreground Editorial Headline
-            if (cfg.topTag && cfg.topTag.trim().length > 0) {
-                ctx.save();
-                ctx.font = '700 22px Montserrat, sans-serif';
-                ctx.fillStyle = pal.accent;
-                ctx.textAlign = 'center';
-                ctx.fillText(cfg.topTag.toUpperCase(), COVER_W / 2, 114);
-                ctx.restore();
-            }
-
-            if (cfg.headline && cfg.headline.trim().length > 0) {
-                ctx.save();
-                const title = cfg.headline.toUpperCase().trim();
-                let fontSize = 86;
-                ctx.font = `900 ${fontSize}px "Playfair Display", serif`;
-                const maxW = COVER_W - 120;
-                const measured = ctx.measureText(title).width;
-                if (measured > maxW) {
-                    fontSize = Math.max(46, Math.floor(fontSize * (maxW / measured)));
-                    ctx.font = `900 ${fontSize}px "Playfair Display", serif`;
-                }
-                ctx.fillStyle = pal.text;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(title, COVER_W / 2, 206);
-                ctx.restore();
-            }
-
-            // Gold accent hairline below headline
+        function drawCurvedText(ctx, text, centerX, centerY, radius, spreadAngle, fontStr, fillStyle) {
+            if (!text || !text.trim()) return;
+            const str = text.toUpperCase().trim();
             ctx.save();
-            ctx.strokeStyle = pal.accent;
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            ctx.moveTo(COVER_W / 2 - 75, 268);
-            ctx.lineTo(COVER_W / 2 + 75, 268);
-            ctx.stroke();
-            ctx.restore();
-
-            // 6. Bottom Subtitle & Personal Watermark / Signature
-            if (cfg.subtitle && cfg.subtitle.trim().length > 0) {
-                ctx.save();
-                ctx.font = '500 28px Montserrat, sans-serif';
-                ctx.fillStyle = pal.text;
-                ctx.textAlign = 'center';
-                ctx.fillText(cfg.subtitle, COVER_W / 2, COVER_H - 156);
-                ctx.restore();
-            }
-
-            if (cfg.watermark && cfg.watermark.trim().length > 0) {
-                ctx.save();
-                ctx.font = 'italic 600 32px "Cormorant Garamond", serif';
-                ctx.fillStyle = pal.accent;
-                ctx.textAlign = 'center';
-                ctx.fillText(cfg.watermark, COVER_W / 2, COVER_H - 96);
-                ctx.restore();
-            }
-
-            // 7. Canva-Style Selection Bounding Box, 4 Corner Handles & Center Snap Guides (Live Preview Only)
-            if (showSelectionHandles) {
-                // Center Alignment Snap Guides
-                if (appState.isDragging && (appState.snapX || appState.snapY)) {
-                    ctx.save();
-                    ctx.strokeStyle = '#C5A477';
-                    ctx.lineWidth = 3;
-                    ctx.setLineDash([16, 12]);
-                    if (appState.snapX) {
-                        ctx.beginPath();
-                        ctx.moveTo(COVER_W / 2, 46);
-                        ctx.lineTo(COVER_W / 2, COVER_H - 46);
-                        ctx.stroke();
-                    }
-                    if (appState.snapY) {
-                        ctx.beginPath();
-                        ctx.moveTo(46, COVER_H / 2);
-                        ctx.lineTo(COVER_W - 46, COVER_H / 2);
-                        ctx.stroke();
-                    }
-                    ctx.restore();
-                }
-
-                // Active Photo Selection Frame & Corner Handles
-                const sel = appState.photos.find(p => p.id === appState.selectedId);
-                if (sel) {
-                    const sprite = getActiveSprite(sel);
-                    const pad = sel.hasFrame ? 22 : 0;
-                    const botPad = sel.hasFrame ? 46 : 0;
-                    const halfW = (sprite.width * sel.scale) / 2 + pad;
-                    const halfTop = (sprite.height * sel.scale) / 2 + pad;
-                    const halfBot = (sprite.height * sel.scale) / 2 + botPad;
-
-                    ctx.save();
-                    ctx.translate(sel.x, sel.y);
-                    ctx.rotate(sel.rotation);
-
-                    // Bounding box stroke
-                    ctx.strokeStyle = '#C5A477';
-                    ctx.lineWidth = 4;
-                    ctx.strokeRect(-halfW, -halfTop, halfW * 2, halfTop + halfBot);
-
-                    // 4 Corner Resize Handles
-                    const corners = [
-                        [-halfW, -halfTop],
-                        [halfW, -halfTop],
-                        [halfW, halfBot],
-                        [-halfW, halfBot]
-                    ];
-                    corners.forEach(([cx, cy]) => {
-                        ctx.beginPath();
-                        ctx.arc(cx, cy, HANDLE_RADIUS, 0, Math.PI * 2);
-                        ctx.fillStyle = '#FFFFFF';
-                        ctx.fill();
-                        ctx.lineWidth = 5;
-                        ctx.strokeStyle = '#C5A477';
-                        ctx.stroke();
-                    });
-
-                    // Rotation Degree Pill above top edge
-                    const deg = Math.round((sel.rotation * 180) / Math.PI);
-                    const badgeText = `${deg}°`;
-                    ctx.font = '700 22px Montserrat, sans-serif';
-                    const tw = ctx.measureText(badgeText).width + 32;
-                    ctx.fillStyle = '#263746';
-                    ctx.beginPath();
-                    ctx.roundRect(-tw / 2, -halfTop - 56, tw, 38, 19);
-                    ctx.fill();
-                    ctx.fillStyle = '#F7F2EA';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(badgeText, 0, -halfTop - 37);
-
-                    ctx.restore();
-                }
-            }
-        }
-
-        function drawGiantBackdropWord(ctx, rawWord, pal) {
-            ctx.save();
-            const word = rawWord.toUpperCase().trim();
-            let fontSize = 275;
-            ctx.font = `900 ${fontSize}px "Playfair Display", serif`;
-            const maxW = COVER_W - 70;
-            const measured = ctx.measureText(word).width;
-            if (measured > maxW) {
-                fontSize = Math.floor(fontSize * (maxW / measured));
-                ctx.font = `900 ${fontSize}px "Playfair Display", serif`;
-            }
-            ctx.fillStyle = pal.giantFill;
+            ctx.font = fontStr;
+            ctx.fillStyle = fillStyle;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(word, COVER_W / 2, COVER_H * 0.34);
+
+            const charWidths = Array.from(str).map(ch => ctx.measureText(ch).width + 4);
+            const totalArcLen = charWidths.reduce((a, b) => a + b, 0);
+            const totalAngle = Math.min(spreadAngle, totalArcLen / radius);
+
+            let currentAngle = -Math.PI / 2 - totalAngle / 2;
+            for (let i = 0; i < str.length; i++) {
+                const charAngle = (charWidths[i] / totalArcLen) * totalAngle;
+                const midAngle = currentAngle + charAngle / 2;
+                ctx.save();
+                ctx.translate(centerX + Math.cos(midAngle) * radius, centerY + Math.sin(midAngle) * radius);
+                ctx.rotate(midAngle + Math.PI / 2);
+                ctx.fillText(str[i], 0, 0);
+                ctx.restore();
+                currentAngle += charAngle;
+            }
+            ctx.restore();
+        }
+
+        function drawCurvedRibbonBanner(ctx, text, centerX, circleCenterY, circleRadius, pal) {
+            ctx.save();
+            const ribbonW = circleRadius * 2.38;
+            const ribbonH = 92;
+            const yTop = circleCenterY + circleRadius * 0.56;
+            const dip = 44;
+
+            const drawTail = (dir) => {
+                ctx.save();
+                ctx.fillStyle = pal.ribbonFold;
+                const edgeX = centerX + dir * (ribbonW * 0.44);
+                const tailTipX = centerX + dir * (ribbonW * 0.58);
+                const tailTopY = yTop - 38;
+                const tailBotY = tailTopY + ribbonH * 0.88;
+                ctx.beginPath();
+                ctx.moveTo(edgeX, tailTopY + 14);
+                ctx.lineTo(tailTipX, tailTopY);
+                ctx.lineTo(tailTipX - dir * 26, (tailTopY + tailBotY) / 2);
+                ctx.lineTo(tailTipX, tailBotY);
+                ctx.lineTo(edgeX, tailBotY + 14);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            };
+            drawTail(-1);
+            drawTail(1);
+
+            ctx.shadowColor = 'rgba(0,0,0,0.22)';
+            ctx.shadowBlur = 18;
+            ctx.shadowOffsetY = 8;
+            ctx.fillStyle = pal.ribbonMain;
+            ctx.beginPath();
+            ctx.moveTo(centerX - ribbonW * 0.48, yTop - 22);
+            ctx.quadraticCurveTo(centerX, yTop + dip, centerX + ribbonW * 0.48, yTop - 22);
+            ctx.lineTo(centerX + ribbonW * 0.45, yTop + ribbonH - 22);
+            ctx.quadraticCurveTo(centerX, yTop + dip + ribbonH, centerX - ribbonW * 0.45, yTop + ribbonH - 22);
+            ctx.closePath();
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+
+            const str = (text || 'LA LUCIENNE MANAGEMENT').toUpperCase();
+            ctx.font = '700 42px Oswald, sans-serif';
+            ctx.fillStyle = pal.ribbonText;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const chars = Array.from(str);
+            const widths = chars.map(c => ctx.measureText(c).width + 2);
+            const totalW = widths.reduce((a, b) => a + b, 0);
+            let curX = centerX - totalW / 2;
+
+            for (let i = 0; i < chars.length; i++) {
+                const midX = curX + widths[i] / 2;
+                const norm = (midX - centerX) / (ribbonW * 0.48);
+                const curveY = (yTop + ribbonH * 0.5 - 22) + dip * (1 - norm * norm);
+                const slope = (-2 * dip * norm) / (ribbonW * 0.48);
+                ctx.save();
+                ctx.translate(midX, curveY);
+                ctx.rotate(Math.atan(slope));
+                ctx.fillText(chars[i], 0, 0);
+                ctx.restore();
+                curX += widths[i];
+            }
+            ctx.restore();
+        }
+
+        function drawHalftoneDots(ctx, w, h, color) {
+            ctx.save();
+            ctx.fillStyle = color;
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 12 - r; c++) {
+                    const radius = Math.max(2, 6.5 - (r + c) * 0.35);
+                    ctx.beginPath();
+                    ctx.arc(28 + c * 22, 26 + r * 22, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            const startX = w - 210, startY = h * 0.34;
+            for (let r = 0; r < 8; r++) {
+                for (let c = r; c < 9; c++) {
+                    const radius = Math.max(2, 5.5 - (c - r) * 0.35);
+                    ctx.beginPath();
+                    ctx.arc(startX + c * 20, startY + r * 20, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            ctx.restore();
+        }
+
+        function drawTornPaperBottom(ctx, w, h, topY, paperColor) {
+            ctx.save();
+            ctx.fillStyle = paperColor;
+            ctx.beginPath();
+            ctx.moveTo(0, topY);
+            const steps = 18;
+            for (let i = 1; i <= steps; i++) {
+                const px = (w / steps) * i;
+                const wave = Math.sin(i * 1.9) * 14 + Math.cos(i * 3.1) * 9;
+                ctx.lineTo(px, topY + wave);
+            }
+            ctx.lineTo(w, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawSpriteLayer(ctx, info, withShadow = false) {
+            if (!info || !info.sprite) return;
+            ctx.save();
+            if (withShadow) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.22)';
+                ctx.shadowBlur = 16;
+                ctx.shadowOffsetY = 6;
+            }
+            ctx.translate(info.x, info.y);
+            ctx.rotate(info.rotation);
+            ctx.drawImage(info.sprite, -info.w / 2, -info.h / 2, info.w, info.h);
+            ctx.restore();
+        }
+
+        function renderScene(ctx, showSelectionHandles, transparentReelsOverlayOnly = false) {
+            const cfg = appState.settings;
+            const pal = PALETTES[cfg.paletteId] || PALETTES['mango-sky'];
+            const { w, h } = getCanvasDimensions();
+            const mode = cfg.mode;
+
+            ctx.clearRect(0, 0, w, h);
+
+            /* ---------------- MODE 1: REELS (9:16 FULL FRAME) ---------------- */
+            if (mode === 'reels') {
+                if (!transparentReelsOverlayOnly) {
+                    ctx.fillStyle = pal.bgMid;
+                    ctx.fillRect(0, 0, w, h);
+
+                    const mediaInfo = getLayerRenderInfo('media');
+                    if (mediaInfo) {
+                        drawSpriteLayer(ctx, mediaInfo, false);
+                    } else if (showSelectionHandles) {
+                        ctx.save();
+                        ctx.fillStyle = pal.idText;
+                        ctx.font = '800 34px Montserrat, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Upload Video Reels / Foto di Panel', w / 2, h * 0.48);
+                        ctx.font = '600 22px Montserrat, sans-serif';
+                        ctx.fillStyle = pal.ribbonMain;
+                        ctx.fillText('Atau klik "Simpan HD" untuk unduh bingkai transparan PNG', w / 2, h * 0.48 + 46);
+                        ctx.restore();
+                    }
+                }
+
+                // Thin Stylish Border Frame
+                ctx.save();
+                ctx.strokeStyle = pal.ribbonMain;
+                ctx.lineWidth = 10;
+                ctx.strokeRect(18, 18, w - 36, h - 36);
+                ctx.restore();
+
+                // Bottom ID Pill
+                if (cfg.talentId && cfg.talentId.trim()) {
+                    ctx.save();
+                    ctx.fillStyle = pal.ribbonMain;
+                    ctx.beginPath();
+                    ctx.roundRect(w / 2 - 260, h - 245, 520, 68, 34);
+                    ctx.fill();
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = '800 32px Montserrat, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const txt = cfg.talentName && cfg.talentName.trim()
+                        ? `${cfg.talentId.toUpperCase()} • ${cfg.talentName.toUpperCase()}`
+                        : `${cfg.talentId.toUpperCase()} • ${cfg.ribbonText || 'LA LUCIENNE'}`;
+                    ctx.fillText(txt, w / 2, h - 211, 480);
+                    ctx.restore();
+                }
+
+                // Draw User-Uploaded Logo Agency & Logo App (Freely Adjustable!)
+                drawSpriteLayer(ctx, getLayerRenderInfo('agency'), true);
+                drawSpriteLayer(ctx, getLayerRenderInfo('app'), true);
+
+                if (showSelectionHandles) drawActiveSelectionBox(ctx);
+                return;
+            }
+
+            /* ---------------- MODE 2: FEED IG (1:1) ---------------- */
+            if (mode === 'feed') {
+                const bgGrad = ctx.createLinearGradient(0, 0, 0, h * 0.72);
+                bgGrad.addColorStop(0, pal.bgTop);
+                bgGrad.addColorStop(1, pal.bgMid);
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, w, h);
+
+                drawTornPaperBottom(ctx, w, h, h * 0.65, pal.paperBottom);
+                if (cfg.showHalftone) drawHalftoneDots(ctx, w, h, pal.dotColor);
+
+                const cx = w / 2, cy = h * 0.515, radius = 285;
+
+                // Curved App Title above circle
+                drawCurvedText(ctx, cfg.appTitle, cx, cy, radius + 86, Math.PI * 0.72, '700 76px Oswald, sans-serif', pal.titleColor);
+
+                // Circle Backdrop & Clipped Talent Photo
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.fillStyle = pal.circleInnerBg;
+                ctx.fill();
+                ctx.restore();
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius - 4, 0, Math.PI * 2);
+                ctx.clip();
+                const mediaInfo = getLayerRenderInfo('media');
+                if (mediaInfo) {
+                    drawSpriteLayer(ctx, mediaInfo, false);
+                } else if (showSelectionHandles) {
+                    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+                    ctx.font = '700 30px Montserrat, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Upload Foto Talent', cx, cy - 12);
+                    ctx.font = '500 22px Montserrat, sans-serif';
+                    ctx.fillStyle = 'rgba(255,255,255,0.68)';
+                    ctx.fillText('di panel kontrol', cx, cy + 26);
+                }
+                ctx.restore();
+
+                // Circle Border Ring
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = pal.circleRing;
+                ctx.lineWidth = 12;
+                ctx.stroke();
+                ctx.restore();
+
+                // Curved Ribbon Banner
+                if (cfg.showRibbon) {
+                    drawCurvedRibbonBanner(ctx, cfg.ribbonText, cx, cy, radius, pal);
+                }
+
+                // ID Talent Text at Bottom
+                if (cfg.talentId && cfg.talentId.trim()) {
+                    ctx.save();
+                    ctx.fillStyle = pal.idText;
+                    ctx.font = '800 54px Montserrat, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const idX = cx + 45;
+                    const idY = h - 102;
+                    ctx.fillText(cfg.talentId.toUpperCase(), idX, idY, 640);
+                    if (cfg.talentName && cfg.talentName.trim()) {
+                        ctx.font = '700 28px Montserrat, sans-serif';
+                        ctx.fillStyle = pal.ribbonMain;
+                        ctx.fillText(cfg.talentName.toUpperCase(), idX, idY + 48, 640);
+                    }
+                    ctx.restore();
+                }
+
+                // Draw User-Uploaded Logo Agency & Logo App (Freely Adjustable!)
+                drawSpriteLayer(ctx, getLayerRenderInfo('agency'), true);
+                drawSpriteLayer(ctx, getLayerRenderInfo('app'), true);
+
+                if (showSelectionHandles) drawActiveSelectionBox(ctx);
+                return;
+            }
+
+            /* ---------------- MODE 3: OPEN RECRUITMENT (9:16) ---------------- */
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, h * 0.72);
+            bgGrad.addColorStop(0, pal.bgTop);
+            bgGrad.addColorStop(1, pal.bgMid);
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            drawTornPaperBottom(ctx, w, h, h * 0.68, pal.paperBottom);
+            if (cfg.showHalftone) drawHalftoneDots(ctx, w, h, pal.dotColor);
+
+            // Partner Pill
+            ctx.save();
+            ctx.fillStyle = pal.ribbonMain;
+            ctx.beginPath();
+            ctx.roundRect(48, 255, 450, 48, 24);
+            ctx.fill();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '700 22px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`OFFICIAL PARTNER • ${(cfg.appTitle || 'LIVE STREAMING').toUpperCase()}`, 273, 279, 420);
+            ctx.restore();
+
+            // Headline & Role
+            ctx.save();
+            ctx.fillStyle = pal.titleColor;
+            ctx.font = '700 102px Oswald, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText((cfg.oprecHeadline || 'OPEN RECRUITMENT').toUpperCase(), 48, 405, w - 96);
+
+            ctx.fillStyle = pal.idText;
+            ctx.font = '800 42px Montserrat, sans-serif';
+            ctx.fillText((cfg.oprecRole || 'HOST LIVE STREAMING').toUpperCase(), 50, 468, w - 100);
+            ctx.restore();
+
+            // Benefits Card
+            const cardX = 48, cardY = 525, cardW = w - 96, cardH = 640;
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.10)';
+            ctx.shadowBlur = 24;
+            ctx.shadowOffsetY = 8;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.93)';
+            ctx.beginPath();
+            ctx.roundRect(cardX, cardY, cardW, cardH, 34);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = pal.ribbonMain;
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            ctx.fillStyle = pal.ribbonMain;
+            ctx.beginPath();
+            ctx.roundRect(cardX + 32, cardY + 30, 340, 50, 25);
+            ctx.fill();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '700 23px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('BENEFIT & KUALIFIKASI', cardX + 202, cardY + 55);
+
+            const lines = (cfg.oprecBenefits || '').split('\n').filter(l => l.trim());
+            ctx.fillStyle = '#232326';
+            ctx.font = '700 31px Montserrat, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            lines.slice(0, 7).forEach((line, idx) => {
+                ctx.fillText(line.trim(), cardX + 36, cardY + 116 + idx * 70, cardW - 72);
+            });
+            ctx.restore();
+
+            // Optional Talent Cutout Photo on Bottom-Right
+            drawSpriteLayer(ctx, getLayerRenderInfo('media'), false);
+
+            // Bottom Contact CTA Bar
+            ctx.save();
+            ctx.fillStyle = pal.ribbonMain;
+            ctx.beginPath();
+            ctx.roundRect(48, h - 180, w - 96, 112, 28);
+            ctx.fill();
+            ctx.fillStyle = '#FFE4A3';
+            ctx.font = '700 23px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('DAFTAR SEKARANG — GRATIS TANPA BIAYA!', w / 2, h - 138);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '800 31px Montserrat, sans-serif';
+            ctx.fillText(cfg.oprecContact || 'DM @laluciennemanagement', w / 2, h - 92, w - 130);
+            ctx.restore();
+
+            // Draw User-Uploaded Logo Agency & Logo App (Freely Adjustable!)
+            drawSpriteLayer(ctx, getLayerRenderInfo('agency'), true);
+            drawSpriteLayer(ctx, getLayerRenderInfo('app'), true);
+
+            if (showSelectionHandles) drawActiveSelectionBox(ctx);
+        }
+
+        function drawActiveSelectionBox(ctx) {
+            if (!appState.selectedLayer) return;
+            const info = getLayerRenderInfo(appState.selectedLayer);
+            if (!info) return;
+
+            const halfW = info.w / 2;
+            const halfH = info.h / 2;
+
+            ctx.save();
+            ctx.translate(info.x, info.y);
+            ctx.rotate(info.rotation);
+
+            // Bounding Box
+            ctx.strokeStyle = '#B83333';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(-halfW, -halfH, info.w, info.h);
+
+            // Top Rotation Handle Stem + Circle (PC Mouse Friendly!)
+            ctx.beginPath();
+            ctx.moveTo(0, -halfH);
+            ctx.lineTo(0, -halfH - 52);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(0, -halfH - 58, 18, 0, Math.PI * 2);
+            ctx.fillStyle = '#D9A036';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.stroke();
+
+            // 4 Corner Resize Handles
+            const corners = [[-halfW, -halfH], [halfW, -halfH], [halfW, halfH], [-halfW, halfH]];
+            corners.forEach(([cx, cy]) => {
+                ctx.beginPath();
+                ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fill();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#B83333';
+                ctx.stroke();
+            });
+
             ctx.restore();
         }
 
         function redrawCanvas() {
-            const canvas = document.getElementById('cover-canvas');
+            const canvas = document.getElementById('twibbon-canvas');
             if (!canvas) return;
-            renderCover(canvas.getContext('2d'), true);
+            const { w, h } = getCanvasDimensions();
+            if (canvas.width !== w || canvas.height !== h) {
+                canvas.width = w;
+                canvas.height = h;
+            }
+            renderScene(canvas.getContext('2d'), true, false);
         }
 
         /* ============================================================================
-           5. CANVA-STYLE MULTI-TOUCH GESTURE ENGINE (1-FINGER DRAG, 2-FINGER PINCH/ROTATE)
+           5. DIRECT CANVAS MANIPULATION (PC MOUSE DRAG/CORNER-RESIZE/ROTATE + MOBILE TOUCH)
            ============================================================================ */
-        function setupCanvaTouchGestures() {
-            const canvas = document.getElementById('cover-canvas');
+        function setupCanvasInteractions() {
+            const canvas = document.getElementById('twibbon-canvas');
             if (!canvas) return;
 
             const pointers = new Map();
-            let mode = 'none'; // 'drag' | 'pinch' | 'corner-resize'
-            let startPhoto = null;
-            let startPt1 = null;
+            let action = 'none'; // 'drag' | 'resize' | 'rotate' | 'pinch'
+            let startState = null;
+            let startPt = null;
             let startDist = 0;
             let startAngle = 0;
             let startMid = null;
-            let startCornerRadius = 1;
-            let movedSignificantly = false;
 
-            function clientToCover(clientX, clientY) {
+            function toCoverCoords(clientX, clientY) {
                 const rect = canvas.getBoundingClientRect();
+                const { w, h } = getCanvasDimensions();
                 return {
-                    x: ((clientX - rect.left) / Math.max(1, rect.width)) * COVER_W,
-                    y: ((clientY - rect.top) / Math.max(1, rect.height)) * COVER_H
+                    x: ((clientX - rect.left) / Math.max(1, rect.width)) * w,
+                    y: ((clientY - rect.top) / Math.max(1, rect.height)) * h
                 };
             }
 
-            function hitTestCornerHandle(photo, pt) {
-                if (!photo) return false;
-                const sprite = getActiveSprite(photo);
-                const pad = photo.hasFrame ? 22 : 0;
-                const botPad = photo.hasFrame ? 46 : 0;
-                const halfW = (sprite.width * photo.scale) / 2 + pad;
-                const halfTop = (sprite.height * photo.scale) / 2 + pad;
-                const halfBot = (sprite.height * photo.scale) / 2 + botPad;
-
-                const dx = pt.x - photo.x;
-                const dy = pt.y - photo.y;
-                const cos = Math.cos(-photo.rotation);
-                const sin = Math.sin(-photo.rotation);
-                const lx = dx * cos - dy * sin;
-                const ly = dx * sin + dy * cos;
-
-                const corners = [
-                    [-halfW, -halfTop],
-                    [halfW, -halfTop],
-                    [halfW, halfBot],
-                    [-halfW, halfBot]
-                ];
-                return corners.some(([cx, cy]) => Math.hypot(lx - cx, ly - cy) <= HANDLE_RADIUS * 2.1);
+            function toLocalCoords(info, pt) {
+                const dx = pt.x - info.x;
+                const dy = pt.y - info.y;
+                const cos = Math.cos(-info.rotation);
+                const sin = Math.sin(-info.rotation);
+                return {
+                    lx: dx * cos - dy * sin,
+                    ly: dx * sin + dy * cos
+                };
             }
 
-            function hitTestPhoto(pt) {
-                // Check topmost photo first
-                for (let i = appState.photos.length - 1; i >= 0; i--) {
-                    const p = appState.photos[i];
-                    const sprite = getActiveSprite(p);
-                    const pad = p.hasFrame ? 22 : 12;
-                    const botPad = p.hasFrame ? 46 : 12;
-                    const halfW = (sprite.width * p.scale) / 2 + pad;
-                    const halfTop = (sprite.height * p.scale) / 2 + pad;
-                    const halfBot = (sprite.height * p.scale) / 2 + botPad;
+            function hitTestHandles(info, pt) {
+                if (!info) return null;
+                const { lx, ly } = toLocalCoords(info, pt);
+                const halfW = info.w / 2;
+                const halfH = info.h / 2;
 
-                    const dx = pt.x - p.x;
-                    const dy = pt.y - p.y;
-                    const cos = Math.cos(-p.rotation);
-                    const sin = Math.sin(-p.rotation);
-                    const lx = dx * cos - dy * sin;
-                    const ly = dx * sin + dy * cos;
+                // Check Top Rotation Handle
+                if (Math.hypot(lx, ly - (-halfH - 58)) <= 36) return 'rotate';
 
-                    if (lx >= -halfW && lx <= halfW && ly >= -halfTop && ly <= halfBot) {
-                        return p;
-                    }
-                }
+                // Check 4 Corners
+                const corners = [[-halfW, -halfH], [halfW, -halfH], [halfW, halfH], [-halfW, halfH]];
+                if (corners.some(([cx, cy]) => Math.hypot(lx - cx, ly - cy) <= 36)) return 'resize';
+
                 return null;
             }
 
-            function normalizeAngle(rad) {
-                while (rad > Math.PI) rad -= Math.PI * 2;
-                while (rad < -Math.PI) rad += Math.PI * 2;
-                return rad;
+            function hitTestLayerOrder(pt) {
+                // Topmost layers first: app -> agency -> media
+                const order = ['app', 'agency', 'media'];
+                for (const key of order) {
+                    const info = getLayerRenderInfo(key);
+                    if (!info) continue;
+                    const { lx, ly } = toLocalCoords(info, pt);
+                    if (Math.abs(lx) <= info.w / 2 + 14 && Math.abs(ly) <= info.h / 2 + 14) {
+                        return key;
+                    }
+                }
+                return null;
             }
 
             canvas.addEventListener('pointerdown', (e) => {
@@ -1311,59 +1651,56 @@
                 pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
                 if (pointers.size === 1) {
-                    movedSignificantly = false;
-                    const pt = clientToCover(e.clientX, e.clientY);
+                    const pt = toCoverCoords(e.clientX, e.clientY);
 
-                    // 1. Check if tapping a corner resize handle on currently selected photo
-                    const currentSel = appState.photos.find(p => p.id === appState.selectedId);
-                    if (currentSel && hitTestCornerHandle(currentSel, pt)) {
-                        mode = 'corner-resize';
-                        startPhoto = { ...currentSel };
-                        startCornerRadius = Math.max(10, Math.hypot(pt.x - currentSel.x, pt.y - currentSel.y));
-                        appState.isDragging = true;
-                        redrawCanvas();
-                        return;
+                    // 1. Check handles on currently selected layer
+                    if (appState.selectedLayer) {
+                        const selInfo = getLayerRenderInfo(appState.selectedLayer);
+                        const handleHit = hitTestHandles(selInfo, pt);
+                        if (handleHit && selInfo) {
+                            action = handleHit;
+                            startState = { ...selInfo.obj };
+                            startDist = Math.max(12, Math.hypot(pt.x - selInfo.x, pt.y - selInfo.y));
+                            startAngle = Math.atan2(pt.y - selInfo.y, pt.x - selInfo.x);
+                            redrawCanvas();
+                            return;
+                        }
                     }
 
-                    // 2. Check if tapping any photo
-                    const hit = hitTestPhoto(pt);
-                    if (hit) {
-                        appState.selectedId = hit.id;
-                        mode = 'drag';
-                        startPhoto = { ...hit };
-                        startPt1 = pt;
-                        appState.isDragging = true;
-                        updateUIControls();
+                    // 2. Hit test layers
+                    const hitKey = hitTestLayerOrder(pt);
+                    if (hitKey) {
+                        appState.selectedLayer = hitKey;
+                        const info = getLayerRenderInfo(hitKey);
+                        action = 'drag';
+                        startState = { ...info.obj };
+                        startPt = pt;
+                        syncControlStates();
                         redrawCanvas();
                     } else {
-                        // Tapped empty space -> deselect
-                        appState.selectedId = null;
-                        mode = 'none';
-                        appState.isDragging = false;
-                        updateUIControls();
+                        appState.selectedLayer = null;
+                        action = 'none';
+                        syncControlStates();
                         redrawCanvas();
                     }
                 } else if (pointers.size === 2) {
-                    // Two fingers down -> switch immediately to Canva pinch-to-zoom + rotate + pan!
-                    let target = appState.photos.find(p => p.id === appState.selectedId);
-                    if (!target && appState.photos.length > 0) {
-                        target = appState.photos[appState.photos.length - 1];
-                        appState.selectedId = target.id;
-                        updateUIControls();
+                    // Multi-touch pinch on mobile
+                    if (!appState.selectedLayer) {
+                        appState.selectedLayer = appState.mediaLayer ? 'media' : appState.agencyLayer ? 'agency' : appState.appLayer ? 'app' : null;
                     }
-                    if (!target) return;
+                    const info = getLayerRenderInfo(appState.selectedLayer);
+                    if (!info) return;
 
                     const [p1, p2] = Array.from(pointers.values());
-                    const c1 = clientToCover(p1.x, p1.y);
-                    const c2 = clientToCover(p2.x, p2.y);
+                    const c1 = toCoverCoords(p1.x, p1.y);
+                    const c2 = toCoverCoords(p2.x, p2.y);
 
-                    mode = 'pinch';
-                    startPhoto = { ...target };
+                    action = 'pinch';
+                    startState = { ...info.obj };
                     startDist = Math.max(12, Math.hypot(c2.x - c1.x, c2.y - c1.y));
                     startAngle = Math.atan2(c2.y - c1.y, c2.x - c1.x);
                     startMid = { x: (c1.x + c2.x) / 2, y: (c1.y + c2.y) / 2 };
-                    appState.isDragging = true;
-                    redrawCanvas();
+                    syncControlStates();
                 }
             });
 
@@ -1371,378 +1708,467 @@
                 if (!pointers.has(e.pointerId)) return;
                 pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-                const target = appState.photos.find(p => p.id === appState.selectedId);
-                if (!target || !startPhoto) return;
+                const info = getLayerRenderInfo(appState.selectedLayer);
+                if (!info || !startState) return;
+                const targetObj = info.obj;
 
-                if (mode === 'corner-resize' && pointers.size === 1) {
-                    const pt = clientToCover(e.clientX, e.clientY);
-                    const curR = Math.max(10, Math.hypot(pt.x - target.x, pt.y - target.y));
-                    target.scale = Math.max(0.15, Math.min(4.5, startPhoto.scale * (curR / startCornerRadius)));
+                if (action === 'drag' && pointers.size === 1) {
+                    const pt = toCoverCoords(e.clientX, e.clientY);
+                    targetObj.x = startState.x + (pt.x - startPt.x);
+                    targetObj.y = startState.y + (pt.y - startPt.y);
                     redrawCanvas();
-                } else if (mode === 'drag' && pointers.size === 1) {
-                    const pt = clientToCover(e.clientX, e.clientY);
-                    const dx = pt.x - startPt1.x;
-                    const dy = pt.y - startPt1.y;
-                    if (Math.hypot(dx, dy) > 6) movedSignificantly = true;
-
-                    let nx = startPhoto.x + dx;
-                    let ny = startPhoto.y + dy;
-
-                    // Magnetic center alignment snap guides (within ±16px of 540 or 960)
-                    if (Math.abs(nx - COVER_W / 2) < 16) {
-                        nx = COVER_W / 2;
-                        appState.snapX = true;
-                    } else {
-                        appState.snapX = false;
-                    }
-
-                    if (Math.abs(ny - COVER_H / 2) < 16) {
-                        ny = COVER_H / 2;
-                        appState.snapY = true;
-                    } else {
-                        appState.snapY = false;
-                    }
-
-                    target.x = Math.max(-200, Math.min(COVER_W + 200, nx));
-                    target.y = Math.max(-200, Math.min(COVER_H + 200, ny));
+                } else if (action === 'resize' && pointers.size === 1) {
+                    const pt = toCoverCoords(e.clientX, e.clientY);
+                    const curDist = Math.max(12, Math.hypot(pt.x - targetObj.x, pt.y - targetObj.y));
+                    targetObj.scale = Math.max(0.08, Math.min(5.0, startState.scale * (curDist / startDist)));
+                    syncSlidersOnly();
                     redrawCanvas();
-                } else if (mode === 'pinch' && pointers.size === 2) {
+                } else if (action === 'rotate' && pointers.size === 1) {
+                    const pt = toCoverCoords(e.clientX, e.clientY);
+                    const curAngle = Math.atan2(pt.y - targetObj.y, pt.x - targetObj.x);
+                    let rot = startState.rotation + (curAngle - startAngle);
+                    if (Math.abs(rot) < 0.05) rot = 0; // Snap to 0 deg
+                    targetObj.rotation = rot;
+                    syncSlidersOnly();
+                    redrawCanvas();
+                } else if (action === 'pinch' && pointers.size === 2) {
                     const [p1, p2] = Array.from(pointers.values());
-                    const c1 = clientToCover(p1.x, p1.y);
-                    const c2 = clientToCover(p2.x, p2.y);
-
+                    const c1 = toCoverCoords(p1.x, p1.y);
+                    const c2 = toCoverCoords(p2.x, p2.y);
                     const curDist = Math.max(12, Math.hypot(c2.x - c1.x, c2.y - c1.y));
                     const curAngle = Math.atan2(c2.y - c1.y, c2.x - c1.x);
                     const curMid = { x: (c1.x + c2.x) / 2, y: (c1.y + c2.y) / 2 };
 
-                    // 1. Scale
-                    target.scale = Math.max(0.15, Math.min(4.5, startPhoto.scale * (curDist / startDist)));
-
-                    // 2. Rotation with magnetic snap to 0° within ±4°
-                    const rawRot = normalizeAngle(startPhoto.rotation + (curAngle - startAngle));
-                    const snapRad = (4 * Math.PI) / 180;
-                    target.rotation = Math.abs(rawRot) < snapRad ? 0 : rawRot;
-
-                    // 3. Simultaneous 2-finger pan
-                    target.x = Math.max(-200, Math.min(COVER_W + 200, startPhoto.x + (curMid.x - startMid.x)));
-                    target.y = Math.max(-200, Math.min(COVER_H + 200, startPhoto.y + (curMid.y - startMid.y)));
-
-                    appState.snapX = Math.abs(target.x - COVER_W / 2) < 10;
-                    appState.snapY = Math.abs(target.y - COVER_H / 2) < 10;
-
+                    targetObj.scale = Math.max(0.08, Math.min(5.0, startState.scale * (curDist / startDist)));
+                    const rawRot = startState.rotation + (curAngle - startAngle);
+                    targetObj.rotation = Math.abs(rawRot) < 0.06 ? 0 : rawRot;
+                    targetObj.x = startState.x + (curMid.x - startMid.x);
+                    targetObj.y = startState.y + (curMid.y - startMid.y);
+                    syncSlidersOnly();
                     redrawCanvas();
                 }
             });
 
-            const handlePointerEnd = (e) => {
+            const endPointer = (e) => {
                 pointers.delete(e.pointerId);
                 try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
-
                 if (pointers.size === 0) {
-                    // Quick tap on empty canvas opens file picker if 0 photos exist
-                    if (!movedSignificantly && appState.photos.length === 0) {
-                        document.getElementById('multi-photo-input')?.click();
-                    }
-                    mode = 'none';
-                    startPhoto = null;
-                    appState.isDragging = false;
-                    appState.snapX = false;
-                    appState.snapY = false;
-                    redrawCanvas();
-                } else if (pointers.size === 1) {
-                    // Smooth transition back to 1-finger drag if 1 finger stays down
-                    const remaining = Array.from(pointers.values())[0];
-                    const target = appState.photos.find(p => p.id === appState.selectedId);
-                    if (target) {
-                        mode = 'drag';
-                        startPhoto = { ...target };
-                        startPt1 = clientToCover(remaining.x, remaining.y);
-                    }
+                    action = 'none';
+                    startState = null;
                 }
             };
+            canvas.addEventListener('pointerup', endPointer);
+            canvas.addEventListener('pointercancel', endPointer);
 
-            canvas.addEventListener('pointerup', handlePointerEnd);
-            canvas.addEventListener('pointercancel', handlePointerEnd);
-
-            // Desktop Mouse Wheel Zoom on Selected Photo
+            // PC Mouse Wheel Zoom / Shift+Wheel Rotate
             canvas.addEventListener('wheel', (e) => {
                 e.preventDefault();
-                const target = appState.photos.find(p => p.id === appState.selectedId);
-                if (!target) return;
-                const factor = e.deltaY < 0 ? 1.06 : 0.94;
-                target.scale = Math.max(0.15, Math.min(4.5, target.scale * factor));
+                if (!appState.selectedLayer) return;
+                const info = getLayerRenderInfo(appState.selectedLayer);
+                if (!info) return;
+
+                if (e.shiftKey) {
+                    info.obj.rotation += (e.deltaY < 0 ? -3 : 3) * (Math.PI / 180);
+                } else {
+                    info.obj.scale = Math.max(0.08, Math.min(5.0, info.obj.scale * (e.deltaY < 0 ? 1.06 : 0.94)));
+                }
+                syncSlidersOnly();
                 redrawCanvas();
             }, { passive: false });
         }
 
+        // PC Arrow Keys for Pixel-Accurate Positioning
+        window.addEventListener('keydown', (e) => {
+            if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+            if (!appState.selectedLayer) return;
+            const info = getLayerRenderInfo(appState.selectedLayer);
+            if (!info) return;
+
+            const step = e.shiftKey ? 20 : 4;
+            if (e.key === 'ArrowLeft') { e.preventDefault(); info.obj.x -= step; redrawCanvas(); }
+            else if (e.key === 'ArrowRight') { e.preventDefault(); info.obj.x += step; redrawCanvas(); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); info.obj.y -= step; redrawCanvas(); }
+            else if (e.key === 'ArrowDown') { e.preventDefault(); info.obj.y += step; redrawCanvas(); }
+            else if (e.key === 'Delete') { e.preventDefault(); removeSelectedLayer(); }
+        });
+
         /* ============================================================================
-           6. PHOTO MINI-TOOLBAR & AUTO-LAYOUT ACTIONS
+           6. LAYER CONTROLS, SLIDERS, MODE SWITCHING & EXPORT
            ============================================================================ */
+        function selectLayerByType(key) {
+            if (key === 'media' && !appState.mediaLayer) {
+                document.getElementById('talent-media-input')?.click();
+                return;
+            }
+            if (key === 'agency' && !appState.agencyLayer) {
+                showToast('Upload Logo Agency terlebih dahulu di kotak nomor 2.');
+                return;
+            }
+            if (key === 'app' && !appState.appLayer) {
+                showToast('Upload Logo Aplikasi terlebih dahulu di kotak nomor 3.');
+                return;
+            }
+            appState.selectedLayer = key;
+            syncControlStates();
+            redrawCanvas();
+        }
+
+        function nudgeScale(factor) {
+            const info = getLayerRenderInfo(appState.selectedLayer);
+            if (!info) return;
+            info.obj.scale = Math.max(0.08, Math.min(5.0, info.obj.scale * factor));
+            syncSlidersOnly();
+            redrawCanvas();
+        }
+
+        function nudgeRotation(deg) {
+            const info = getLayerRenderInfo(appState.selectedLayer);
+            if (!info) return;
+            info.obj.rotation += (deg * Math.PI) / 180;
+            syncSlidersOnly();
+            redrawCanvas();
+        }
+
+        function onSliderScaleChange(val) {
+            const info = getLayerRenderInfo(appState.selectedLayer);
+            if (!info) return;
+            info.obj.scale = Number(val) / 100;
+            document.getElementById('lbl-scale-val').textContent = `${val}%`;
+            redrawCanvas();
+        }
+
+        function onSliderRotChange(deg) {
+            const info = getLayerRenderInfo(appState.selectedLayer);
+            if (!info) return;
+            info.obj.rotation = (Number(deg) * Math.PI) / 180;
+            document.getElementById('lbl-rot-val').textContent = `${deg}°`;
+            document.getElementById('slider-layer-rot').value = deg;
+            redrawCanvas();
+        }
+
+        function syncSlidersOnly() {
+            const info = getLayerRenderInfo(appState.selectedLayer);
+            if (!info) return;
+            const pct = Math.round(info.obj.scale * 100);
+            const deg = Math.round((info.obj.rotation * 180) / Math.PI);
+            const sEl = document.getElementById('slider-layer-scale');
+            const rEl = document.getElementById('slider-layer-rot');
+            if (sEl) sEl.value = Math.min(300, Math.max(10, pct));
+            if (rEl) rEl.value = Math.min(180, Math.max(-180, deg));
+            document.getElementById('lbl-scale-val').textContent = `${pct}%`;
+            document.getElementById('lbl-rot-val').textContent = `${deg}°`;
+        }
+
         function toggleSelectedCutout() {
-            const p = appState.photos.find(item => item.id === appState.selectedId);
-            if (!p) return;
-            p.useCutout = !p.useCutout;
-            updateUIControls();
-            redrawCanvas();
-        }
-
-        function toggleSelectedFrame() {
-            const p = appState.photos.find(item => item.id === appState.selectedId);
-            if (!p) return;
-            p.hasFrame = !p.hasFrame;
-            updateUIControls();
-            redrawCanvas();
-        }
-
-        function moveSelectedLayer(dir) {
-            const idx = appState.photos.findIndex(item => item.id === appState.selectedId);
-            if (idx < 0) return;
-            const targetIdx = idx + dir;
-            if (targetIdx < 0 || targetIdx >= appState.photos.length) return;
-            const [item] = appState.photos.splice(idx, 1);
-            appState.photos.splice(targetIdx, 0, item);
-            redrawCanvas();
-            showToast(dir > 0 ? 'Foto dipindah ke depan' : 'Foto dipindah ke belakang');
-        }
-
-        function deleteSelectedPhoto() {
-            if (!appState.selectedId) return;
-            appState.photos = appState.photos.filter(p => p.id !== appState.selectedId);
-            appState.selectedId = appState.photos.length ? appState.photos[appState.photos.length - 1].id : null;
-            updateUIControls();
-            redrawCanvas();
-            showToast('Foto dihapus');
-        }
-
-        function clearAllPhotos() {
-            appState.photos = [];
-            appState.selectedId = null;
-            updateUIControls();
-            redrawCanvas();
-            closeAllDrawers();
-            showToast('Semua foto dibersihkan');
-        }
-
-        function applyAutoLayout(preset) {
-            const n = appState.photos.length;
-            if (n === 0) {
-                showToast('Tambahkan foto terlebih dahulu');
-                return;
-            }
-
-            if (preset === 'center-portrait') {
-                appState.photos.forEach((p, idx) => {
-                    const sprite = getActiveSprite(p);
-                    const targetH = COVER_H * (idx === 0 ? 0.78 : 0.34);
-                    p.scale = Math.min((COVER_W * 0.92) / sprite.width, targetH / sprite.height);
-                    p.x = COVER_W / 2;
-                    p.y = COVER_H / 2 + 60;
-                    p.rotation = 0;
-                });
-            } else if (preset === 'hero-detail') {
-                appState.photos.forEach((p, idx) => {
-                    const sprite = getActiveSprite(p);
-                    const slot = computeSmartInitialPlacement(sprite.width, sprite.height, idx, n);
-                    p.x = slot.x;
-                    p.y = slot.y;
-                    p.scale = slot.scale;
-                    p.rotation = slot.rotation;
-                    p.hasFrame = idx > 0;
-                });
-            } else if (preset === 'editorial-collage') {
-                const cols = n === 1 ? 1 : 2;
-                const rows = Math.ceil(n / cols);
-                const areaTop = 340;
-                const areaBot = COVER_H - 240;
-                const cellW = (COVER_W - 140) / cols;
-                const cellH = (areaBot - areaTop) / rows;
-
-                appState.photos.forEach((p, idx) => {
-                    const sprite = getActiveSprite(p);
-                    const c = idx % cols;
-                    const r = Math.floor(idx / cols);
-                    p.x = 70 + cellW * (c + 0.5);
-                    p.y = areaTop + cellH * (r + 0.5);
-                    p.scale = Math.min((cellW * 0.86) / sprite.width, (cellH * 0.86) / sprite.height);
-                    p.rotation = 0;
-                    p.hasFrame = n > 1;
-                });
-            }
-
-            updateUIControls();
-            redrawCanvas();
-            closeAllDrawers();
-            showToast('Susunan foto diterapkan');
-        }
-
-        /* ============================================================================
-           7. DRAWERS, TEXT SETTINGS, PALETTE PICKER & HD EXPORT
-           ============================================================================ */
-        let openDrawerName = null;
-
-        function toggleDrawer(name) {
-            if (openDrawerName === name) {
-                closeAllDrawers();
-                return;
-            }
-            closeAllDrawers();
-            openDrawerName = name;
-            document.getElementById('drawer-backdrop')?.classList.remove('hidden');
-            const sheet = document.getElementById(`drawer-${name}`);
-            if (sheet) {
-                sheet.classList.remove('drawer-closed');
-                sheet.classList.add('drawer-open');
+            if (appState.selectedLayer === 'media' && appState.mediaLayer?.type === 'image') {
+                appState.mediaLayer.useCutout = !appState.mediaLayer.useCutout;
+                syncControlStates();
+                redrawCanvas();
+            } else if (appState.selectedLayer === 'agency' && appState.agencyLayer) {
+                toggleAgencyLogoBgRemoval();
             }
         }
 
-        function closeAllDrawers() {
-            openDrawerName = null;
-            document.getElementById('drawer-backdrop')?.classList.add('hidden');
-            ['text', 'theme'].forEach(n => {
-                const sheet = document.getElementById(`drawer-${n}`);
-                if (sheet) {
-                    sheet.classList.remove('drawer-open');
-                    sheet.classList.add('drawer-closed');
+        function resetSelectedLayerTransform() {
+            const { w, h } = getCanvasDimensions();
+            const mode = appState.settings.mode;
+            const key = appState.selectedLayer;
+
+            if (key === 'media' && appState.mediaLayer) {
+                const m = appState.mediaLayer;
+                m.rotation = 0;
+                if (mode === 'reels') {
+                    m.scale = Math.max(w / m.width, h / m.height);
+                    m.x = w / 2; m.y = h / 2;
+                } else if (mode === 'oprec') {
+                    m.scale = Math.min(720 / m.width, 860 / m.height);
+                    m.x = w * 0.72; m.y = h * 0.72;
+                } else {
+                    m.scale = Math.max(600 / m.width, 600 / m.height);
+                    m.x = w / 2; m.y = h * 0.515;
                 }
+            } else if (key === 'agency' && appState.agencyLayer) {
+                const a = appState.agencyLayer;
+                a.rotation = 0;
+                const isOprec = mode === 'oprec';
+                a.scale = Math.min((isOprec ? 340 : 270) / a.rawCanvas.width, (isOprec ? 190 : 165) / a.rawCanvas.height);
+                a.x = isOprec ? 210 : 175;
+                a.y = isOprec ? 125 : h - 105;
+            } else if (key === 'app' && appState.appLayer) {
+                const ap = appState.appLayer;
+                ap.rotation = 0;
+                ap.scale = Math.min(165 / ap.canvas.width, 165 / ap.canvas.height);
+                ap.x = w - 122;
+                ap.y = mode === 'reels' ? 165 : 120;
+            }
+
+            syncSlidersOnly();
+            redrawCanvas();
+        }
+
+        function removeSelectedLayer() {
+            const key = appState.selectedLayer;
+            if (key === 'media') {
+                stopReelsVideoLoop();
+                appState.mediaLayer = null;
+            } else if (key === 'agency') {
+                clearAgencyLogo();
+                return;
+            } else if (key === 'app') {
+                clearAppLogo();
+                return;
+            }
+            appState.selectedLayer = null;
+            syncControlStates();
+            redrawCanvas();
+        }
+
+        function syncControlStates() {
+            const key = appState.selectedLayer;
+            const info = getLayerRenderInfo(key);
+            const badge = document.getElementById('selected-layer-badge');
+            const actions = document.getElementById('selected-layer-actions');
+            const slidersBox = document.getElementById('precision-sliders-box');
+            const cutBtn = document.getElementById('btn-cutout-toggle');
+
+            const names = {
+                media: 'Aktif: Foto / Video',
+                agency: 'Aktif: Logo Agency',
+                app: 'Aktif: Logo Aplikasi'
+            };
+
+            if (info && key) {
+                badge.textContent = names[key];
+                actions.classList.remove('hidden');
+                actions.classList.add('flex');
+                slidersBox.classList.remove('hidden');
+                syncSlidersOnly();
+
+                if (key === 'media' && appState.mediaLayer?.type === 'image') {
+                    cutBtn.classList.remove('hidden');
+                    cutBtn.classList.add('flex');
+                } else if (key === 'agency') {
+                    cutBtn.classList.remove('hidden');
+                    cutBtn.classList.add('flex');
+                } else {
+                    cutBtn.classList.add('hidden');
+                    cutBtn.classList.remove('flex');
+                }
+            } else {
+                badge.textContent = 'Klik Elemen di Kanvas';
+                actions.classList.add('hidden');
+                actions.classList.remove('flex');
+                slidersBox.classList.add('hidden');
+            }
+
+            // Highlight quick layer buttons
+            ['media', 'agency', 'app'].forEach(k => {
+                const btn = document.getElementById(`layer-pick-${k}`);
+                if (!btn) return;
+                const active = key === k;
+                btn.className = active
+                    ? 'py-1.5 px-2 rounded-lg border border-crimson bg-crimson text-white text-[11px] font-bold transition truncate'
+                    : 'py-1.5 px-2 rounded-lg border border-gray-200 bg-white text-charcoal hover:bg-gray-50 text-[11px] font-bold transition truncate';
             });
+
+            // Agency & App action rows
+            const agAct = document.getElementById('agency-logo-actions');
+            if (agAct) agAct.classList.toggle('hidden', !appState.agencyLayer);
+            const agBgBtn = document.getElementById('btn-agency-bg');
+            if (agBgBtn) agBgBtn.textContent = `Hapus BG Putih/Hitam: ${appState.settings.agencyRemoveBg ? 'ON' : 'OFF'}`;
+
+            const appAct = document.getElementById('app-logo-actions');
+            if (appAct) appAct.classList.toggle('hidden', !appState.appLayer);
         }
 
-        function applyHeadlinePreset(headline, giantWord) {
-            appState.settings.headline = headline;
-            appState.settings.giantWord = giantWord;
-            document.getElementById('inp-headline').value = headline;
-            document.getElementById('inp-giant-word').value = giantWord;
-            persistSettings();
+        function switchMode(newMode) {
+            appState.settings.mode = newMode;
+            saveSettings();
+
+            const shell = document.getElementById('canvas-shell');
+            if (shell) {
+                shell.className = newMode === 'feed'
+                    ? 'relative aspect-square max-h-[calc(100%-74px)] max-w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-crimson/30 bg-white flex items-center justify-center transition-all duration-200'
+                    : 'relative aspect-[9/16] h-full max-h-[calc(100%-74px)] rounded-2xl overflow-hidden shadow-2xl border-2 border-crimson/30 bg-white flex items-center justify-center transition-all duration-200';
+            }
+
+            // Update card labels for Reels vs Feed
+            const mTitle = document.getElementById('media-card-title');
+            const mDesc = document.getElementById('media-card-desc');
+            if (newMode === 'reels') {
+                if (mTitle) mTitle.textContent = '1. Video Reels / Cover (9:16)';
+                if (mDesc) mDesc.textContent = 'Upload video MP4 Reels atau foto full screen';
+            } else {
+                if (mTitle) mTitle.textContent = '1. Foto Talent / Host';
+                if (mDesc) mDesc.textContent = 'Upload foto talent atau seret file ke kanvas';
+            }
+
+            // Reposition existing layers cleanly for the new aspect ratio
+            const { w, h } = getCanvasDimensions();
+            if (appState.mediaLayer) {
+                const m = appState.mediaLayer;
+                if (newMode === 'reels') {
+                    m.scale = Math.max(w / m.width, h / m.height);
+                    m.x = w / 2; m.y = h / 2;
+                } else if (newMode === 'oprec') {
+                    m.scale = Math.min(720 / m.width, 860 / m.height);
+                    m.x = w * 0.72; m.y = h * 0.72;
+                } else {
+                    m.scale = Math.max(600 / m.width, 600 / m.height);
+                    m.x = w / 2; m.y = h * 0.515;
+                }
+            }
+            if (appState.agencyLayer) {
+                const isOprec = newMode === 'oprec';
+                appState.agencyLayer.x = isOprec ? 210 : 175;
+                appState.agencyLayer.y = isOprec ? 125 : h - 105;
+            }
+            if (appState.appLayer) {
+                appState.appLayer.x = w - 122;
+                appState.appLayer.y = newMode === 'reels' ? 165 : 120;
+            }
+
+            ['feed', 'reels', 'oprec'].forEach(m => {
+                const active = newMode === m;
+                const dBtn = document.getElementById(`tab-desk-${m}`);
+                const mBtn = document.getElementById(`tab-mob-${m}`);
+                if (dBtn) dBtn.className = active
+                    ? 'px-3.5 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-crimson text-white shadow-sm'
+                    : 'px-3.5 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 text-charcoal hover:bg-gray-100';
+                if (mBtn) mBtn.className = active
+                    ? 'px-3 py-1 rounded-full text-[11px] font-bold transition flex items-center gap-1 bg-crimson text-white shadow-sm'
+                    : 'px-3 py-1 rounded-full text-[11px] font-bold transition flex items-center gap-1 bg-white text-charcoal border border-gray-200';
+            });
+
             redrawCanvas();
         }
 
-        function updateTextSettings() {
-            appState.settings.headline = document.getElementById('inp-headline').value;
-            appState.settings.giantWord = document.getElementById('inp-giant-word').value;
-            appState.settings.topTag = document.getElementById('inp-top-tag').value;
-            appState.settings.subtitle = document.getElementById('inp-subtitle').value;
-            appState.settings.watermark = document.getElementById('inp-watermark').value;
-            appState.settings.textBehindSubject = document.getElementById('chk-3d-behind').checked;
-            persistSettings();
-            redrawCanvas();
-        }
-
-        function selectPalette(paletteId) {
-            appState.settings.paletteId = paletteId;
-            persistSettings();
-            renderPaletteButtons();
-            redrawCanvas();
-        }
-
-        function updateThemeDecor() {
-            appState.settings.showDecorFrame = document.getElementById('chk-decor-frame').checked;
-            persistSettings();
-            redrawCanvas();
+        function switchSideTab(tabName) {
+            ['media', 'text', 'style'].forEach(t => {
+                const active = t === tabName;
+                const btn = document.getElementById(`sidetab-${t}`);
+                const panel = document.getElementById(`panel-${t}`);
+                if (btn) btn.className = active
+                    ? 'py-2.5 text-xs font-extrabold border-b-2 border-crimson text-crimson transition flex items-center justify-center gap-1.5'
+                    : 'py-2.5 text-xs font-extrabold border-b-2 border-transparent text-gray-500 hover:text-charcoal transition flex items-center justify-center gap-1.5';
+                if (panel) panel.classList.toggle('hidden', !active);
+            });
         }
 
         function renderPaletteButtons() {
             const container = document.getElementById('palette-grid');
             if (!container) return;
-
             container.innerHTML = Object.entries(PALETTES).map(([id, pal]) => {
                 const active = appState.settings.paletteId === id;
                 return `
-                    <button onclick="selectPalette('${id}')" class="p-2.5 rounded-2xl border text-left transition flex items-center gap-2.5 ${active ? 'border-wine bg-wine/10 ring-1 ring-wine' : 'border-gold/35 bg-white hover:bg-gold/10'}">
-                        <span class="w-8 h-8 rounded-xl shrink-0 border border-black/15 shadow-inner flex items-center justify-center font-headline font-bold text-xs" style="background: linear-gradient(135deg, ${pal.bgTop}, ${pal.bgBottom}); color: ${pal.accent};">S</span>
-                        <span class="text-[11px] font-bold text-navy leading-tight">${pal.name}</span>
+                    <button onclick="selectPalette('${id}')" class="p-2.5 rounded-xl border text-left transition flex items-center gap-2 ${active ? 'border-crimson bg-crimson/10 ring-1 ring-crimson' : 'border-gray-200 bg-cream/40 hover:bg-gray-50'}">
+                        <span class="w-6 h-6 rounded-lg shrink-0 border border-black/15" style="background: linear-gradient(135deg, ${pal.bgTop}, ${pal.ribbonMain});"></span>
+                        <span class="text-[11px] font-bold text-charcoal leading-tight">${pal.name}</span>
                     </button>
                 `;
             }).join('');
         }
 
-        function updateUIControls() {
-            const count = appState.photos.length;
-            const badge = document.getElementById('photo-count-badge');
-            if (badge) {
-                badge.textContent = `${count} Foto`;
-                badge.classList.toggle('hidden', count === 0);
-            }
+        function selectPalette(id) {
+            appState.settings.paletteId = id;
+            saveSettings();
+            renderPaletteButtons();
+            redrawCanvas();
+        }
 
-            const hint = document.getElementById('gesture-hint-pill');
-            if (hint) {
-                hint.classList.toggle('hidden', count === 0);
-            }
+        function toggleHalftonePattern() {
+            appState.settings.showHalftone = document.getElementById('chk-halftone').checked;
+            saveSettings();
+            redrawCanvas();
+        }
 
-            const miniBar = document.getElementById('photo-mini-toolbar');
-            const selected = appState.photos.find(p => p.id === appState.selectedId);
-            if (miniBar) {
-                if (selected) {
-                    miniBar.classList.remove('hidden');
-                    const cutBtn = document.getElementById('btn-toggle-cutout');
-                    const frmBtn = document.getElementById('btn-toggle-frame');
-                    if (cutBtn) {
-                        cutBtn.className = selected.useCutout
-                            ? 'px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap bg-gold text-navy'
-                            : 'px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap hover:bg-white/15 text-pearl';
-                    }
-                    if (frmBtn) {
-                        frmBtn.className = selected.hasFrame
-                            ? 'px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap bg-gold text-navy'
-                            : 'px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 transition whitespace-nowrap hover:bg-white/15 text-pearl';
-                    }
-                } else {
-                    miniBar.classList.add('hidden');
-                }
-            }
+        function toggleRibbonVisibility() {
+            appState.settings.showRibbon = document.getElementById('chk-ribbon').checked;
+            saveSettings();
+            redrawCanvas();
+        }
+
+        function updateTextSettings() {
+            const s = appState.settings;
+            s.appTitle = document.getElementById('inp-app-title').value;
+            s.talentId = document.getElementById('inp-talent-id').value;
+            s.talentName = document.getElementById('inp-talent-name').value;
+            s.ribbonText = document.getElementById('inp-ribbon-text').value;
+            s.oprecHeadline = document.getElementById('inp-oprec-headline').value;
+            s.oprecRole = document.getElementById('inp-oprec-role').value;
+            s.oprecBenefits = document.getElementById('inp-oprec-benefits').value;
+            s.oprecContact = document.getElementById('inp-oprec-contact').value;
+            saveSettings();
+            redrawCanvas();
         }
 
         /* ============================================================================
-           8. HIGH-RES 1080x1920 EXPORT (PNG & JPG)
+           7. HD EXPORT & TRANSPARENT REELS OVERLAY EXPORT
            ============================================================================ */
         function openExportModal() {
-            closeAllDrawers();
-            const exportCanvas = document.createElement('canvas');
-            exportCanvas.width = COVER_W;
-            exportCanvas.height = COVER_H;
+            const { w, h } = getCanvasDimensions();
+            const exportCvs = document.createElement('canvas');
+            exportCvs.width = w;
+            exportCvs.height = h;
+            renderScene(exportCvs.getContext('2d'), false, false);
 
-            // Render clean cover without selection bounding box or snap lines
-            renderCover(exportCanvas.getContext('2d'), false);
+            appState.exportPng = exportCvs.toDataURL('image/png', 1.0);
+            appState.exportJpg = exportCvs.toDataURL('image/jpeg', 0.96);
 
-            appState.exportDataUrlPng = exportCanvas.toDataURL('image/png', 1.0);
-            appState.exportDataUrlJpg = exportCanvas.toDataURL('image/jpeg', 0.96);
+            document.getElementById('export-modal-title').textContent = `Hasil HD (${w} × ${h})`;
+            document.getElementById('export-preview-img').src = appState.exportPng;
 
-            const previewImg = document.getElementById('export-preview-img');
-            if (previewImg) previewImg.src = appState.exportDataUrlPng;
+            const reelsOverlayBtn = document.getElementById('btn-export-reels-overlay');
+            if (reelsOverlayBtn) {
+                reelsOverlayBtn.classList.toggle('hidden', appState.settings.mode !== 'reels');
+                reelsOverlayBtn.classList.toggle('flex', appState.settings.mode === 'reels');
+            }
 
             const modal = document.getElementById('export-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function closeExportModal() {
             const modal = document.getElementById('export-modal');
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
-        function downloadExportedFile(format) {
-            const dataUrl = format === 'jpg' ? appState.exportDataUrlJpg : appState.exportDataUrlPng;
-            if (!dataUrl) return;
-            const slug = (appState.settings.headline || 'cover').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        function downloadExportedFile(fmt) {
+            const url = fmt === 'jpg' ? appState.exportJpg : appState.exportPng;
+            if (!url) return;
+            const { w, h } = getCanvasDimensions();
             const link = document.createElement('a');
-            link.download = `THE-STYLE-EDIT-${slug}-1080x1920.${format}`;
-            link.href = dataUrl;
+            link.download = `LALUCIENNE-${appState.settings.mode.toUpperCase()}-${w}x${h}.${fmt}`;
+            link.href = url;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast(`Cover ${format.toUpperCase()} 1080×1920 diunduh!`);
+            showToast(`File ${fmt.toUpperCase()} HD diunduh!`);
+        }
+
+        function downloadReelsTransparentOverlay() {
+            const overlayCvs = document.createElement('canvas');
+            overlayCvs.width = 1080;
+            overlayCvs.height = 1920;
+            renderScene(overlayCvs.getContext('2d'), false, true);
+
+            const link = document.createElement('a');
+            link.download = `LALUCIENNE-REELS-OVERLAY-TRANSPARAN-1080x1920.png`;
+            link.href = overlayCvs.toDataURL('image/png', 1.0);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Bingkai Reels Transparan (PNG) diunduh! Siap tempel di CapCut/IG.');
         }
 
         function showToast(msg) {
             const box = document.getElementById('toast-box');
             if (!box) return;
             const el = document.createElement('div');
-            el.className = 'bg-navy/95 text-pearl px-3.5 py-2 rounded-full shadow-lg border border-gold/50 text-[11px] font-semibold flex items-center gap-2 transition-opacity';
-            el.innerHTML = `<span class="w-2 h-2 rounded-full bg-gold shrink-0"></span><span>${msg}</span>`;
+            el.className = 'bg-charcoal/95 text-white px-4 py-2 rounded-full shadow-lg border border-goldAccent/50 text-xs font-semibold flex items-center gap-2 transition-opacity';
+            el.innerHTML = `<span class="w-2 h-2 rounded-full bg-goldAccent shrink-0"></span><span>${msg}</span>`;
             box.appendChild(el);
             setTimeout(() => {
                 el.style.opacity = '0';
@@ -1751,25 +2177,30 @@
         }
 
         /* ============================================================================
-           9. INITIALIZE APP ON WINDOW LOAD
+           8. INITIALIZE APPLICATION
            ============================================================================ */
         window.onload = function () {
             lucide.createIcons();
+            updateDeviceHint();
 
-            // Hydrate saved signature cover settings into form controls
             const s = appState.settings;
-            document.getElementById('inp-headline').value = s.headline;
-            document.getElementById('inp-giant-word').value = s.giantWord;
-            document.getElementById('inp-top-tag').value = s.topTag;
-            document.getElementById('inp-subtitle').value = s.subtitle;
-            document.getElementById('inp-watermark').value = s.watermark;
-            document.getElementById('chk-3d-behind').checked = s.textBehindSubject;
-            document.getElementById('chk-decor-frame').checked = s.showDecorFrame;
+            document.getElementById('inp-app-title').value = s.appTitle;
+            document.getElementById('inp-talent-id').value = s.talentId;
+            document.getElementById('inp-talent-name').value = s.talentName;
+            document.getElementById('inp-ribbon-text').value = s.ribbonText;
+            document.getElementById('inp-oprec-headline').value = s.oprecHeadline;
+            document.getElementById('inp-oprec-role').value = s.oprecRole;
+            document.getElementById('inp-oprec-benefits').value = s.oprecBenefits;
+            document.getElementById('inp-oprec-contact').value = s.oprecContact;
+            document.getElementById('chk-halftone').checked = s.showHalftone;
+            document.getElementById('chk-ribbon').checked = s.showRibbon;
 
             renderPaletteButtons();
-            updateUIControls();
-            setupCanvaTouchGestures();
-            redrawCanvas();
+            switchSideTab('media');
+            setupCanvasInteractions();
+            loadLogosFromBrowser();
+            switchMode(s.mode);
+            syncControlStates();
         };
     </script>
 </body>
