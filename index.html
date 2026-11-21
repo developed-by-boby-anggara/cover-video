@@ -382,6 +382,20 @@
                         <div>
                             <label class="block text-[10px] font-bold uppercase text-gray-600 mb-1">Kontak Pendaftaran (WA / IG)</label>
                             <input type="text" id="inp-oprec-contact" oninput="updateTextSettings()" class="w-full bg-cream/60 border border-gray-300 rounded-xl px-3 py-2 text-xs font-bold text-charcoal focus:outline-none focus:border-crimson">
+                       <div class="grid grid-cols-2 gap-2.5 pt-2 border-t border-gray-100">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-gray-600 mb-1">Warna Tulisan Benefit</label>
+                                <div class="flex items-center gap-2 bg-cream/60 border border-gray-300 rounded-xl px-2.5 py-1.5">
+                                    <input type="color" id="inp-oprec-color" value="#232326" oninput="updateTextSettings()" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent">
+                                    <span id="lbl-oprec-color" class="text-[11px] font-bold text-charcoal uppercase">#232326</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col justify-end">
+                                <button onclick="selectLayerByType('oprecCard')" class="h-[38px] px-3 rounded-xl bg-charcoal hover:bg-crimson text-white text-[11px] font-bold transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="move" class="w-3.5 h-3.5 text-goldAccent"></i>
+                                    <span>Geser Kotak Benefit</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -558,8 +572,10 @@
             oprecHeadline: 'OPEN RECRUITMENT',
             oprecRole: 'HOST LIVE STREAMING OFFICIAL',
             oprecBenefits: '• Gaji Pokok + Bonus Target Harian/Bulanan\n• Bimbingan & Training Gratis Sampai Bisa\n• Kerja Fleksibel dari Rumah (WFH)\n• Wanita / Pria Percaya Diri & Komunikatif\n• Tanpa Pengalaman Dipersilakan Melamar',
-            oprecContact: 'DM IG: @laluciennemanagement  •  WA: 0812-3456-7890'
-        };
+           oprecBenefitColor: '#232326',
+            oprecCardBg: 'rgba(255, 255, 255, 0.93)',
+            oprecCardX: 540,
+            oprecCardY: 845,
 
         function loadSettings() {
             try {
@@ -923,6 +939,10 @@ function saveLogosToBrowser() {
                     document.getElementById('inp-oprec-role').value = appState.settings.oprecRole || '';
                     document.getElementById('inp-oprec-benefits').value = appState.settings.oprecBenefits || '';
                     document.getElementById('inp-oprec-contact').value = appState.settings.oprecContact || '';
+                    if (document.getElementById('inp-oprec-color')) {
+                        document.getElementById('inp-oprec-color').value = appState.settings.oprecBenefitColor || '#232326';
+                        document.getElementById('lbl-oprec-color').textContent = (appState.settings.oprecBenefitColor || '#232326').toUpperCase();
+                    }
                     document.getElementById('chk-halftone').checked = !!appState.settings.showHalftone;
                     document.getElementById('chk-ribbon').checked = !!appState.settings.showRibbon;
                     renderPaletteButtons();
@@ -1212,6 +1232,28 @@ function saveLogosToBrowser() {
                     h: ap.canvas.height * ap.scale,
                     rotation: ap.rotation,
                     obj: ap
+                };
+            }
+            if (layerKey === 'oprecCard' && appState.settings.mode === 'oprec') {
+                const s = appState.settings;
+                return {
+                    sprite: null,
+                    isVirtualBox: true,
+                    x: s.oprecCardX ?? 540,
+                    y: s.oprecCardY ?? 845,
+                    w: 984 * (s.oprecCardScale ?? 1),
+                    h: 640 * (s.oprecCardScale ?? 1),
+                    rotation: 0,
+                    obj: {
+                        get x() { return appState.settings.oprecCardX ?? 540; },
+                        set x(v) { appState.settings.oprecCardX = v; saveSettings(); },
+                        get y() { return appState.settings.oprecCardY ?? 845; },
+                        set y(v) { appState.settings.oprecCardY = v; saveSettings(); },
+                        get scale() { return appState.settings.oprecCardScale ?? 1; },
+                        set scale(v) { appState.settings.oprecCardScale = v; saveSettings(); },
+                        get rotation() { return 0; },
+                        set rotation(_) {}
+                    }
                 };
             }
             return null;
@@ -1544,14 +1586,24 @@ function saveLogosToBrowser() {
             ctx.font = '800 42px Montserrat, sans-serif';
             ctx.fillText((cfg.oprecRole || 'HOST LIVE STREAMING').toUpperCase(), 50, 468, w - 100);
             ctx.restore();
+            // Benefits Card (Bisa digeser, di-resize, dan diganti warna tulisannya!)
+            const cScale = cfg.oprecCardScale ?? 1;
+            const cCenterX = cfg.oprecCardX ?? (w / 2);
+            const cCenterY = cfg.oprecCardY ?? 845;
+            const cardW = 984;
+            const cardH = 640;
 
-            // Benefits Card
-            const cardX = 48, cardY = 525, cardW = w - 96, cardH = 640;
             ctx.save();
+            ctx.translate(cCenterX, cCenterY);
+            ctx.scale(cScale, cScale);
+
+            const cardX = -cardW / 2;
+            const cardY = -cardH / 2;
+
             ctx.shadowColor = 'rgba(0,0,0,0.10)';
             ctx.shadowBlur = 24;
             ctx.shadowOffsetY = 8;
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.93)';
+            ctx.fillStyle = cfg.oprecCardBg || 'rgba(255, 255, 255, 0.93)';
             ctx.beginPath();
             ctx.roundRect(cardX, cardY, cardW, cardH, 34);
             ctx.fill();
@@ -1571,7 +1623,7 @@ function saveLogosToBrowser() {
             ctx.fillText('BENEFIT & KUALIFIKASI', cardX + 202, cardY + 55);
 
             const lines = (cfg.oprecBenefits || '').split('\n').filter(l => l.trim());
-            ctx.fillStyle = '#232326';
+            ctx.fillStyle = cfg.oprecBenefitColor || '#232326';
             ctx.font = '700 31px Montserrat, sans-serif';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
@@ -1579,7 +1631,6 @@ function saveLogosToBrowser() {
                 ctx.fillText(line.trim(), cardX + 36, cardY + 116 + idx * 70, cardW - 72);
             });
             ctx.restore();
-
             // Optional Talent Cutout Photo on Bottom-Right
             drawSpriteLayer(ctx, getLayerRenderInfo('media'), false);
 
@@ -1715,7 +1766,9 @@ function saveLogosToBrowser() {
 
             function hitTestLayerOrder(pt) {
                 // Topmost layers first: app -> agency -> media
-                const order = ['app', 'agency', 'media'];
+               const order = appState.settings.mode === 'oprec'
+                    ? ['app', 'agency', 'oprecCard', 'media']
+                    : ['app', 'agency', 'media'];
                 for (const key of order) {
                     const info = getLayerRenderInfo(key);
                     if (!info) continue;
@@ -1981,8 +2034,12 @@ function saveLogosToBrowser() {
                 ap.scale = Math.min(165 / ap.canvas.width, 165 / ap.canvas.height);
                 ap.x = w - 122;
                 ap.y = mode === 'reels' ? 165 : 120;
+            } else if (key === 'oprecCard') {
+                appState.settings.oprecCardX = 540;
+                appState.settings.oprecCardY = 845;
+                appState.settings.oprecCardScale = 1;
+                saveSettings();
             }
-
             syncSlidersOnly();
             redrawCanvas();
         }
@@ -2015,7 +2072,8 @@ function saveLogosToBrowser() {
             const names = {
                 media: 'Aktif: Foto / Video',
                 agency: 'Aktif: Logo Agency',
-                app: 'Aktif: Logo Aplikasi'
+                app: 'Aktif: Logo Aplikasi',
+                oprecCard: 'Aktif: Kotak Benefit'
             };
 
             if (info && key) {
@@ -2178,6 +2236,12 @@ function saveLogosToBrowser() {
             s.oprecRole = document.getElementById('inp-oprec-role').value;
             s.oprecBenefits = document.getElementById('inp-oprec-benefits').value;
             s.oprecContact = document.getElementById('inp-oprec-contact').value;
+            const colInp = document.getElementById('inp-oprec-color');
+            if (colInp) {
+                s.oprecBenefitColor = colInp.value;
+                const lbl = document.getElementById('lbl-oprec-color');
+                if (lbl) lbl.textContent = colInp.value.toUpperCase();
+            }
             saveSettings();
             redrawCanvas();
         }
@@ -2272,6 +2336,10 @@ function saveLogosToBrowser() {
             document.getElementById('inp-oprec-role').value = s.oprecRole;
             document.getElementById('inp-oprec-benefits').value = s.oprecBenefits;
             document.getElementById('inp-oprec-contact').value = s.oprecContact;
+            if (document.getElementById('inp-oprec-color')) {
+                document.getElementById('inp-oprec-color').value = appState.settings.oprecBenefitColor || '#232326';
+                document.getElementById('lbl-oprec-color').textContent = (appState.settings.oprecBenefitColor || '#232326').toUpperCase();
+            }
             document.getElementById('chk-halftone').checked = s.showHalftone;
             document.getElementById('chk-ribbon').checked = s.showRibbon;
 
