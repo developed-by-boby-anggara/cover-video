@@ -644,6 +644,17 @@ const firebaseConfig = {
                         appLogoDataUrl: appState.appLayer?.canvas
                             ? compressCanvasForCloud(appState.appLayer.canvas)
                             : null,
+                        talentPhotoDataUrl: (appState.mediaLayer?.type === 'image' && appState.mediaLayer?.source)
+                            ? (() => {
+                                const src = appState.mediaLayer.source;
+                                const ratio = Math.min(1, 800 / Math.max(src.width, src.height));
+                                const tmp = document.createElement('canvas');
+                                tmp.width = Math.round(src.width * ratio);
+                                tmp.height = Math.round(src.height * ratio);
+                                tmp.getContext('2d').drawImage(src, 0, 0, tmp.width, tmp.height);
+                                return tmp.toDataURL('image/jpeg', 0.78);
+                            })()
+                            : null,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     }, { merge: true });
                 } catch (err) {
@@ -954,6 +965,42 @@ function saveLogosToBrowser() {
 
                 if (data.agencyLogoDataUrl) applyAgencyImg(data.agencyLogoDataUrl);
                 if (data.appLogoDataUrl) applyAppImg(data.appLogoDataUrl);
+                if (data.talentPhotoDataUrl) {
+                    const tImg = new Image();
+                    tImg.onload = async () => {
+                        const cvs = document.createElement('canvas');
+                        cvs.width = tImg.naturalWidth || tImg.width;
+                        cvs.height = tImg.naturalHeight || tImg.height;
+                        cvs.getContext('2d').drawImage(tImg, 0, 0);
+                        const { w, h } = getCanvasDimensions();
+                        const mode = appState.settings.mode;
+                        const scale = mode === 'reels'
+                            ? Math.max(w / cvs.width, h / cvs.height)
+                            : mode === 'oprec'
+                                ? Math.min(720 / cvs.width, 860 / cvs.height)
+                                : Math.max(600 / cvs.width, 600 / cvs.height);
+                        appState.mediaLayer = {
+                            type: 'image',
+                            source: cvs,
+                            cutoutSource: cvs,
+                            useCutout: mode === 'oprec',
+                            x: mode === 'oprec' ? w * 0.72 : w * 0.5,
+                            y: mode === 'feed' ? h * 0.515 : mode === 'oprec' ? h * 0.72 : h * 0.5,
+                            scale,
+                            rotation: 0,
+                            width: cvs.width,
+                            height: cvs.height
+                        };
+                        syncControlStates();
+                        redrawCanvas();
+                        const cut = await cutPersonBackground(cvs);
+                        if (appState.mediaLayer && appState.mediaLayer.source === cvs) {
+                            appState.mediaLayer.cutoutSource = cut;
+                            redrawCanvas();
+                        }
+                    };
+                    tImg.src = data.talentPhotoDataUrl;
+                }
                 showToast("Tersinkronisasi dengan Firebase Cloud!");
             } catch (err) {
                 console.warn("Gagal memuat dari Firebase:", err);
@@ -1060,6 +1107,7 @@ function saveLogosToBrowser() {
                     appState.mediaLayer.cutoutSource = cut;
                     redrawCanvas();
                 }
+                saveSettings();
                 showToast('Foto terpasang! Klik & geser untuk mengatur posisi.');
             } catch (err) {
                 console.error(err);
