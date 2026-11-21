@@ -35,6 +35,9 @@
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <!-- MediaPipe Selfie Segmentation for Person Cutout -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
@@ -86,6 +89,7 @@
             cursor: pointer;
         }
     </style>
+    
 </head>
 <body class="flex flex-col h-[100dvh] overflow-hidden select-none">
 
@@ -565,13 +569,69 @@
                 return { ...DEFAULT_SETTINGS };
             }
         }
+const firebaseConfig = {
+            apiKey: "AIzaSyBBrKx_IzdiJeWCtcDCvnu96sHP1As-Jkk",
+            authDomain: "lalucienne-698c6.firebaseapp.com",
+            projectId: "lalucienne-698c6",
+            storageBucket: "lalucienne-698c6.firebasestorage.app",
+            messagingSenderId: "515248242500",
+            appId: "1:515248242500:web:45c9e6c673f10b036f6111",
+            measurementId: "G-6RQQ4GZE5T"
+        };
+
+        let db = null;
+        try {
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch (err) {
+            console.warn("Firebase fallback ke localStorage:", err);
+        }
+
+        let cloudSaveTimer = null;
+
+        function compressCanvasForCloud(cvs, maxSide = 650) {
+            const ratio = Math.min(1, maxSide / Math.max(cvs.width, cvs.height));
+            const tmp = document.createElement('canvas');
+            tmp.width = Math.max(16, Math.round(cvs.width * ratio));
+            tmp.height = Math.max(16, Math.round(cvs.height * ratio));
+            tmp.getContext('2d').drawImage(cvs, 0, 0, tmp.width, tmp.height);
+            return tmp.toDataURL('image/png');
+        }
 
         function saveSettings() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appState.settings));
+                if (appState.agencyLayer?.rawCanvas) {
+                    localStorage.setItem(AGENCY_LOGO_KEY, compressCanvasForCloud(appState.agencyLayer.rawCanvas));
+                } else {
+                    localStorage.removeItem(AGENCY_LOGO_KEY);
+                }
+                if (appState.appLayer?.canvas) {
+                    localStorage.setItem(APP_LOGO_KEY, compressCanvasForCloud(appState.appLayer.canvas));
+                } else {
+                    localStorage.removeItem(APP_LOGO_KEY);
+                }
             } catch (_) {}
-        }
 
+            if (!db) return;
+            clearTimeout(cloudSaveTimer);
+            cloudSaveTimer = setTimeout(async () => {
+                try {
+                    await db.collection("lalucienne_studio").doc("default_workspace").set({
+                        settings: appState.settings,
+                        agencyLogoDataUrl: appState.agencyLayer?.rawCanvas
+                            ? compressCanvasForCloud(appState.agencyLayer.rawCanvas)
+                            : null,
+                        appLogoDataUrl: appState.appLayer?.canvas
+                            ? compressCanvasForCloud(appState.appLayer.canvas)
+                            : null,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                } catch (err) {
+                    console.warn("Gagal simpan ke Firebase:", err);
+                }
+            }, 800);
+        }
         /* Independent Transformable Layers so User Can Move & Resize Each One Freely */
         const appState = {
             settings: loadSettings(),
@@ -789,72 +849,93 @@
                 return buildCleanLogoCutout(origCanvas);
             }
         }
-
-        function saveLogosToBrowser() {
-            try {
-                if (appState.agencyLayer?.rawCanvas) {
-                    localStorage.setItem(AGENCY_LOGO_KEY, appState.agencyLayer.rawCanvas.toDataURL('image/png'));
-                } else {
-                    localStorage.removeItem(AGENCY_LOGO_KEY);
-                }
-                if (appState.appLayer?.canvas) {
-                    localStorage.setItem(APP_LOGO_KEY, appState.appLayer.canvas.toDataURL('image/png'));
-                } else {
-                    localStorage.removeItem(APP_LOGO_KEY);
-                }
-            } catch (_) {}
+function saveLogosToBrowser() {
+            saveSettings();
         }
 
-        function loadLogosFromBrowser() {
-            const { w, h } = getCanvasDimensions();
+        async function loadLogosFromBrowser() {
+            const applyAgencyImg = (dataUrl) => {
+                if (!dataUrl) return;
+                const img = new Image();
+                img.onload = () => {
+                    const cvs = document.createElement('canvas');
+                    cvs.width = img.naturalWidth || img.width;
+                    cvs.height = img.naturalHeight || img.height;
+                    cvs.getContext('2d').drawImage(img, 0, 0);
+                    const { h } = getCanvasDimensions();
+                    const isOprec = appState.settings.mode === 'oprec';
+                    const fitScale = Math.min((isOprec ? 340 : 270) / cvs.width, (isOprec ? 190 : 165) / cvs.height);
+                    appState.agencyLayer = {
+                        rawCanvas: cvs,
+                        cutCanvas: buildCleanLogoCutout(cvs),
+                        x: isOprec ? 210 : 175,
+                        y: isOprec ? 125 : h - 105,
+                        scale: fitScale,
+                        rotation: 0
+                    };
+                    syncControlStates();
+                    redrawCanvas();
+                };
+                img.src = dataUrl;
+            };
+
+            const applyAppImg = (dataUrl) => {
+                if (!dataUrl) return;
+                const img = new Image();
+                img.onload = () => {
+                    const cvs = document.createElement('canvas');
+                    cvs.width = img.naturalWidth || img.width;
+                    cvs.height = img.naturalHeight || img.height;
+                    cvs.getContext('2d').drawImage(img, 0, 0);
+                    const { w } = getCanvasDimensions();
+                    const fitScale = Math.min(165 / cvs.width, 165 / cvs.height);
+                    appState.appLayer = {
+                        canvas: cvs,
+                        x: w - 122,
+                        y: appState.settings.mode === 'reels' ? 165 : 120,
+                        scale: fitScale,
+                        rotation: 0
+                    };
+                    syncControlStates();
+                    redrawCanvas();
+                };
+                img.src = dataUrl;
+            };
+
             try {
-                const agUrl = localStorage.getItem(AGENCY_LOGO_KEY);
-                if (agUrl) {
-                    const img = new Image();
-                    img.onload = () => {
-                        const cvs = document.createElement('canvas');
-                        cvs.width = img.naturalWidth || img.width;
-                        cvs.height = img.naturalHeight || img.height;
-                        cvs.getContext('2d').drawImage(img, 0, 0);
-                        const fitScale = Math.min(270 / cvs.width, 165 / cvs.height);
-                        appState.agencyLayer = {
-                            rawCanvas: cvs,
-                            cutCanvas: buildCleanLogoCutout(cvs),
-                            x: 175,
-                            y: h - 105,
-                            scale: fitScale,
-                            rotation: 0
-                        };
-                        syncControlStates();
-                        redrawCanvas();
-                    };
-                    img.src = agUrl;
-                }
-
-                const appUrl = localStorage.getItem(APP_LOGO_KEY);
-                if (appUrl) {
-                    const img = new Image();
-                    img.onload = () => {
-                        const cvs = document.createElement('canvas');
-                        cvs.width = img.naturalWidth || img.width;
-                        cvs.height = img.naturalHeight || img.height;
-                        cvs.getContext('2d').drawImage(img, 0, 0);
-                        const fitScale = Math.min(165 / cvs.width, 165 / cvs.height);
-                        appState.appLayer = {
-                            canvas: cvs,
-                            x: w - 122,
-                            y: 120,
-                            scale: fitScale,
-                            rotation: 0
-                        };
-                        syncControlStates();
-                        redrawCanvas();
-                    };
-                    img.src = appUrl;
-                }
+                applyAgencyImg(localStorage.getItem(AGENCY_LOGO_KEY));
+                applyAppImg(localStorage.getItem(APP_LOGO_KEY));
             } catch (_) {}
-        }
 
+            if (!db) return;
+            try {
+                const snap = await db.collection("lalucienne_studio").doc("default_workspace").get();
+                if (!snap.exists) return;
+                const data = snap.data();
+
+                if (data.settings) {
+                    appState.settings = { ...DEFAULT_SETTINGS, ...data.settings };
+                    document.getElementById('inp-app-title').value = appState.settings.appTitle || '';
+                    document.getElementById('inp-talent-id').value = appState.settings.talentId || '';
+                    document.getElementById('inp-talent-name').value = appState.settings.talentName || '';
+                    document.getElementById('inp-ribbon-text').value = appState.settings.ribbonText || '';
+                    document.getElementById('inp-oprec-headline').value = appState.settings.oprecHeadline || '';
+                    document.getElementById('inp-oprec-role').value = appState.settings.oprecRole || '';
+                    document.getElementById('inp-oprec-benefits').value = appState.settings.oprecBenefits || '';
+                    document.getElementById('inp-oprec-contact').value = appState.settings.oprecContact || '';
+                    document.getElementById('chk-halftone').checked = !!appState.settings.showHalftone;
+                    document.getElementById('chk-ribbon').checked = !!appState.settings.showRibbon;
+                    renderPaletteButtons();
+                    switchMode(appState.settings.mode, false);
+                }
+
+                if (data.agencyLogoDataUrl) applyAgencyImg(data.agencyLogoDataUrl);
+                if (data.appLogoDataUrl) applyAppImg(data.appLogoDataUrl);
+                showToast("Tersinkronisasi dengan Firebase Cloud!");
+            } catch (err) {
+                console.warn("Gagal memuat dari Firebase:", err);
+            }
+        }
         /* ============================================================================
            3. UPLOAD HANDLERS (TALENT PHOTO/VIDEO, LOGO AGENCY, LOGO APP)
            ============================================================================ */
@@ -1980,10 +2061,9 @@
             const appAct = document.getElementById('app-logo-actions');
             if (appAct) appAct.classList.toggle('hidden', !appState.appLayer);
         }
-
-        function switchMode(newMode) {
+            function switchMode(newMode, shouldSave = true) {
             appState.settings.mode = newMode;
-            saveSettings();
+            if (shouldSave) saveSettings();
 
             const shell = document.getElementById('canvas-shell');
             if (shell) {
