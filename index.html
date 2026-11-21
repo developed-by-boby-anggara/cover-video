@@ -213,7 +213,6 @@
 
                 <!-- Device-Aware Instruction Pill (Automatically changes between PC Mouse vs Mobile Touch) -->
                 <div id="device-hint-pill" class="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 bg-charcoal/75 backdrop-blur-sm text-white px-3 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
-                    Klik elemen di kanvas untuk geser • Tarik titik sudut untuk ubah ukuran
                 </div>
             </div>
         </main>
@@ -688,9 +687,7 @@ const firebaseConfig = {
             const el = document.getElementById('device-hint-pill');
             if (!el) return;
             if (isTouchDevice()) {
-                el.textContent = 'Sentuh elemen untuk pilih • 1 Jari: Geser • 2 Jari: Cubit Zoom & Putar';
             } else {
-                el.textContent = 'PC: Klik & Geser • Tarik sudut untuk Resize • Scroll: Zoom • Panah Keyboard: Geser';
             }
         }
 
@@ -2145,7 +2142,7 @@ function saveLogosToBrowser() {
                     cutBtn.classList.remove('flex');
                 }
             } else {
-                badge.textContent = 'Klik Elemen di Kanvas';
+                badge.textContent = '';
                 actions.classList.add('hidden');
                 actions.classList.remove('flex');
                 slidersBox.classList.add('hidden');
